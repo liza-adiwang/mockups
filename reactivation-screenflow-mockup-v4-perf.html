@@ -205,13 +205,13 @@
                             <th>Subscription Status &#9662;</th>
                         </tr></thead>
                         <tbody>
-                            <tr class="row-not-eligible" onclick="pickAcct(this,'abn',1)" data-perf="Removed Due to ABN" data-eligible="false" data-substatus="Cancelled">
+                            <tr onclick="pickAcct(this,'abn',1)" data-perf="Removed Due to ABN" data-eligible="false" data-substatus="Cancelled">
                                 <td style="color:#444;">1</td><td><input type="radio" name="acct_abn" value="1"></td>
                                 <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td>
                                 <td>711923</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>15/09/25</td><td>20/11/25</td>
                                 <td>Cancelled</td>
                             </tr>
-                            <tr class="row-eligible" onclick="pickAcct(this,'abn',2)" data-perf="Redeemed" data-eligible="true" data-substatus="Cancelled">
+                            <tr onclick="pickAcct(this,'abn',2)" data-perf="Redeemed" data-eligible="true" data-substatus="Cancelled">
                                 <td style="color:#444;">2</td><td><input type="radio" name="acct_abn" value="2"></td>
                                 <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Services</a></td>
                                 <td>645853</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>03/03/24</td><td>15/06/24</td>
@@ -219,10 +219,6 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
-                <div class="eligibility-panel" id="eligPanel_abn">
-                    <h4><span id="eligName_abn"></span> <span id="eligBadge_abn"></span></h4>
-                    <ul class="eligibility-list" id="eligList_abn"></ul>
                 </div>
             </div>
 
@@ -249,13 +245,13 @@
                             <th>Subscription Status &#9662;</th>
                         </tr></thead>
                         <tbody>
-                            <tr class="row-not-eligible" onclick="pickAcct(this,'licence',1)" data-perf="Removed Due to Licence" data-eligible="false" data-substatus="Cancelled">
+                            <tr onclick="pickAcct(this,'licence',1)" data-perf="Removed Due to Licence" data-eligible="false" data-substatus="Cancelled">
                                 <td style="color:#444;">1</td><td><input type="radio" name="acct_lic" value="1"></td>
                                 <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell & Sons Plumbing</a></td>
                                 <td>698412</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>15/09/25</td><td>15/09/22</td>
                                 <td>Cancelled</td>
                             </tr>
-                            <tr class="row-eligible" onclick="pickAcct(this,'licence',2)" data-perf="Redeemed" data-eligible="true" data-substatus="Cancelled">
+                            <tr onclick="pickAcct(this,'licence',2)" data-perf="Redeemed" data-eligible="true" data-substatus="Cancelled">
                                 <td style="color:#444;">2</td><td><input type="radio" name="acct_lic" value="2"></td>
                                 <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td>
                                 <td>711923</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>03/03/24</td><td>20/11/25</td>
@@ -263,10 +259,6 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
-                <div class="eligibility-panel" id="eligPanel_licence">
-                    <h4><span id="eligName_licence"></span> <span id="eligBadge_licence"></span></h4>
-                    <ul class="eligibility-list" id="eligList_licence"></ul>
                 </div>
             </div>
 
@@ -293,13 +285,13 @@
                             <th>Subscription Status &#9662;</th>
                         </tr></thead>
                         <tbody>
-                            <tr class="row-not-eligible" onclick="pickAcct(this,'complaints',1)" data-perf="Banned - ID Check" data-eligible="false" data-substatus="Cancelled">
+                            <tr onclick="pickAcct(this,'complaints',1)" data-perf="Banned - ID Check" data-eligible="false" data-substatus="Cancelled">
                                 <td style="color:#444;">1</td><td><input type="radio" name="acct_comp" value="1"></td>
                                 <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">JM Plumbing</a></td>
                                 <td>724270</td><td>james@mitchellplumbing.com.au</td><td>0298 765 432</td><td>15/09/25</td><td>10/04/23</td>
                                 <td>Cancelled</td>
                             </tr>
-                            <tr class="row-eligible" onclick="pickAcct(this,'complaints',2)" data-perf="Redeemed" data-eligible="true" data-substatus="Cancelled">
+                            <tr onclick="pickAcct(this,'complaints',2)" data-perf="Redeemed" data-eligible="true" data-substatus="Cancelled">
                                 <td style="color:#444;">2</td><td><input type="radio" name="acct_comp" value="2"></td>
                                 <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td>
                                 <td>711923</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>03/03/24</td><td>20/11/25</td>
@@ -315,11 +307,6 @@
                     <a href="#" onclick="setComplaintStatus('Banned due to Complaints'); return false;" id="cv_complaints" style="color:#0176d3;">Banned due to Complaints</a> |
                     <a href="#" onclick="setComplaintStatus('Removed due to complaints'); return false;" id="cv_removed" style="color:#0176d3;">Removed due to complaints</a> |
                     <a href="#" onclick="setComplaintStatus('Removed - Unresolved Complaint'); return false;" id="cv_unresolved" style="color:#0176d3;">Removed - Unresolved Complaint</a>
-                </div>
-
-                <div class="eligibility-panel" id="eligPanel_complaints">
-                    <h4><span id="eligName_complaints"></span> <span id="eligBadge_complaints"></span></h4>
-                    <ul class="eligibility-list" id="eligList_complaints"></ul>
                 </div>
             </div>
 
@@ -384,8 +371,33 @@
     </div>
 </div>
 
-<!-- ==================== SCREEN 2: Error (1st failure) ==================== -->
+<!-- ==================== SCREEN 2: Fix Steps Required ==================== -->
 <div class="screen" id="s2">
+    <div class="modal" style="width:620px;">
+        <div class="modal-header">
+            <h2>Account Issues to Resolve</h2>
+            <button class="modal-close" onclick="closeFlow()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="margin-bottom:16px;">
+                <span style="font-size:13px; color:#444;">Account: </span>
+                <strong id="fixAcctName" style="font-size:14px; color:#181818;"></strong>
+                <span id="fixPerfBadge" style="margin-left:8px;"></span>
+            </div>
+            <p style="font-size:13px; color:#444; margin-bottom:16px;">The following steps are required to resolve issues on this account. These will be triggered automatically.</p>
+            <div id="fixStepsList" style="border:1px solid #e5e5e5; border-radius:6px; overflow:hidden;"></div>
+        </div>
+        <div class="modal-footer">
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="go(1)">Back</button>
+                <button class="btn btn-brand" onclick="goToSuccess()">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 3: Error (1st failure) ==================== -->
+<div class="screen" id="s3">
     <div class="modal" style="width:460px;">
         <div class="modal-header"><h2>Error Encountered</h2><button class="modal-close" onclick="closeFlow()">&times;</button></div>
         <div class="modal-body"><div style="text-align:center; padding:16px 0;"><p id="errorMessage" style="font-size:13px; color:#666;">The billing system did not respond in time. Please try again.</p></div></div>
@@ -393,8 +405,8 @@
     </div>
 </div>
 
-<!-- ==================== SCREEN 3: Blocked (2nd failure) ==================== -->
-<div class="screen" id="s3">
+<!-- ==================== SCREEN 4: Blocked (2nd failure) ==================== -->
+<div class="screen" id="s4">
     <div class="modal" style="width:460px;">
         <div class="modal-header"><h2>Error Encountered</h2><button class="modal-close" onclick="closeFlow()">&times;</button></div>
         <div class="modal-body"><div style="text-align:center; padding:16px 0;"><p style="font-size:13px; color:#666;">The action couldn't be completed. Please contact RevOps for help.</p></div></div>
@@ -402,8 +414,8 @@
     </div>
 </div>
 
-<!-- ==================== SCREEN 4: Success ==================== -->
-<div class="screen" id="s4">
+<!-- ==================== SCREEN 5: Success ==================== -->
+<div class="screen" id="s5">
     <div class="modal" style="width:580px;">
         <div class="modal-header"><h2>Conversion Complete</h2><button class="modal-close" onclick="closeFlow()">&times;</button></div>
         <div class="modal-body">
@@ -436,7 +448,6 @@
 
 <script>
     var currentScenario = 'abn';
-    var acknowledged = { abn: false, licence: false, complaints: false };
     var selectedRow = null;
     var selectedScenario = null;
     var selectedRowNum = null;
@@ -471,7 +482,6 @@
 
     function setScenario(type) {
         currentScenario = type;
-        acknowledged = { abn: false, licence: false, complaints: false };
         selectedRow = null;
         selectedScenario = null;
         selectedRowNum = null;
@@ -485,8 +495,6 @@
         // Reset selections
         document.querySelectorAll('.data-table tbody tr').forEach(function(r) { r.classList.remove('selected'); });
         document.querySelectorAll('.data-table input[type=radio]').forEach(function(r) { r.checked = false; });
-        document.querySelectorAll('.eligibility-panel').forEach(function(p) { p.classList.remove('show'); });
-
         updateConvertBtn();
     }
 
@@ -499,12 +507,6 @@
         Object.keys(complaintStatusMap).forEach(function(k) {
             document.getElementById(complaintStatusMap[k]).style.fontWeight = k === status ? '700' : '400';
         });
-        // Reset acknowledgment
-        acknowledged.complaints = false;
-        // Refresh panel if row 1 is selected
-        if (selectedScenario === 'complaints' && selectedRowNum === 1) {
-            showEligibilityPanel(selectedRow, 'complaints', 1);
-        }
         updateConvertBtn();
     }
 
@@ -517,114 +519,6 @@
         selectedScenario = scenario;
         selectedRowNum = rowNum;
 
-        showEligibilityPanel(row, scenario, rowNum);
-        updateConvertBtn();
-    }
-
-    function showEligibilityPanel(row, scenario, rowNum) {
-        var panel = document.getElementById('eligPanel_' + scenario);
-        var nameEl = document.getElementById('eligName_' + scenario);
-        var badgeEl = document.getElementById('eligBadge_' + scenario);
-        var listEl = document.getElementById('eligList_' + scenario);
-
-        var accountName = row.cells[2].textContent;
-        var perfStatus = row.dataset.perf;
-        var isEligible = row.dataset.eligible === 'true';
-        var perfPass = validPerformance.includes(perfStatus);
-        var isAcknowledged = acknowledged[scenario];
-
-        // Determine overall eligibility
-        var overallPass = perfPass;
-
-        nameEl.textContent = accountName + ' — Eligibility Checks';
-        badgeEl.innerHTML = overallPass
-            ? '<span class="badge badge-eligible">Eligible</span>'
-            : '<span class="badge badge-warning">Issues to Resolve</span>';
-
-        // Build checks list
-        var html = '';
-
-        // 1. Performance status
-        if (perfPass) {
-            html += checkRow(passIcon, 'Performance status compliant', perfStatus || '(blank)', '');
-        } else {
-            var actionHtml = buildPerfAction(scenario, perfStatus);
-            html += checkRow(failIcon, 'Performance status compliant', perfStatus, '', actionHtml);
-        }
-
-        // 2-5. All other checks pass in this version
-        html += checkRow(passIcon, 'Account is not at DC', 'Clear', '');
-        html += checkRow(passIcon, 'Less than 2 invoices outstanding', '0 invoice(s)', '');
-        html += checkRow(passIcon, 'No written-off outstanding debt', '$0.00', '');
-        html += checkRow(passIcon, 'Account is not frozen', 'Not frozen', '');
-
-        listEl.innerHTML = html;
-        panel.classList.add('show');
-
-    }
-
-    function checkRow(icon, label, value, btnHtml, detailHtml) {
-        var html = '<li>' + icon +
-            '<span class="check-label">' + label + '</span>' +
-            '<div class="check-right"><span class="check-value">' + value + '</span>' + (btnHtml || '') + '</div>' +
-            '</li>';
-        if (detailHtml) {
-            html += detailHtml;
-        }
-        return html;
-    }
-
-    function buildPerfAction(scenario, perfStatus) {
-        if (scenario === 'abn') {
-            return '<div style="padding:12px 16px; margin:0 0 4px; background:#fafafa; border:1px solid #e0e0e0; border-radius:6px; font-size:12px;">' +
-                '<div style="font-weight:700; margin-bottom:6px;">On conversion, the following will happen automatically:</div>' +
-                '<div style="margin-bottom:6px;"><strong>Lead ABN:</strong> 51 824 753 556 — Mitchell Plumbing Pty Ltd</div>' +
-                '<div style="color:#666;">The lead\'s ABN will be submitted for T&Q to review within 1 business day on conversion. The ABN will be synced to the Salesforce Account and Admin page with full details.</div>' +
-                '</div>';
-        }
-
-        var items = '';
-        if (scenario === 'licence') {
-            items = noticeItem('check', 'A "T&Q - Banned business review" case will be created') +
-                noticeItem('check', 'Email sent to Trust & Quality team (cc: Sales Managers)') +
-                noticeItem('clock', 'Licences will be verified within 1 business day');
-        } else if (scenario === 'complaints') {
-            items = noticeItem('check', 'A "T&Q - Banned business review" case will be created') +
-                noticeItem('check', 'Email sent to Trust & Quality team (cc: Sales Managers)') +
-                noticeItem('check', 'Auto-email sent to tradie notifying T&Q review') +
-                '<div style="margin:4px 0 8px 26px; padding:8px 12px; background:#f5f5f5; border-radius:4px; border-left:3px solid #ccc; font-size:11px; font-style:italic; color:#555;">' +
-                '"Thank you for your enquiry. Your account has been flagged as being managed by our Trust &amp; Quality team. We have now referred your request to the team who will be in touch with you within a week to advise if we can proceed with your account request."' +
-                '</div>' +
-                noticeItem('clock', 'T&Q team will review and respond within 1 business day');
-        }
-        return '<div style="padding:12px 16px; margin:0 0 4px; background:#fafafa; border:1px solid #e0e0e0; border-radius:6px; font-size:12px;">' +
-            '<div style="font-weight:700; font-size:12px; margin-bottom:8px;">On conversion, the following will happen automatically:</div>' +
-            items + '</div>';
-    }
-
-    function noticeItem(type, text) {
-        return '<div style="padding:2px 0 2px 16px; font-size:12px; position:relative;">' +
-            '<span style="position:absolute; left:0;">&#8226;</span>' + text + '</div>';
-    }
-
-    function acknowledge(scenario) {
-        acknowledged[scenario] = true;
-        if (selectedRow) {
-            selectedRow.classList.remove('row-not-eligible');
-            selectedRow.classList.add('row-eligible');
-        }
-        showEligibilityPanel(selectedRow, scenario, selectedRowNum);
-        updateConvertBtn();
-    }
-
-    function undoAcknowledge(scenario) {
-        acknowledged[scenario] = false;
-        // Revert row border back to red
-        if (selectedRow) {
-            selectedRow.classList.remove('row-eligible');
-            selectedRow.classList.add('row-not-eligible');
-        }
-        showEligibilityPanel(selectedRow, scenario, selectedRowNum);
         updateConvertBtn();
     }
 
@@ -644,32 +538,71 @@
         setTimeout(function() {
             overlay.classList.remove('active');
             var acctName = selectedRow.cells[2].textContent;
+            var perfStatus = selectedRow.dataset.perf;
+            var perfPass = validPerformance.includes(perfStatus);
+
+            // Set up success screen data
             document.getElementById('successAcctName').textContent = acctName;
 
-            var isProblemRow = selectedRowNum === 1;
-            var actionsHtml = '';
-            var showActions = false;
-
-            if (isProblemRow && currentScenario === 'abn') {
-                showActions = true;
-                actionsHtml += actionItem('ABN (51 824 753 556) verification will complete within 1 business day');
-            } else if (isProblemRow && currentScenario === 'licence') {
-                showActions = true;
-                actionsHtml += actionItem('Case <a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none;">SF-50001</a> created: "T&Q - Banned business review"');
-                actionsHtml += actionItem('Email sent to Trust & Quality team (cc: Sales Managers)');
-                actionsHtml += actionItem('Licence verification in progress — will complete within 1 business day');
-            } else if (isProblemRow && currentScenario === 'complaints') {
-                showActions = true;
-                actionsHtml += actionItem('Case <a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none;">SF-50002</a> created: "T&Q - Banned business review"');
-                actionsHtml += actionItem('Email sent to Trust & Quality team (cc: Sales Managers)');
-                actionsHtml += actionItem('Auto-email sent to tradie (james@mitchellplumbing.com.au) notifying T&Q review');
-                actionsHtml += actionItem('T&Q team will review and respond within 1 week');
+            // If account has issues, show fix steps screen
+            if (!perfPass) {
+                showFixSteps(acctName, perfStatus);
+                go(2);
+            } else {
+                // Clean account — go straight to success
+                document.getElementById('successActions').style.display = 'none';
+                go(5);
             }
-
-            document.getElementById('successActions').style.display = showActions ? 'block' : 'none';
-            document.getElementById('successActionsList').innerHTML = actionsHtml;
-            go(4);
         }, 2000);
+    }
+
+    function showFixSteps(acctName, perfStatus) {
+        document.getElementById('fixAcctName').textContent = acctName;
+        document.getElementById('fixPerfBadge').innerHTML = '<span class="badge badge-warning">' + perfStatus + '</span>';
+
+        var stepsHtml = '';
+        var stepNum = 1;
+
+        if (currentScenario === 'abn') {
+            stepsHtml += fixStep(stepNum++, 'ABN Verification', 'Lead ABN: 51 824 753 556 — ' + acctName, 'The lead\'s ABN will be submitted for T&Q to review within 1 business day. The ABN will be synced to the Salesforce Account and Admin page with full details.', 'Automatic');
+        } else if (currentScenario === 'licence') {
+            stepsHtml += fixStep(stepNum++, 'Create T&Q Review Case', 'A "T&Q - Banned business review" case will be created in Salesforce.', '', 'Automatic');
+            stepsHtml += fixStep(stepNum++, 'Notify Trust & Quality Team', 'Email sent to Trust & Quality team (cc: Sales Managers).', '', 'Automatic');
+            stepsHtml += fixStep(stepNum++, 'Licence Verification', 'Licences will be verified by the T&Q team.', 'Expected completion within 1 business day.', 'Pending');
+        } else if (currentScenario === 'complaints') {
+            stepsHtml += fixStep(stepNum++, 'Create T&Q Review Case', 'A "T&Q - Banned business review" case will be created in Salesforce.', '', 'Automatic');
+            stepsHtml += fixStep(stepNum++, 'Notify Trust & Quality Team', 'Email sent to Trust & Quality team (cc: Sales Managers).', '', 'Automatic');
+            stepsHtml += fixStep(stepNum++, 'Notify Tradie', 'Auto-email sent to tradie notifying T&Q review.', '"Thank you for your enquiry. Your account has been flagged as being managed by our Trust & Quality team. We have now referred your request to the team who will be in touch with you within a week to advise if we can proceed with your account request."', 'Automatic');
+            stepsHtml += fixStep(stepNum++, 'T&Q Review', 'T&Q team will review the complaint history and respond.', 'Expected completion within 1 business day.', 'Pending');
+        }
+
+        // Common checks that pass
+        stepsHtml += fixStep(stepNum++, 'DC Status Check', 'Account is not at DC.', '', 'Passed');
+        stepsHtml += fixStep(stepNum++, 'Outstanding Invoices Check', 'Less than 2 invoices outstanding (0 invoices).', '', 'Passed');
+        stepsHtml += fixStep(stepNum++, 'Written-Off Debt Check', 'No written-off outstanding debt ($0.00).', '', 'Passed');
+        stepsHtml += fixStep(stepNum++, 'Frozen Account Check', 'Account is not frozen.', '', 'Passed');
+
+        document.getElementById('fixStepsList').innerHTML = stepsHtml;
+    }
+
+    function fixStep(num, title, description, detail, status) {
+        var statusColor = status === 'Passed' ? '#1a7431' : status === 'Automatic' ? '#0176d3' : '#856404';
+        var statusBg = status === 'Passed' ? '#e6f4ea' : status === 'Automatic' ? '#e8f4fd' : '#fff3cd';
+        var icon = status === 'Passed' ? passIcon : status === 'Automatic' ? '&#9881;' : '&#9203;';
+        return '<div style="padding:12px 16px; border-bottom:1px solid #e5e5e5; display:flex; align-items:flex-start; gap:12px;">' +
+            '<div style="width:24px; height:24px; border-radius:50%; background:#f0f0f0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#555; flex-shrink:0;">' + num + '</div>' +
+            '<div style="flex:1;">' +
+            '<div style="font-size:13px; font-weight:600; color:#181818; margin-bottom:2px;">' + title + '</div>' +
+            '<div style="font-size:12px; color:#555;">' + description + '</div>' +
+            (detail ? '<div style="font-size:11px; color:#777; margin-top:4px; font-style:italic;">' + detail + '</div>' : '') +
+            '</div>' +
+            '<span style="padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; white-space:nowrap; background:' + statusBg + '; color:' + statusColor + ';">' + status + '</span>' +
+            '</div>';
+    }
+
+    function goToSuccess() {
+        document.getElementById('successActions').style.display = 'none';
+        go(5);
     }
 
     function actionItem(text) {
@@ -683,7 +616,7 @@
         overlay.classList.add('active');
         setTimeout(function() {
             overlay.classList.remove('active');
-            go(4);
+            go(5);
         }, 2000);
     }
 </script>

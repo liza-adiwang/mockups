@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reactivation Screenflow - Interactive Mockup</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fff;
+            color: #181818;
+            font-size: 13px;
+        }
+
+        .page-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 10; }
+
+        .modal {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 640px; max-width: 95vw; max-height: 90vh;
+            background: #fff; border-radius: 8px;
+            border: 1px solid #d8d8d8;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+            z-index: 20; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .modal.wide { width: 620px; }
+        .modal.extra-wide { width: 620px; }
+
+        .modal-header {
+            padding: 16px 24px; border-bottom: 1px solid #d8d8d8;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+        }
+        .modal-header h2 { font-size: 20px; font-weight: 300; color: #181818; text-align: center; flex: 1; }
+        .modal-close {
+            width: 28px; height: 28px; border: none; background: none;
+            font-size: 20px; color: #444; cursor: pointer; border-radius: 4px;
+        }
+        .modal-close:hover { background: #eee; }
+
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+
+        .modal-footer {
+            padding: 12px 24px; border-top: 1px solid #d8d8d8;
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .modal-footer-right { display: flex; gap: 8px; }
+        .step-text { font-size: 12px; color: #999; }
+
+        .three-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+        .three-col .col-full { grid-column: 1 / -1; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+        .col { min-width: 0; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .form-row.single { grid-template-columns: 1fr; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 14px; }
+        label.field-label { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px; }
+        label.field-label .req { color: #000; font-weight: 800; }
+        .field-input {
+            padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px;
+            font-size: 14px; color: #000; background: #fff;
+        }
+        .field-input:focus { outline: none; border-color: #000; }
+        .field-input::placeholder { color: #bbb; }
+        .field-input.readonly { background: #f5f5f5; color: #666; }
+        select.field-input { appearance: auto; }
+
+        .btn {
+            padding: 8px 16px; border-radius: 4px; font-size: 13px;
+            font-weight: 400; cursor: pointer; border: 1px solid #c9c9c9;
+        }
+        .btn-neutral { background: #fff; color: #181818; }
+        .btn-neutral:hover { background: #f3f3f3; }
+        .btn-brand { background: #0176d3; color: #fff; border-color: #0176d3; }
+        .btn-brand:hover { background: #014486; border-color: #014486; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-small { padding: 5px 12px; font-size: 12px; }
+
+        /* ABN */
+        .abn-search-wrap { position: relative; }
+        .abn-dropdown {
+            position: absolute; top: 100%; left: 0; right: 0;
+            border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px;
+            background: #fff; max-height: 200px; overflow-y: auto; z-index: 5; display: none;
+        }
+        .abn-dropdown.show { display: block; }
+        .abn-dropdown-item { padding: 10px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .abn-dropdown-item:hover { background: #f5f5f5; }
+        .abn-dropdown-item:last-child { border-bottom: none; }
+        .abn-dropdown-item .abn-num { color: #666; font-size: 11px; }
+        .abn-dropdown-item .abn-name { font-weight: 600; }
+
+        .abn-result {
+            border: 1px solid #ccc; border-radius: 6px; padding: 12px;
+            margin-top: 10px; display: none; font-size: 12px;
+        }
+        .abn-result.show { display: block; }
+        .abn-result h4 { font-size: 12px; margin-bottom: 6px; }
+        .abn-grid { display: grid; grid-template-columns: 100px 1fr; gap: 3px 10px; }
+        .abn-grid dt { color: #666; font-weight: 600; font-size: 11px; }
+        .abn-grid dd { color: #000; font-size: 12px; }
+
+        .abn-business-select { margin-top: 10px; display: none; }
+        .abn-business-select.show { display: block; }
+        .abn-business-select .help-sub { font-size: 11px; color: #666; margin-bottom: 4px; }
+
+        .abn-verified {
+            display: inline-flex; align-items: center; gap: 4px;
+            color: #2e844a; font-size: 11px; font-weight: 600; margin-top: 4px;
+        }
+        .abn-verified svg { width: 14px; height: 14px; fill: #2e844a; }
+
+        .suggestions {
+            border: 1px solid #ccc; border-radius: 4px; display: none;
+            max-height: 120px; overflow-y: auto;
+        }
+        .suggestions.show { display: block; }
+        .suggestion-item {
+            padding: 8px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #eee;
+        }
+        .suggestion-item:hover { background: #f5f5f5; }
+        .suggestion-item:last-child { border-bottom: none; }
+
+        /* Category tree */
+        .cat-search-wrap { margin-bottom: 8px; }
+        .cat-tree {
+            max-height: 320px; overflow-y: auto;
+            border: 1px solid #ccc; border-radius: 4px;
+        }
+        .cat-main {
+            border-bottom: 1px solid #eee;
+        }
+        .cat-main:last-child { border-bottom: none; }
+        .cat-main-header {
+            padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 700; cursor: pointer;
+            background: #fafafa;
+        }
+        .cat-main-header:hover { background: #f0f0f0; }
+        .cat-main-header input { width: 15px; height: 15px; flex-shrink: 0; }
+        .cat-main-header .cat-expand {
+            margin-left: auto; font-size: 10px; color: #999;
+            width: 20px; height: 20px; display: flex; align-items: center;
+            justify-content: center; border-radius: 3px; flex-shrink: 0;
+        }
+        .cat-main-header .cat-expand:hover { background: #ddd; }
+        .cat-sub-list { display: none; }
+        .cat-sub-list.open { display: block; }
+        .cat-sub-item {
+            padding: 6px 12px 6px 38px; display: flex; align-items: center; gap: 8px;
+            font-size: 13px; cursor: pointer; border-top: 1px solid #f0f0f0;
+        }
+        .cat-sub-item:hover { background: #f5f5f5; }
+        .cat-sub-item input { width: 14px; height: 14px; flex-shrink: 0; }
+
+        /* License cards per main category */
+        .lic-card {
+            border: 1px solid #ccc; border-radius: 6px; padding: 14px;
+            margin-bottom: 12px;
+        }
+        .lic-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .lic-card-title { font-size: 13px; font-weight: 700; }
+        .lic-card-toggle {
+            display: flex; align-items: center; gap: 6px; font-size: 12px;
+        }
+        .lic-card-toggle select {
+            padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px;
+            font-size: 12px; color: #000;
+        }
+        .lic-card-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .lic-card-fields .form-group { margin-bottom: 0; }
+        .lic-card-fields .field-input { font-size: 13px; padding: 6px 8px; }
+        .lic-card-fields label.field-label { font-size: 11px; }
+        .lic-reason { grid-column: 1 / -1; }
+        .lic-empty {
+            text-align: center; padding: 24px; color: #999; font-size: 12px;
+            border: 1px dashed #ccc; border-radius: 4px;
+        }
+
+        /* Data table */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #181818; table-layout: fixed; }
+        .data-table th {
+            text-align: left; font-size: 12px; font-weight: 700;
+            color: #444; padding: 8px 10px;
+            background: #fafaf9; border-bottom: 1px solid #e5e5e5;
+            border-right: 1px solid #e5e5e5;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .data-table th:last-child { border-right: none; }
+        .data-table td { padding: 10px 6px; border-bottom: 1px solid #e5e5e5; vertical-align: middle; color: #181818; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; font-weight: 300; }
+        .data-table tbody tr { cursor: pointer; }
+        .data-table tbody tr:hover { background: #f3f3f3; }
+        .data-table tbody tr.selected { background: #eef4ff; }
+        .data-table tbody tr.row-eligible td:first-child { border-left: 4px solid #1a7431; }
+        .data-table tbody tr.row-not-eligible td:first-child { border-left: 4px solid #ba1b1b; }
+        .data-table tbody tr.row-blocked td:first-child { border-left: 4px solid #555; }
+        .data-table input[type="radio"] { width: 14px; height: 14px; accent-color: #0176d3; margin: 0; }
+        .data-table td:first-child, .data-table td:nth-child(2) { padding: 10px 2px; text-align: center; }
+        .data-table th:first-child, .data-table th:nth-child(2) { padding: 8px 2px; text-align: center; }
+
+        .success-center { text-align: center; padding: 20px 0; }
+        .success-center p { color: #666; font-size: 13px; margin-bottom: 20px; }
+
+        .help-text { font-size: 12px; color: #666; margin-bottom: 10px; }
+
+        .section-label {
+            font-size: 11px; font-weight: 700; color: #666;
+            text-transform: uppercase; letter-spacing: 0.3px;
+            margin: 0 0 10px; padding-bottom: 4px; border-bottom: 1px solid #ddd;
+        }
+
+        .table-scroll { overflow-x: auto; border: 1px solid #e5e5e5; border-radius: 4px; }
+
+        .spinner {
+            width: 32px; height: 32px; border: 3px solid #ddd;
+            border-top-color: #000; border-radius: 50%;
+            animation: spin 0.7s linear infinite; margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-screen { text-align: center; padding: 48px 0; }
+        .loading-screen p { color: #666; font-size: 13px; margin-top: 14px; }
+
+        .modal-spinner-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(3px);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .modal-spinner-overlay.active { display: flex; }
+        .modal-spinner-overlay p { color: #444; font-size: 13px; margin-top: 14px; }
+
+        .field-error { font-size: 12px; color: #ea001e; margin-bottom: 2px; display: none; }
+        .field-error.show { display: block; }
+        .field-input.error { border-color: #ea001e; }
+
+        .screen { display: none; }
+        .screen.active { display: flex; flex-direction: column; height: 100%; }
+
+        .ribbon {
+            position: fixed; top: 12px; right: -34px;
+            background: #000; color: #fff; padding: 4px 40px; font-size: 10px;
+            font-weight: 700; transform: rotate(45deg); z-index: 30; letter-spacing: 0.5px;
+        }
+
+        .cat-hidden { display: none !important; }
+        .cat-count { font-size: 11px; color: #999; font-weight: 400; margin-left: 4px; }
+
+        /* Eligibility badge */
+        .badge {
+            display: inline-block; padding: 2px 8px; border-radius: 10px;
+            font-size: 11px; font-weight: 600; white-space: nowrap;
+        }
+        .badge-eligible { background: #e6f4ea; color: #1a7431; }
+        .badge-not-eligible { background: #fde7e7; color: #ba1b1b; }
+        .badge-banned { background: #333; color: #fff; }
+
+        /* Eligibility detail panel */
+        .eligibility-panel {
+            display: none; margin-top: 16px;
+            border: 1px solid #ccc; border-radius: 6px; padding: 16px;
+            background: #fafafa;
+        }
+        .eligibility-panel.show { display: block; }
+        .eligibility-panel h4 {
+            font-size: 13px; font-weight: 700; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .eligibility-list { list-style: none; padding: 0; margin: 0; }
+        .eligibility-list li {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 0; border-bottom: 1px solid #eee; font-size: 12px;
+        }
+        .eligibility-list li:last-child { border-bottom: none; }
+        .check-icon { width: 16px; height: 16px; flex-shrink: 0; }
+        .check-pass { color: #1a7431; }
+        .check-fail { color: #ba1b1b; }
+        .check-label { color: #333; }
+        .check-value { margin-left: auto; color: #666; font-size: 11px; }
+
+        /* Banned alert banner */
+        .alert-banner {
+            padding: 12px 16px; border-radius: 6px; margin-bottom: 16px;
+            display: flex; align-items: flex-start; gap: 10px; font-size: 13px;
+        }
+        .alert-banner-error {
+            background: #fde7e7; border: 1px solid #f5c6c6; color: #ba1b1b;
+        }
+        .alert-banner-icon { font-size: 18px; flex-shrink: 0; line-height: 1; }
+        .alert-banner-content { flex: 1; }
+        .alert-banner-title { font-weight: 700; margin-bottom: 4px; }
+        .alert-banner-text { font-size: 12px; color: #666; }
+
+        .not-eligible-msg {
+            display: none; font-size: 12px; color: #856404; font-weight: 600;
+            margin-top: 8px; padding: 8px 12px; background: #fff3cd;
+            border: 1px solid #ffc107; border-radius: 4px;
+        }
+        .not-eligible-msg.show { display: block; }
+
+        /* Eligibility badge with details link */
+        .badge-wrap {
+            display: flex; align-items: center; gap: 6px;
+        }
+        .details-link {
+            font-size: 11px; color: #0176d3; cursor: pointer;
+            text-decoration: underline; white-space: nowrap;
+        }
+        .details-link:hover { color: #014486; }
+
+        .hint-text {
+            font-size: 11px; color: #999; margin-top: 8px; font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ribbon">MOCKUP</div>
+<div class="page-bg"></div>
+
+<!-- ==================== SCREEN 1 ==================== -->
+<div class="screen active" id="s1">
+    <div class="modal extra-wide">
+        <div class="modal-header">
+            <h2>Contact & Business Details</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="three-col">
+                <div class="col col-full">
+                    <div class="section-label">Personal Information</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 24px;">
+                        <div class="form-group">
+                            <label class="field-label">First Name <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <input type="text" class="field-input" data-required value="James">
+                        </div>
+                        <div class="form-group">
+                            <label class="field-label">Last Name <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <input type="text" class="field-input" data-required value="Mitchell">
+                        </div>
+                        <div class="form-group">
+                            <label class="field-label">Phone <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <input type="tel" class="field-input" data-required value="0412 345 678">
+                        </div>
+                        <div class="form-group">
+                            <label class="field-label">Email <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <input type="email" class="field-input" data-required value="james@mitchellplumbing.com.au">
+                        </div>
+                        <div class="form-group">
+                            <label class="field-label">Number of Employees <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <select class="field-input" data-required>
+                                <option value="">-- Select --</option>
+                                <option>1 (Solo)</option><option selected>2-5</option>
+                                <option>6-10</option><option>11-20</option><option>20+</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="section-label">ABN</div>
+                    <p class="help-text">Enter your ABN or search by business name.</p>
+                    <div class="form-group">
+                        <label class="field-label">ABN / Business Name <span class="req">*</span></label>
+                        <span class="field-error" id="abnError">Complete this field.</span>
+                        <div class="abn-search-wrap">
+                            <input type="text" class="field-input" data-required placeholder="Enter ABN or business name..." id="abnInput" oninput="abnAutocomplete()" autocomplete="off" style="width:100%;">
+                            <div class="abn-dropdown" id="abnDropdown">
+                                <div class="abn-dropdown-item" onclick="pickABN('51 824 753 556','Mitchell Plumbing Pty Ltd')">
+                                    <div class="abn-name">Mitchell Plumbing Pty Ltd</div>
+                                    <div class="abn-num">ABN: 51 824 753 556 - Active</div>
+                                </div>
+                                <div class="abn-dropdown-item" onclick="pickABN('23 456 789 012','Mitchell Plumbing Services')">
+                                    <div class="abn-name">Mitchell Plumbing Services</div>
+                                    <div class="abn-num">ABN: 23 456 789 012 - Active</div>
+                                </div>
+                                <div class="abn-dropdown-item" onclick="pickABN('67 890 123 456','Mitchell Emergency Plumbing')">
+                                    <div class="abn-name">Mitchell Emergency Plumbing</div>
+                                    <div class="abn-num">ABN: 67 890 123 456 - Active</div>
+                                </div>
+                                <div class="abn-dropdown-item" onclick="pickABN('34 567 890 123','JM Plumbing Solutions')">
+                                    <div class="abn-name">JM Plumbing Solutions</div>
+                                    <div class="abn-num">ABN: 34 567 890 123 - Active</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="abn-result" id="abnResult">
+                        <h4>ABN Found - Active</h4>
+                        <dl class="abn-grid">
+                            <dt>ABN</dt><dd id="abnNum">51 824 753 556</dd>
+                            <dt>Entity Name</dt><dd id="abnEntity">Mitchell Plumbing Pty Ltd</dd>
+                            <dt>Entity Type</dt><dd>Australian Private Company</dd>
+                            <dt>Status</dt><dd>Active</dd>
+                            <dt>GST</dt><dd>Yes (from 01 Jul 2015)</dd>
+                        </dl>
+                    </div>
+                    <div id="abnVerifiedMsg" class="abn-verified" style="display:none;">
+                        <svg viewBox="0 0 20 20"><path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-1 15l-5-5 1.41-1.41L9 12.17l6.59-6.59L17 7l-8 8z"/></svg>
+                        ABN verified
+                    </div>
+                    <div class="abn-business-select" id="abnBusinessSelect">
+                        <div class="form-group" style="margin-top:8px;">
+                            <label class="field-label">Business name to advertise with <span class="req">*</span></label>
+                            <p class="help-sub" style="font-size:11px;color:#666;margin-bottom:4px;">Select the Business name to advertise with hipages.</p>
+                            <select class="field-input" style="margin-top:4px;">
+                                <option>Mitchell Plumbing Pty Ltd</option>
+                                <option>Mitchell Plumbing Services</option>
+                                <option>Mitchell Emergency Plumbing</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="section-label">Address</div>
+                    <p class="help-text">Search or type the address. All fields are editable.</p>
+                    <div class="form-group" style="margin-bottom:4px;">
+                        <label class="field-label">Address Search</label>
+                        <input type="text" class="field-input" placeholder="Start typing an address..." id="addrSearch" oninput="showAddr()">
+                    </div>
+                    <div class="suggestions" id="addrSugg">
+                        <div class="suggestion-item" onclick="pickAddr('14 Smith St','Parramatta','NSW','2150')">14 Smith St, Parramatta NSW 2150</div>
+                        <div class="suggestion-item" onclick="pickAddr('14 Smith Ave','Ryde','NSW','2112')">14 Smith Ave, Ryde NSW 2112</div>
+                        <div class="suggestion-item" onclick="pickAddr('14A Smith Ln','Epping','NSW','2121')">14A Smith Ln, Epping NSW 2121</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="field-label">Street <span class="req">*</span></label>
+                        <span class="field-error">Complete this field.</span>
+                        <input type="text" class="field-input" data-required id="fStreet" value="14 Smith St">
+                    </div>
+                    <div class="form-group">
+                        <label class="field-label">Suburb <span class="req">*</span></label>
+                        <span class="field-error">Complete this field.</span>
+                        <input type="text" class="field-input" data-required id="fSuburb" value="Parramatta">
+                    </div>
+                    <div class="form-group">
+                        <label class="field-label">State <span class="req">*</span></label>
+                        <span class="field-error">Complete this field.</span>
+                        <input type="text" class="field-input" data-required id="fState" value="NSW">
+                    </div>
+                    <div class="form-group">
+                        <label class="field-label">Postcode <span class="req">*</span></label>
+                        <span class="field-error">Complete this field.</span>
+                        <input type="text" class="field-input" data-required id="fPostcode" value="2150">
+                    </div>
+                    <div class="form-group">
+                        <label class="field-label">Country</label>
+                        <input type="text" class="field-input readonly" value="Australia" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 1 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" onclick="nextStep(1,2)">Save & Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 2 ==================== -->
+<div class="screen" id="s2">
+    <div class="modal extra-wide">
+        <div class="modal-header">
+            <h2>Categories, Service Area & Licenses</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="two-col">
+                <!-- LEFT: Categories + Service Area -->
+                <div class="col">
+                    <div class="section-label">Categories</div>
+                    <p class="help-text">Search and select categories. Selecting a main category selects all subcategories, or pick individual ones.</p>
+                    <span class="field-error" id="catError">Select at least one category.</span>
+
+                    <div class="cat-search-wrap">
+                        <input type="text" class="field-input" placeholder="Search categories..." id="catSearch" oninput="filterCats()" style="width:100%;margin-bottom:0;">
+                    </div>
+
+                    <div class="cat-tree" id="catTree">
+                        <!-- Plumbing -->
+                        <div class="cat-main" data-main="Plumbing">
+                            <div class="cat-main-header" onclick="toggleSubList(this)">
+                                <input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Plumbing')" id="chk_Plumbing">
+                                <span>Plumbing</span><span class="cat-count" id="count_Plumbing"></span>
+                                <span class="cat-expand">&#9662;</span>
+                            </div>
+                            <div class="cat-sub-list">
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: General Plumbing</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: Emergency Plumbing</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: Hot Water Systems</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: Drain Cleaning</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: Toilet Repairs</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: Leak Detection</label>
+                            </div>
+                        </div>
+                        <!-- Gas Fitting -->
+                        <div class="cat-main" data-main="Gas Fitting">
+                            <div class="cat-main-header" onclick="toggleSubList(this)">
+                                <input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Gas Fitting')" id="chk_Gas Fitting">
+                                <span>Gas Fitting</span><span class="cat-count" id="count_Gas Fitting"></span>
+                                <span class="cat-expand">&#9662;</span>
+                            </div>
+                            <div class="cat-sub-list">
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Gas Fitting" onchange="toggleSub(this,'Gas Fitting')"> Gas Fitting: Gas Appliance Installation</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Gas Fitting" onchange="toggleSub(this,'Gas Fitting')"> Gas Fitting: Gas Leak Repairs</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Gas Fitting" onchange="toggleSub(this,'Gas Fitting')"> Gas Fitting: Gas Hot Water</label>
+                            </div>
+                        </div>
+                        <!-- Bathroom Renovation -->
+                        <div class="cat-main" data-main="Bathroom Renovation">
+                            <div class="cat-main-header" onclick="toggleSubList(this)">
+                                <input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Bathroom Renovation')" id="chk_Bathroom Renovation">
+                                <span>Bathroom Renovation</span><span class="cat-count" id="count_Bathroom Renovation"></span>
+                                <span class="cat-expand">&#9662;</span>
+                            </div>
+                            <div class="cat-sub-list">
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Bathroom Renovation" onchange="toggleSub(this,'Bathroom Renovation')"> Bathroom Renovation: Full Renovation</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Bathroom Renovation" onchange="toggleSub(this,'Bathroom Renovation')"> Bathroom Renovation: Shower Screens</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Bathroom Renovation" onchange="toggleSub(this,'Bathroom Renovation')"> Bathroom Renovation: Tiling</label>
+                            </div>
+                        </div>
+                        <!-- Roof Plumbing -->
+                        <div class="cat-main" data-main="Roof Plumbing">
+                            <div class="cat-main-header" onclick="toggleSubList(this)">
+                                <input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Roof Plumbing')" id="chk_Roof Plumbing">
+                                <span>Roof Plumbing</span><span class="cat-count" id="count_Roof Plumbing"></span>
+                                <span class="cat-expand">&#9662;</span>
+                            </div>
+                            <div class="cat-sub-list">
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Roof Plumbing" onchange="toggleSub(this,'Roof Plumbing')"> Roof Plumbing: Gutters & Downpipes</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Roof Plumbing" onchange="toggleSub(this,'Roof Plumbing')"> Roof Plumbing: Roof Repairs</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Roof Plumbing" onchange="toggleSub(this,'Roof Plumbing')"> Roof Plumbing: Rainwater Tanks</label>
+                            </div>
+                        </div>
+                        <!-- Appliance Installation -->
+                        <div class="cat-main" data-main="Appliance Installation">
+                            <div class="cat-main-header" onclick="toggleSubList(this)">
+                                <input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Appliance Installation')" id="chk_Appliance Installation">
+                                <span>Appliance Installation</span><span class="cat-count" id="count_Appliance Installation"></span>
+                                <span class="cat-expand">&#9662;</span>
+                            </div>
+                            <div class="cat-sub-list">
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Appliance Installation" onchange="toggleSub(this,'Appliance Installation')"> Appliance Installation: Cooktop Installation</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Appliance Installation" onchange="toggleSub(this,'Appliance Installation')"> Appliance Installation: Dishwasher Installation</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Appliance Installation" onchange="toggleSub(this,'Appliance Installation')"> Appliance Installation: Oven Installation</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Appliance Installation" onchange="toggleSub(this,'Appliance Installation')"> Appliance Installation: Rangehood Installation</label>
+                            </div>
+                        </div>
+                        <!-- Antenna Services -->
+                        <div class="cat-main" data-main="Antenna Services">
+                            <div class="cat-main-header" onclick="toggleSubList(this)">
+                                <input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Antenna Services')" id="chk_Antenna Services">
+                                <span>Antenna Services</span><span class="cat-count" id="count_Antenna Services"></span>
+                                <span class="cat-expand">&#9662;</span>
+                            </div>
+                            <div class="cat-sub-list">
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Antenna Services" onchange="toggleSub(this,'Antenna Services')"> Antenna Services: Antenna Relocation</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Antenna Services" onchange="toggleSub(this,'Antenna Services')"> Antenna Services: Digital TV Points</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Antenna Services" onchange="toggleSub(this,'Antenna Services')"> Antenna Services: Foxtel, TV & Satellite</label>
+                                <label class="cat-sub-item"><input type="checkbox" data-parent="Antenna Services" onchange="toggleSub(this,'Antenna Services')"> Antenna Services: Repairs & Troubleshooting</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-label" style="margin-top:20px;">Service Area</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="field-label">Radius (km) <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <select class="field-input" data-required>
+                                <option value="">-- Select --</option>
+                                <option>5</option><option>10</option><option>15</option>
+                                <option>20</option><option>25</option><option selected>30</option>
+                                <option>40</option><option>50</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="field-label">Postcode <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <input type="text" class="field-input" data-required value="2150">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Licenses -->
+                <div class="col">
+                    <div class="section-label">Licenses</div>
+                    <p class="help-text">For each selected main category, provide the license details if required. If no license is required, select "No" and provide a reason.</p>
+
+                    <div id="licCards"></div>
+                    <div id="licEmpty" class="lic-empty">
+                        Select categories on the left to see license requirements here.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 2 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" onclick="nextStep(2,3)">Save & Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 3: Multiple Match ==================== -->
+<div class="screen" id="s3">
+    <div class="modal wide">
+        <div class="modal-spinner-overlay" id="s3-overlay">
+            <div class="spinner"></div>
+        </div>
+        <div class="modal-header">
+            <h2>Convert</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:11px; color:#999; margin-bottom:14px; border:1px dashed #ccc; padding:6px 10px; border-radius:4px;">
+                Demo scenario:
+                <a href="#" onclick="setScenario('multiple'); return false;" id="scenarioMultiple" style="color:#0176d3; font-weight:700;">Multiple matches</a> |
+                <a href="#" onclick="setScenario('single'); return false;" id="scenarioSingle" style="color:#0176d3;">Single match</a> |
+                <a href="#" onclick="setScenario('none'); return false;" id="scenarioNone" style="color:#0176d3;">No match</a> |
+                <a href="#" onclick="setScenario('banned'); return false;" id="scenarioBanned" style="color:#0176d3;">Banned duplicate</a>
+                <br>
+                After convert:
+                <a href="#" onclick="setErrorScenario('success'); return false;" class="error-scenario-link" id="errScenario_success" style="color:#0176d3; font-weight:700;">Success</a> |
+                <a href="#" onclick="setErrorScenario('error-then-success'); return false;" class="error-scenario-link" id="errScenario_error-then-success" style="color:#0176d3;">Error &rarr; Retry &rarr; Success</a> |
+                <a href="#" onclick="setErrorScenario('error-twice'); return false;" class="error-scenario-link" id="errScenario_error-twice" style="color:#0176d3;">Error &rarr; Retry &rarr; Blocked</a>
+            </div>
+            <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">Matching Accounts Found</h3>
+            <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 3 matching Tradie account(s) for this lead. Select an eligible account to convert to.</p>
+            <div class="table-scroll">
+                <table class="data-table" id="multiTable">
+                    <colgroup>
+                        <col style="width:3%;">
+                        <col style="width:3%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                    </colgroup>
+                    <thead><tr>
+                        <th></th><th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th>
+                        <th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th>
+                        <th>Last Cancelled Date &#9662;</th>
+                        <th>Subscription Status &#9662;</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr class="row-eligible" onclick="pickAcct(this,1,'s3')" data-eligible="true" data-substatus="Cancelled" data-email="james@mitchellplumbing.com.au" data-credentials="No Issues" data-performance="Redeemed" data-invoices="0" data-frozen="No">
+                            <td style="color:#444;">1</td><td><input type="radio" name="acct" value="1"></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td><td>711923</td><td >james@mitchell...</td><td>0412 345 678</td><td>15/09/25</td><td>20/11/25</td><td>Cancelled</td>
+                        </tr>
+                        <tr class="row-not-eligible" onclick="pickAcct(this,2,'s3')" data-eligible="false" data-substatus="Cancelled" data-email="james@mitchellplumbing.com.au" data-credentials="No Issues" data-performance="Last Warning" data-invoices="3" data-frozen="No">
+                            <td style="color:#444;">2</td><td><input type="radio" name="acct" value="2"></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Services</a></td><td>645853</td><td >james@mitchell...</td><td>0412 345 678</td><td>03/03/24</td><td>15/06/24</td><td>Cancelled</td>
+                        </tr>
+                        <tr class="row-not-eligible" onclick="pickAcct(this,3,'s3')" data-eligible="false" data-substatus="Cancelled" data-email="" data-credentials="No Issues" data-performance="None" data-invoices="5" data-frozen="Yes">
+                            <td style="color:#444;">3</td><td><input type="radio" name="acct" value="3"></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">JM Plumbing</a></td><td>724270</td><td >james@mitchell...</td><td>0298 765 432</td><td>22/01/23</td><td>10/04/23</td><td>Cancelled</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="hint-text">Click any row to view the full eligibility check breakdown.</p>
+
+            <!-- Eligibility detail panel -->
+            <div class="eligibility-panel" id="eligPanel_s3">
+                <h4>
+                    <span id="eligPanelName_s3">Account Name</span>
+                    <span id="eligPanelBadge_s3"></span>
+                </h4>
+                <ul class="eligibility-list" id="eligList_s3"></ul>
+            </div>
+
+            <div class="not-eligible-msg" id="notEligibleMsg_s3">This account has issues that will need to be resolved after conversion. You can still proceed.</div>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 3 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" id="confirmBtn" onclick="doConfirm()" disabled>Convert</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 3single -->
+<div class="screen" id="s3single">
+    <div class="modal wide">
+        <div class="modal-spinner-overlay" id="s3single-overlay">
+            <div class="spinner"></div>
+        </div>
+        <div class="modal-header"><h2>Convert</h2><button class="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div style="font-size:11px; color:#999; margin-bottom:14px; border:1px dashed #ccc; padding:6px 10px; border-radius:4px;">
+                Demo scenario:
+                <a href="#" onclick="setScenario('multiple'); return false;" style="color:#0176d3;">Multiple matches</a> |
+                <a href="#" onclick="setScenario('single'); return false;" style="color:#0176d3; font-weight:700;">Single match</a> |
+                <a href="#" onclick="setScenario('none'); return false;" style="color:#0176d3;">No match</a> |
+                <a href="#" onclick="setScenario('banned'); return false;" style="color:#0176d3;">Banned duplicate</a>
+                <br>
+                After convert:
+                <a href="#" onclick="setErrorScenario('success'); return false;" class="error-scenario-link" id="errScenario_success_s" style="color:#0176d3; font-weight:700;">Success</a> |
+                <a href="#" onclick="setErrorScenario('error-then-success'); return false;" class="error-scenario-link" id="errScenario_error-then-success_s" style="color:#0176d3;">Error &rarr; Retry &rarr; Success</a> |
+                <a href="#" onclick="setErrorScenario('error-twice'); return false;" class="error-scenario-link" id="errScenario_error-twice_s" style="color:#0176d3;">Error &rarr; Retry &rarr; Blocked</a>
+            </div>
+            <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">Matching Account Found</h3>
+            <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 1 matching Tradie account for this lead. This account has been pre-selected.</p>
+            <div class="table-scroll">
+                <table class="data-table" id="singleTable">
+                    <colgroup>
+                        <col style="width:3%;">
+                        <col style="width:3%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                        <col style="width:15.2%;">
+                    </colgroup>
+                    <thead><tr>
+                        <th></th><th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th>
+                        <th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th>
+                        <th>Last Cancelled Date &#9662;</th>
+                        <th>Subscription Status &#9662;</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr class="row-eligible selected" onclick="pickAcct(this,1,'s3single')" data-eligible="true" data-substatus="Cancelled" data-email="james@mitchellplumbing.com.au" data-credentials="No Issues" data-performance="Redeemed" data-invoices="0" data-frozen="No">
+                            <td style="color:#444;">1</td><td><input type="radio" name="acct_single" value="1" checked></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td><td>711923</td><td >james@mitchell...</td><td>0412 345 678</td><td>15/09/25</td><td>20/11/25</td><td>Cancelled</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="hint-text">Click the row to view the full eligibility check breakdown.</p>
+
+            <!-- Eligibility detail panel -->
+            <div class="eligibility-panel" id="eligPanel_s3single">
+                <h4>
+                    <span id="eligPanelName_s3single">Account Name</span>
+                    <span id="eligPanelBadge_s3single"></span>
+                </h4>
+                <ul class="eligibility-list" id="eligList_s3single"></ul>
+            </div>
+
+            <div class="not-eligible-msg" id="notEligibleMsg_s3single">This account has issues that will need to be resolved after conversion. You can still proceed.</div>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 3 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" id="confirmBtnSingle" onclick="doConfirm()">Convert</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 3banned: Banned SF duplicate detected -->
+<div class="screen" id="s3banned">
+    <div class="modal wide">
+        <div class="modal-header"><h2>Convert</h2><button class="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div style="font-size:11px; color:#999; margin-bottom:14px; border:1px dashed #ccc; padding:6px 10px; border-radius:4px;">
+                Demo scenario:
+                <a href="#" onclick="setScenario('multiple'); return false;" style="color:#0176d3;">Multiple matches</a> |
+                <a href="#" onclick="setScenario('single'); return false;" style="color:#0176d3;">Single match</a> |
+                <a href="#" onclick="setScenario('none'); return false;" style="color:#0176d3;">No match</a> |
+                <a href="#" onclick="setScenario('banned'); return false;" style="color:#0176d3; font-weight:700;">Banned duplicate</a>
+            </div>
+
+            <div class="alert-banner alert-banner-error">
+                <span class="alert-banner-icon">&#9888;</span>
+                <div class="alert-banner-content">
+                    <div class="alert-banner-title">Conversion Blocked: Banned Account Detected</div>
+                    <div class="alert-banner-text">
+                        A matching Salesforce account has been flagged as <strong>banned</strong>. Conversion cannot proceed while a banned duplicate exists. Please contact RevOps for assistance.
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">Matching Accounts</h3>
+            <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 2 matching Salesforce account(s) for this lead. One or more accounts are banned.</p>
+
+            <div class="table-scroll">
+                <table class="data-table">
+                    <colgroup>
+                        <col style="width:3%;">
+                        <col style="width:13.86%;">
+                        <col style="width:13.86%;">
+                        <col style="width:13.86%;">
+                        <col style="width:13.86%;">
+                        <col style="width:13.86%;">
+                        <col style="width:13.86%;">
+                        <col style="width:13.86%;">
+                    </colgroup>
+                    <thead><tr>
+                        <th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th>
+                        <th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th>
+                        <th>Last Cancelled Date &#9662;</th>
+                        <th>Subscription Status &#9662;</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr class="row-blocked" style="cursor:default;" data-substatus="Cancelled">
+                            <td style="color:#444;">1</td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td><td>711923</td><td >james@mitchell...</td><td>0412 345 678</td><td>22/01/23</td><td>10/04/23</td><td>Cancelled</td>
+                        </tr>
+                        <tr class="row-eligible" style="cursor:default;" data-substatus="Cancelled">
+                            <td style="color:#444;">2</td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Services</a></td><td>645853</td><td >james@mitchell...</td><td>0412 345 678</td><td>22/01/23</td><td>10/04/23</td><td>Cancelled</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 3 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" disabled title="Conversion blocked due to banned account">Convert</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 3none -->
+<div class="screen" id="s3none">
+    <div class="modal">
+        <div class="modal-spinner-overlay" id="s3none-overlay">
+            <div class="spinner"></div>
+        </div>
+        <div class="modal-header"><h2>Convert</h2><button class="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div style="font-size:11px; color:#999; margin-bottom:14px; border:1px dashed #ccc; padding:6px 10px; border-radius:4px;">
+                Demo scenario:
+                <a href="#" onclick="setScenario('multiple'); return false;" style="color:#0176d3;">Multiple matches</a> |
+                <a href="#" onclick="setScenario('single'); return false;" style="color:#0176d3;">Single match</a> |
+                <a href="#" onclick="setScenario('none'); return false;" style="color:#0176d3; font-weight:700;">No match</a> |
+                <a href="#" onclick="setScenario('banned'); return false;" style="color:#0176d3;">Banned duplicate</a>
+                <br>
+                After convert:
+                <a href="#" onclick="setErrorScenario('success'); return false;" class="error-scenario-link" id="errScenario_success_n" style="color:#0176d3; font-weight:700;">Success</a> |
+                <a href="#" onclick="setErrorScenario('error-then-success'); return false;" class="error-scenario-link" id="errScenario_error-then-success_n" style="color:#0176d3;">Error &rarr; Retry &rarr; Success</a> |
+                <a href="#" onclick="setErrorScenario('error-twice'); return false;" class="error-scenario-link" id="errScenario_error-twice_n" style="color:#0176d3;">Error &rarr; Retry &rarr; Blocked</a>
+            </div>
+            <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">A new account will be created.</h3>
+            <p style="font-size:13px; color:#444; margin-bottom:16px;">Click Convert to complete the process.</p>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 3 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" onclick="doConfirm()">Convert</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 3c: Error (1st failure — Retry available) ==================== -->
+<div class="screen" id="s3c">
+    <div class="modal" style="width:460px;">
+        <div class="modal-header">
+            <h2>Error Encountered</h2>
+            <button class="modal-close" onclick="closeFlow()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align:center; padding:16px 0;">
+                <p id="errorMessage" style="font-size:13px; color:#666;">The billing system did not respond in time. Please try again.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span></span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" onclick="doRetry()">Retry</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 3d: Blocked (2nd failure — no Retry) ==================== -->
+<div class="screen" id="s3d">
+    <div class="modal" style="width:460px;">
+        <div class="modal-header">
+            <h2>Error Encountered</h2>
+            <button class="modal-close" onclick="closeFlow()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align:center; padding:16px 0;">
+                <p style="font-size:13px; color:#666;">The action couldn't be completed. Please contact RevOps for help.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span></span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 4: Success ==================== -->
+<div class="screen" id="s4">
+    <div class="modal">
+        <div class="modal-header"><h2>Conversion Complete</h2><button class="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div class="success-center">
+                <h2 style="font-size:22px; font-weight:400;">Lead Converted Successfully</h2>
+                <p>&nbsp;</p>
+                <div style="text-align:left; max-width:360px; margin:0 auto;">
+                    <div style="padding:10px 0; border-bottom:1px solid #eee;">
+                        <span style="font-size:12px; color:#666;">Account</span><br>
+                        <a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none; font-size:14px;">Mitchell Plumbing Pty Ltd</a>
+                    </div>
+                    <div style="padding:10px 0; border-bottom:1px solid #eee;">
+                        <span style="font-size:12px; color:#666;">Opportunity</span><br>
+                        <a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none; font-size:14px;">Reactivation - Mitchell Plumbing</a>
+                    </div>
+                    <div style="padding:10px 0;">
+                        <span style="font-size:12px; color:#666;">Contact</span><br>
+                        <a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none; font-size:14px;">James Mitchell</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span></span>
+            <div class="modal-footer-right">
+                <button class="btn btn-brand" onclick="closeFlow()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== State =====
+    let selectedMains = new Set();
+
+    function go(n) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('s' + n).classList.add('active');
+    }
+
+    // ===== Validation =====
+    function clearErrors(screenId) {
+        const screen = document.getElementById('s' + screenId);
+        screen.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
+        screen.querySelectorAll('.field-input.error').forEach(e => e.classList.remove('error'));
+    }
+
+    function validateScreen(screenId) {
+        clearErrors(screenId);
+        const screen = document.getElementById('s' + screenId);
+        let valid = true;
+        if (screenId === 2 && selectedMains.size === 0) {
+            document.getElementById('catError').classList.add('show');
+            valid = false;
+        }
+        screen.querySelectorAll('[data-required]').forEach(input => {
+            const group = input.closest('.form-group');
+            if (group && group.offsetParent === null) return;
+            if (!input.value.trim()) {
+                input.classList.add('error');
+                const errSpan = group ? group.querySelector('.field-error') : null;
+                if (errSpan) errSpan.classList.add('show');
+                valid = false;
+            }
+        });
+        if (screenId === 2) {
+            document.querySelectorAll('#licCards .lic-card').forEach(card => {
+                const isYes = card.querySelector('.lic-toggle').value === 'yes';
+                if (isYes) {
+                    card.querySelectorAll('.lic-yes-fields .field-input').forEach(input => {
+                        if (!input.value.trim()) {
+                            input.classList.add('error');
+                            const errSpan = input.closest('.form-group').querySelector('.field-error');
+                            if (errSpan) errSpan.classList.add('show');
+                            valid = false;
+                        }
+                    });
+                } else {
+                    const reasonInput = card.querySelector('.lic-reason-input');
+                    if (reasonInput && !reasonInput.value.trim()) {
+                        reasonInput.classList.add('error');
+                        const errSpan = reasonInput.closest('.form-group').querySelector('.field-error');
+                        if (errSpan) errSpan.classList.add('show');
+                        valid = false;
+                    }
+                }
+            });
+        }
+        return valid;
+    }
+
+    function nextStep(from, to) {
+        if (!validateScreen(from)) return;
+        if (from === 2) { doConvert(); } else { go(to); }
+    }
+
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('field-input') && e.target.value.trim()) {
+            e.target.classList.remove('error');
+            const g = e.target.closest('.form-group');
+            if (g) { const er = g.querySelector('.field-error'); if (er) er.classList.remove('show'); }
+        }
+    });
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('field-input') && e.target.hasAttribute('data-required') && e.target.value.trim()) {
+            e.target.classList.remove('error');
+            const g = e.target.closest('.form-group');
+            if (g) { const er = g.querySelector('.field-error'); if (er) er.classList.remove('show'); }
+        }
+    });
+
+    // ===== ABN =====
+    function abnAutocomplete() {
+        const v = document.getElementById('abnInput').value.trim();
+        document.getElementById('abnDropdown').classList.toggle('show', v.length >= 2);
+        document.getElementById('abnResult').classList.remove('show');
+        document.getElementById('abnBusinessSelect').classList.remove('show');
+        document.getElementById('abnVerifiedMsg').style.display = 'none';
+    }
+    function pickABN(abn, name) {
+        document.getElementById('abnInput').value = abn;
+        document.getElementById('abnDropdown').classList.remove('show');
+        document.getElementById('abnNum').textContent = abn;
+        document.getElementById('abnEntity').textContent = name;
+        document.getElementById('abnResult').classList.add('show');
+        document.getElementById('abnVerifiedMsg').style.display = 'inline-flex';
+        document.getElementById('abnBusinessSelect').classList.add('show');
+        document.getElementById('abnInput').classList.remove('error');
+        var e = document.getElementById('abnError'); if (e) e.classList.remove('show');
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.abn-search-wrap')) document.getElementById('abnDropdown').classList.remove('show');
+        if (!e.target.closest('#addrSearch') && !e.target.closest('.suggestions')) document.getElementById('addrSugg').classList.remove('show');
+    });
+
+    // ===== Address =====
+    function showAddr() {
+        document.getElementById('addrSugg').classList.toggle('show', document.getElementById('addrSearch').value.length > 2);
+    }
+    function pickAddr(st, sub, state, pc) {
+        document.getElementById('addrSearch').value = st + ', ' + sub + ' ' + state + ' ' + pc;
+        document.getElementById('addrSugg').classList.remove('show');
+        document.getElementById('fStreet').value = st;
+        document.getElementById('fSuburb').value = sub;
+        document.getElementById('fState').value = state;
+        document.getElementById('fPostcode').value = pc;
+    }
+
+    // ===== Categories =====
+    function toggleSubList(header) {
+        const subList = header.nextElementSibling;
+        subList.classList.toggle('open');
+        const arrow = header.querySelector('.cat-expand');
+        arrow.innerHTML = subList.classList.contains('open') ? '&#9652;' : '&#9662;';
+    }
+
+    function toggleMain(checkbox, mainName) {
+        const mainEl = checkbox.closest('.cat-main');
+        const subs = mainEl.querySelectorAll('.cat-sub-item input[type="checkbox"]');
+        subs.forEach(s => s.checked = checkbox.checked);
+        if (checkbox.checked) {
+            mainEl.querySelector('.cat-sub-list').classList.add('open');
+            mainEl.querySelector('.cat-expand').innerHTML = '&#9652;';
+        }
+        updateCatState();
+    }
+
+    function toggleSub(checkbox, mainName) {
+        const mainEl = checkbox.closest('.cat-main');
+        const subs = mainEl.querySelectorAll('.cat-sub-item input[type="checkbox"]');
+        const mainChk = mainEl.querySelector('.cat-main-header input[type="checkbox"]');
+        const allChecked = [...subs].every(s => s.checked);
+        const someChecked = [...subs].some(s => s.checked);
+        mainChk.checked = allChecked;
+        mainChk.indeterminate = someChecked && !allChecked;
+        updateCatState();
+    }
+
+    function updateCatState() {
+        selectedMains.clear();
+        const mains = document.querySelectorAll('#catTree .cat-main');
+        mains.forEach(m => {
+            const name = m.dataset.main;
+            const subs = m.querySelectorAll('.cat-sub-item input[type="checkbox"]');
+            const checked = [...subs].filter(s => s.checked);
+            const countEl = document.getElementById('count_' + name);
+            if (checked.length > 0) {
+                selectedMains.add(name);
+                countEl.textContent = '(' + checked.length + '/' + subs.length + ')';
+            } else {
+                countEl.textContent = '';
+            }
+        });
+        updateLicenseCards();
+        if (selectedMains.size > 0) document.getElementById('catError').classList.remove('show');
+    }
+
+    function filterCats() {
+        const q = document.getElementById('catSearch').value.toLowerCase();
+        const mains = document.querySelectorAll('#catTree .cat-main');
+        mains.forEach(m => {
+            const mainName = m.dataset.main.toLowerCase();
+            const subs = m.querySelectorAll('.cat-sub-item');
+            let anyVisible = false;
+
+            if (mainName.includes(q)) {
+                m.classList.remove('cat-hidden');
+                subs.forEach(s => s.classList.remove('cat-hidden'));
+                anyVisible = true;
+            } else {
+                subs.forEach(s => {
+                    const text = s.textContent.toLowerCase();
+                    if (text.includes(q)) {
+                        s.classList.remove('cat-hidden');
+                        anyVisible = true;
+                    } else {
+                        s.classList.add('cat-hidden');
+                    }
+                });
+                m.classList.toggle('cat-hidden', !anyVisible);
+            }
+
+            if (q.length > 0 && anyVisible) {
+                m.querySelector('.cat-sub-list').classList.add('open');
+                m.querySelector('.cat-expand').innerHTML = '&#9652;';
+            }
+        });
+    }
+
+    // ===== Licenses =====
+    function updateLicenseCards() {
+        const container = document.getElementById('licCards');
+        const empty = document.getElementById('licEmpty');
+
+        const existingStates = {};
+        container.querySelectorAll('.lic-card').forEach(card => {
+            const name = card.dataset.main;
+            const toggle = card.querySelector('.lic-toggle');
+            existingStates[name] = {
+                required: toggle ? toggle.value : 'yes',
+                licNum: card.querySelector('.lic-num') ? card.querySelector('.lic-num').value : '',
+                licBody: card.querySelector('.lic-body') ? card.querySelector('.lic-body').value : '',
+                licReason: card.querySelector('.lic-reason-input') ? card.querySelector('.lic-reason-input').value : ''
+            };
+        });
+
+        container.innerHTML = '';
+
+        if (selectedMains.size === 0) {
+            empty.style.display = 'block';
+            return;
+        }
+        empty.style.display = 'none';
+
+        selectedMains.forEach(main => {
+            const state = existingStates[main] || { required: 'yes', licNum: '', licBody: '', licReason: '' };
+            const isYes = state.required === 'yes';
+
+            const card = document.createElement('div');
+            card.className = 'lic-card';
+            card.dataset.main = main;
+
+            card.innerHTML =
+                '<div class="lic-card-header">' +
+                    '<div class="lic-card-title">' + main + '</div>' +
+                    '<div class="lic-card-toggle">' +
+                        '<label style="font-size:12px;color:#666;font-weight:600;">License Required?</label>' +
+                        '<select class="lic-toggle" onchange="toggleLicCard(this)" style="padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px;">' +
+                            '<option value="yes"' + (isYes ? ' selected' : '') + '>Yes</option>' +
+                            '<option value="no"' + (!isYes ? ' selected' : '') + '>No</option>' +
+                        '</select>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="lic-yes-fields"' + (!isYes ? ' style="display:none;"' : '') + '>' +
+                    '<div class="lic-card-fields">' +
+                        '<div class="form-group">' +
+                            '<label class="field-label">License Number <span class="req">*</span></label>' +
+                            '<span class="field-error">Complete this field.</span>' +
+                            '<input type="text" class="field-input lic-num" placeholder="e.g. 234567C" value="' + escHtml(state.licNum) + '">' +
+                        '</div>' +
+                        '<div class="form-group">' +
+                            '<label class="field-label">Licensing Body <span class="req">*</span></label>' +
+                            '<span class="field-error">Complete this field.</span>' +
+                            '<input type="text" class="field-input lic-body" placeholder="e.g. NSW Fair Trading" value="' + escHtml(state.licBody) + '">' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="lic-no-fields"' + (isYes ? ' style="display:none;"' : '') + '>' +
+                    '<div class="form-group lic-reason" style="margin-bottom:0;">' +
+                        '<label class="field-label">Reason License Not Required <span class="req">*</span></label>' +
+                        '<span class="field-error">Complete this field.</span>' +
+                        '<input type="text" class="field-input lic-reason-input" placeholder="e.g. Trade does not require a license in this state" value="' + escHtml(state.licReason) + '">' +
+                    '</div>' +
+                '</div>';
+
+            container.appendChild(card);
+        });
+    }
+
+    function escHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function toggleLicCard(select) {
+        const card = select.closest('.lic-card');
+        const isYes = select.value === 'yes';
+        card.querySelector('.lic-yes-fields').style.display = isYes ? 'block' : 'none';
+        card.querySelector('.lic-no-fields').style.display = isYes ? 'none' : 'block';
+        card.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
+        card.querySelectorAll('.field-input.error').forEach(e => e.classList.remove('error'));
+    }
+
+    // ===== Eligibility Checks =====
+    function runEligibilityChecks(row) {
+        const performance = row.dataset.performance;
+        const credentials = row.dataset.credentials;
+        const invoices = parseInt(row.dataset.invoices, 10);
+        const frozen = row.dataset.frozen;
+
+        const validCredentials = ['', 'No Issues'];
+        const validPerformance = ['', 'None', 'Redeemed', 'Last Warning', 'Negative feedback discussed', 'Sales - License Review'];
+
+        const checks = [
+            {
+                name: 'Performance status compliant',
+                pass: validPerformance.includes(performance),
+                value: performance || '(blank)'
+            },
+            {
+                name: 'Valid credentials',
+                pass: validCredentials.includes(credentials),
+                value: credentials || '(blank)'
+            },
+            {
+                name: 'Less than 2 invoices outstanding',
+                pass: invoices < 2,
+                value: invoices + ' invoice(s)'
+            },
+            {
+                name: 'Account is not frozen',
+                pass: frozen === 'No' || frozen === '' || frozen === 'False',
+                value: frozen === 'Yes' ? 'Frozen' : 'Not frozen'
+            }
+        ];
+
+        return checks;
+    }
+
+    function showEligibilityPanel(row, screenId) {
+        const panel = document.getElementById('eligPanel_' + screenId);
+        const nameEl = document.getElementById('eligPanelName_' + screenId);
+        const badgeEl = document.getElementById('eligPanelBadge_' + screenId);
+        const listEl = document.getElementById('eligList_' + screenId);
+
+        const accountName = row.cells[2].textContent;
+        const checks = runEligibilityChecks(row);
+        const overallPass = checks.every(c => c.pass);
+
+        // Update row class based on eligibility
+        row.classList.remove('row-not-eligible', 'row-eligible');
+        row.classList.add(overallPass ? 'row-eligible' : 'row-not-eligible');
+
+        // Update data attribute to reflect current eligibility
+        row.dataset.eligible = overallPass ? 'true' : 'false';
+
+        nameEl.textContent = accountName + ' — Eligibility Checks';
+        badgeEl.innerHTML = overallPass
+            ? '<span class="badge badge-eligible">Eligible</span>'
+            : '<span class="badge badge-not-eligible">Not Eligible</span>';
+
+        listEl.innerHTML = '';
+        checks.forEach(function(check) {
+            const li = document.createElement('li');
+            var icon;
+            if (check.pass) {
+                icon = '<svg class="check-icon check-pass" viewBox="0 0 20 20"><path fill="currentColor" d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-1 15l-5-5 1.41-1.41L9 12.17l6.59-6.59L17 7l-8 8z"/></svg>';
+            } else {
+                icon = '<svg class="check-icon check-fail" viewBox="0 0 20 20"><path fill="currentColor" d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm5 13.59L13.59 15 10 11.41 6.41 15 5 13.59 8.59 10 5 6.41 6.41 5 10 8.59 13.59 5 15 6.41 11.41 10 15 13.59z"/></svg>';
+            }
+            li.innerHTML = icon +
+                '<span class="check-label">' + check.name + '</span>' +
+                '<span class="check-value">' + check.value + '</span>';
+            listEl.appendChild(li);
+        });
+
+        panel.classList.add('show');
+    }
+
+    // ===== Convert =====
+    let matchScenario = 'multiple';
+    let errorScenario = 'success';
+    let retryCount = 0;
+
+    const errorMessages = [
+        'The billing system did not respond in time. Please try again.',
+        'Account data could not be verified. Please try again.',
+        'The system is currently unavailable. Please try again.'
+    ];
+
+    function setScenario(type) {
+        matchScenario = type;
+        doConvert();
+    }
+    function setErrorScenario(type) {
+        errorScenario = type;
+        document.querySelectorAll('.error-scenario-link').forEach(a => a.style.fontWeight = '400');
+        document.querySelectorAll('[id^="errScenario_' + type + '"]').forEach(a => a.style.fontWeight = '700');
+    }
+    function doConvert() {
+        if (matchScenario === 'single') go('3single');
+        else if (matchScenario === 'none') go('3none');
+        else if (matchScenario === 'banned') go('3banned');
+        else go(3);
+    }
+
+    function pickAcct(row, id, screenId) {
+        var table = row.closest('table');
+        table.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected'));
+        row.classList.add('selected');
+        row.querySelector('input[type=radio]').checked = true;
+
+        // Show eligibility detail panel (this will update row classes and data-eligible)
+        showEligibilityPanel(row, screenId);
+
+        // Enable convert — reps convert first, then resolve account issues post-conversion
+        if (screenId === 's3') {
+            document.getElementById('confirmBtn').disabled = false;
+            var isEligible = row.dataset.eligible === 'true';
+            if (!isEligible) {
+                document.getElementById('notEligibleMsg_s3').classList.add('show');
+            } else {
+                document.getElementById('notEligibleMsg_s3').classList.remove('show');
+            }
+        } else if (screenId === 's3single') {
+            document.getElementById('confirmBtnSingle').disabled = false;
+            var isEligSingle = row.dataset.eligible === 'true';
+            if (!isEligSingle) {
+                document.getElementById('notEligibleMsg_s3single').classList.add('show');
+            } else {
+                document.getElementById('notEligibleMsg_s3single').classList.remove('show');
+            }
+        }
+    }
+
+    let lastConvertScreen = null;
+    function getActiveOverlay() {
+        const active = document.querySelector('.screen.active');
+        if (!active) return null;
+        return active.querySelector('.modal-spinner-overlay');
+    }
+    function hideAllOverlays() {
+        document.querySelectorAll('.modal-spinner-overlay').forEach(o => o.classList.remove('active'));
+    }
+    function doConfirm() {
+        const activeScreen = document.querySelector('.screen.active');
+        if (activeScreen) lastConvertScreen = activeScreen.id.replace('s', '');
+        const overlay = getActiveOverlay();
+        if (overlay) overlay.classList.add('active');
+        setTimeout(() => {
+            hideAllOverlays();
+            if (errorScenario === 'success') {
+                go(4);
+            } else if (errorScenario === 'error-then-success') {
+                if (retryCount === 0) {
+                    document.getElementById('errorMessage').textContent = errorMessages[0];
+                    retryCount = 1;
+                    go('3c');
+                } else {
+                    go(4);
+                }
+            } else if (errorScenario === 'error-twice') {
+                if (retryCount === 0) {
+                    document.getElementById('errorMessage').textContent = errorMessages[1];
+                    retryCount = 1;
+                    go('3c');
+                } else {
+                    go('3d');
+                }
+            }
+        }, 2000);
+    }
+    function doRetry() {
+        if (lastConvertScreen) {
+            go(lastConvertScreen);
+            const overlay = getActiveOverlay();
+            if (overlay) overlay.classList.add('active');
+        }
+        setTimeout(() => {
+            hideAllOverlays();
+            if (errorScenario === 'error-then-success') {
+                go(4);
+            } else {
+                go('3d');
+            }
+        }, 2000);
+    }
+
+    // Auto-show eligibility for pre-selected single match
+    function initSingleMatch() {
+        var row = document.querySelector('#s3single .data-table tbody tr.selected');
+        if (row) {
+            showEligibilityPanel(row, 's3single');
+        }
+    }
+
+    function reset() {
+        retryCount = 0;
+        hideAllOverlays();
+        selectedMains.clear();
+        document.getElementById('abnResult').classList.remove('show');
+        document.getElementById('abnBusinessSelect').classList.remove('show');
+        document.getElementById('abnVerifiedMsg').style.display = 'none';
+        document.getElementById('abnDropdown').classList.remove('show');
+        document.getElementById('addrSugg').classList.remove('show');
+        document.getElementById('licCards').innerHTML = '';
+        document.getElementById('licEmpty').style.display = 'block';
+        document.getElementById('confirmBtn').disabled = true;
+        document.getElementById('confirmBtnSingle').disabled = false;
+        document.querySelectorAll('.data-table tbody tr').forEach(r => r.classList.remove('selected'));
+        document.querySelectorAll('.data-table input[type=radio]').forEach(r => r.checked = false);
+        document.querySelectorAll('#catTree input[type="checkbox"]').forEach(c => { c.checked = false; c.indeterminate = false; });
+        document.querySelectorAll('.cat-count').forEach(c => c.textContent = '');
+        document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
+        document.querySelectorAll('.field-input.error').forEach(e => e.classList.remove('error'));
+        document.querySelectorAll('.eligibility-panel').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.not-eligible-msg').forEach(m => m.classList.remove('show'));
+        document.getElementById('catSearch').value = '';
+        filterCats();
+        // Re-select single match row
+        var singleRow = document.querySelector('#s3single .data-table tbody tr');
+        if (singleRow) {
+            singleRow.classList.add('selected');
+            singleRow.querySelector('input[type=radio]').checked = true;
+        }
+        go(1);
+    }
+
+    function closeFlow() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelector('.page-bg').style.display = 'none';
+        document.querySelector('.ribbon').style.display = 'none';
+        document.body.style.background = '#f4f4f4';
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#666;font-size:16px;">Flow closed. Refresh to restart.</div>';
+    }
+
+    // Init
+    initSingleMatch();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reactivation Screenflow v2 - Resolve Eligibility</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fff;
+            color: #181818;
+            font-size: 13px;
+        }
+
+        .page-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 10; }
+
+        .modal {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 640px; max-width: 95vw; max-height: 90vh;
+            background: #fff; border-radius: 8px;
+            border: 1px solid #d8d8d8;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+            z-index: 20; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .modal.wide { width: 620px; }
+        .modal.extra-wide { width: 620px; }
+
+        .modal-header {
+            padding: 16px 24px; border-bottom: 1px solid #d8d8d8;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+        }
+        .modal-header h2 { font-size: 20px; font-weight: 300; color: #181818; text-align: center; flex: 1; }
+        .modal-close {
+            width: 28px; height: 28px; border: none; background: none;
+            font-size: 20px; color: #444; cursor: pointer; border-radius: 4px;
+        }
+        .modal-close:hover { background: #eee; }
+
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+
+        .modal-footer {
+            padding: 12px 24px; border-top: 1px solid #d8d8d8;
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .modal-footer-right { display: flex; gap: 8px; }
+        .step-text { font-size: 12px; color: #999; }
+
+        .three-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+        .three-col .col-full { grid-column: 1 / -1; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+        .col { min-width: 0; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .form-row.single { grid-template-columns: 1fr; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 14px; }
+        label.field-label { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 4px; }
+        label.field-label .req { color: #000; font-weight: 800; }
+        .field-input {
+            padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px;
+            font-size: 14px; color: #000; background: #fff;
+        }
+        .field-input:focus { outline: none; border-color: #000; }
+        .field-input::placeholder { color: #bbb; }
+        .field-input.readonly { background: #f5f5f5; color: #666; }
+        select.field-input { appearance: auto; }
+
+        .btn {
+            padding: 8px 16px; border-radius: 4px; font-size: 13px;
+            font-weight: 400; cursor: pointer; border: 1px solid #c9c9c9;
+        }
+        .btn-neutral { background: #fff; color: #181818; }
+        .btn-neutral:hover { background: #f3f3f3; }
+        .btn-brand { background: #0176d3; color: #fff; border-color: #0176d3; }
+        .btn-brand:hover { background: #014486; border-color: #014486; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-small { padding: 5px 12px; font-size: 12px; }
+
+        /* ABN */
+        .abn-search-wrap { position: relative; }
+        .abn-dropdown {
+            position: absolute; top: 100%; left: 0; right: 0;
+            border: 1px solid #ccc; border-top: none; border-radius: 0 0 4px 4px;
+            background: #fff; max-height: 200px; overflow-y: auto; z-index: 5; display: none;
+        }
+        .abn-dropdown.show { display: block; }
+        .abn-dropdown-item { padding: 10px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .abn-dropdown-item:hover { background: #f5f5f5; }
+        .abn-dropdown-item:last-child { border-bottom: none; }
+        .abn-dropdown-item .abn-num { color: #666; font-size: 11px; }
+        .abn-dropdown-item .abn-name { font-weight: 600; }
+
+        .abn-result {
+            border: 1px solid #ccc; border-radius: 6px; padding: 12px;
+            margin-top: 10px; display: none; font-size: 12px;
+        }
+        .abn-result.show { display: block; }
+        .abn-result h4 { font-size: 12px; margin-bottom: 6px; }
+        .abn-grid { display: grid; grid-template-columns: 100px 1fr; gap: 3px 10px; }
+        .abn-grid dt { color: #666; font-weight: 600; font-size: 11px; }
+        .abn-grid dd { color: #000; font-size: 12px; }
+
+        .abn-business-select { margin-top: 10px; display: none; }
+        .abn-business-select.show { display: block; }
+        .abn-business-select .help-sub { font-size: 11px; color: #666; margin-bottom: 4px; }
+
+        .abn-verified {
+            display: inline-flex; align-items: center; gap: 4px;
+            color: #2e844a; font-size: 11px; font-weight: 600; margin-top: 4px;
+        }
+        .abn-verified svg { width: 14px; height: 14px; fill: #2e844a; }
+
+        .suggestions {
+            border: 1px solid #ccc; border-radius: 4px; display: none;
+            max-height: 120px; overflow-y: auto;
+        }
+        .suggestions.show { display: block; }
+        .suggestion-item {
+            padding: 8px 12px; font-size: 13px; cursor: pointer; border-bottom: 1px solid #eee;
+        }
+        .suggestion-item:hover { background: #f5f5f5; }
+        .suggestion-item:last-child { border-bottom: none; }
+
+        /* Category tree */
+        .cat-search-wrap { margin-bottom: 8px; }
+        .cat-tree {
+            max-height: 320px; overflow-y: auto;
+            border: 1px solid #ccc; border-radius: 4px;
+        }
+        .cat-main { border-bottom: 1px solid #eee; }
+        .cat-main:last-child { border-bottom: none; }
+        .cat-main-header {
+            padding: 8px 12px; display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 700; cursor: pointer; background: #fafafa;
+        }
+        .cat-main-header:hover { background: #f0f0f0; }
+        .cat-main-header input { width: 15px; height: 15px; flex-shrink: 0; }
+        .cat-main-header .cat-expand {
+            margin-left: auto; font-size: 10px; color: #999;
+            width: 20px; height: 20px; display: flex; align-items: center;
+            justify-content: center; border-radius: 3px; flex-shrink: 0;
+        }
+        .cat-main-header .cat-expand:hover { background: #ddd; }
+        .cat-sub-list { display: none; }
+        .cat-sub-list.open { display: block; }
+        .cat-sub-item {
+            padding: 6px 12px 6px 38px; display: flex; align-items: center; gap: 8px;
+            font-size: 13px; cursor: pointer; border-top: 1px solid #f0f0f0;
+        }
+        .cat-sub-item:hover { background: #f5f5f5; }
+        .cat-sub-item input { width: 14px; height: 14px; flex-shrink: 0; }
+
+        /* License cards */
+        .lic-card { border: 1px solid #ccc; border-radius: 6px; padding: 14px; margin-bottom: 12px; }
+        .lic-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .lic-card-title { font-size: 13px; font-weight: 700; }
+        .lic-card-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        .lic-card-toggle select { padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; color: #000; }
+        .lic-card-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .lic-card-fields .form-group { margin-bottom: 0; }
+        .lic-card-fields .field-input { font-size: 13px; padding: 6px 8px; }
+        .lic-card-fields label.field-label { font-size: 11px; }
+        .lic-reason { grid-column: 1 / -1; }
+        .lic-empty { text-align: center; padding: 24px; color: #999; font-size: 12px; border: 1px dashed #ccc; border-radius: 4px; }
+
+        /* Data table */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #181818; table-layout: fixed; }
+        .data-table th {
+            text-align: left; font-size: 12px; font-weight: 700;
+            color: #444; padding: 8px 10px;
+            background: #fafaf9; border-bottom: 1px solid #e5e5e5;
+            border-right: 1px solid #e5e5e5;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .data-table th:last-child { border-right: none; }
+        .data-table td { padding: 10px 6px; border-bottom: 1px solid #e5e5e5; vertical-align: middle; color: #181818; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; font-weight: 300; }
+        .data-table tbody tr { cursor: pointer; }
+        .data-table tbody tr:hover { background: #f3f3f3; }
+        .data-table tbody tr.selected { background: #eef4ff; }
+        .data-table tbody tr.row-eligible td:first-child { border-left: 4px solid #1a7431; }
+        .data-table tbody tr.row-not-eligible td:first-child { border-left: 4px solid #ba1b1b; }
+        .data-table tbody tr.row-blocked td:first-child { border-left: 4px solid #555; }
+        .data-table input[type="radio"] { width: 14px; height: 14px; accent-color: #0176d3; margin: 0; }
+        .data-table td:first-child, .data-table td:nth-child(2) { padding: 10px 2px; text-align: center; }
+        .data-table th:first-child, .data-table th:nth-child(2) { padding: 8px 2px; text-align: center; }
+
+        .success-center { text-align: center; padding: 20px 0; }
+        .success-center p { color: #666; font-size: 13px; margin-bottom: 20px; }
+        .help-text { font-size: 12px; color: #666; margin-bottom: 10px; }
+
+        .section-label {
+            font-size: 11px; font-weight: 700; color: #666;
+            text-transform: uppercase; letter-spacing: 0.3px;
+            margin: 0 0 10px; padding-bottom: 4px; border-bottom: 1px solid #ddd;
+        }
+
+        .table-scroll { overflow-x: auto; border: 1px solid #e5e5e5; border-radius: 4px; }
+
+        .spinner {
+            width: 32px; height: 32px; border: 3px solid #ddd;
+            border-top-color: #000; border-radius: 50%;
+            animation: spin 0.7s linear infinite; margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-screen { text-align: center; padding: 48px 0; }
+        .loading-screen p { color: #666; font-size: 13px; margin-top: 14px; }
+
+        .modal-spinner-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(3px);
+            z-index: 50; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .modal-spinner-overlay.active { display: flex; }
+        .modal-spinner-overlay p { color: #444; font-size: 13px; margin-top: 14px; }
+
+        .field-error { font-size: 12px; color: #ea001e; margin-bottom: 2px; display: none; }
+        .field-error.show { display: block; }
+        .field-input.error { border-color: #ea001e; }
+
+        .screen { display: none; }
+        .screen.active { display: flex; flex-direction: column; height: 100%; }
+
+        .ribbon {
+            position: fixed; top: 12px; right: -34px;
+            background: #000; color: #fff; padding: 4px 40px; font-size: 10px;
+            font-weight: 700; transform: rotate(45deg); z-index: 30; letter-spacing: 0.5px;
+        }
+
+        .cat-hidden { display: none !important; }
+        .cat-count { font-size: 11px; color: #999; font-weight: 400; margin-left: 4px; }
+
+        /* Eligibility badge */
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+        .badge-eligible { background: #e6f4ea; color: #1a7431; }
+        .badge-not-eligible { background: #fde7e7; color: #ba1b1b; }
+        .badge-banned { background: #333; color: #fff; }
+        .badge-blocked { background: #555; color: #fff; }
+        .badge-resolved { background: #e6f4ea; color: #1a7431; }
+
+        /* Eligibility badge with details link */
+        .badge-wrap { display: flex; align-items: center; gap: 6px; }
+        .details-link { font-size: 11px; color: #0176d3; cursor: pointer; text-decoration: underline; white-space: nowrap; }
+        .details-link:hover { color: #014486; }
+        .hint-text { font-size: 11px; color: #999; margin-top: 8px; font-style: italic; }
+
+        /* Eligibility detail panel */
+        .eligibility-panel {
+            display: none; margin-top: 16px;
+            border: 1px solid #ccc; border-radius: 6px; padding: 16px; background: #fafafa;
+        }
+        .eligibility-panel.show { display: block; }
+        .eligibility-panel h4 { font-size: 13px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .eligibility-list { list-style: none; padding: 0; margin: 0; }
+        .eligibility-list li {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 0; border-bottom: 1px solid #eee; font-size: 12px;
+        }
+        .eligibility-list li:last-child { border-bottom: none; }
+        .check-icon { width: 16px; height: 16px; flex-shrink: 0; }
+        .check-pass { color: #1a7431; }
+        .check-fail { color: #ba1b1b; }
+        .check-label { color: #333; }
+        .check-value { color: #666; font-size: 11px; }
+        .check-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+
+        /* Resolve action button */
+        .resolve-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
+            cursor: pointer; border: 1px solid #0176d3; background: #fff; color: #0176d3;
+            white-space: nowrap;
+        }
+        .resolve-btn:hover { background: #e8f4fd; }
+        .resolve-btn svg { width: 12px; height: 12px; }
+
+        /* Resolved state */
+        .check-resolved .check-label { text-decoration: line-through; color: #999; }
+        .check-resolved .resolve-btn { display: none; }
+        .resolved-label {
+            font-size: 11px; color: #1a7431; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 3px;
+        }
+
+        /* Banned alert banner */
+        .alert-banner { padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; font-size: 13px; }
+        .alert-banner-error { background: #fde7e7; border: 1px solid #f5c6c6; color: #ba1b1b; }
+        .alert-banner-icon { font-size: 18px; flex-shrink: 0; line-height: 1; }
+        .alert-banner-content { flex: 1; }
+        .alert-banner-title { font-weight: 700; margin-bottom: 4px; }
+        .alert-banner-text { font-size: 12px; color: #666; }
+
+        .not-eligible-msg { display: none; font-size: 12px; color: #856404; font-weight: 600; margin-top: 12px; padding: 10px 14px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; }
+        .not-eligible-msg.show { display: block; }
+
+        /* Sherlock blocked row */
+        .row-blocked { opacity: 0.55; }
+        .row-blocked td { cursor: not-allowed !important; }
+
+        /* Case created inline label */
+        .case-created-label {
+            font-size: 11px; color: #0176d3; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 3px;
+        }
+
+        /* Inline resolve panels */
+        .resolve-inline {
+            display: none; margin-top: 6px; padding: 10px 12px;
+            background: #fff; border: 1px solid #ccc; border-radius: 6px;
+            font-size: 12px;
+        }
+        .resolve-inline.show { display: block; }
+        .resolve-inline-title { font-weight: 700; font-size: 12px; margin-bottom: 8px; }
+        .resolve-inline .form-group { margin-bottom: 10px; }
+        .resolve-inline .field-input { font-size: 12px; padding: 6px 8px; }
+        .resolve-inline label.field-label { font-size: 11px; }
+        .resolve-inline-actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px; }
+
+        /* Payment sub-modal */
+        .sub-modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5); z-index: 60;
+            align-items: center; justify-content: center;
+        }
+        .sub-modal-overlay.show { display: flex; }
+        .sub-modal {
+            background: #fff; border-radius: 8px; width: 520px; max-width: 95vw;
+            border: 1px solid #d8d8d8; box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+        }
+        .sub-modal .modal-header { padding: 14px 20px; }
+        .sub-modal .modal-header h2 { font-size: 18px; }
+        .sub-modal .modal-body { padding: 20px; }
+        .sub-modal .modal-footer { padding: 10px 20px; }
+
+        /* Invoice table in payment sub-modal */
+        .invoice-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 12px; }
+        .invoice-table th {
+            text-align: left; font-size: 10px; text-transform: uppercase;
+            color: #666; font-weight: 700; padding: 6px 8px; border-bottom: 2px solid #000;
+        }
+        .invoice-table td { padding: 6px 8px; border-bottom: 1px solid #eee; }
+        .invoice-table tfoot td { font-weight: 700; border-top: 2px solid #000; border-bottom: none; }
+
+        .payment-method-row { display: flex; gap: 12px; margin-bottom: 12px; }
+        .payment-method-option {
+            flex: 1; padding: 10px 12px; border: 2px solid #ccc; border-radius: 6px;
+            cursor: pointer; text-align: center; font-size: 12px; font-weight: 600;
+        }
+        .payment-method-option:hover { border-color: #999; }
+        .payment-method-option.selected { border-color: #0176d3; background: #e8f4fd; }
+        .payment-method-label { margin-top: 4px; font-size: 11px; color: #666; font-weight: 400; }
+
+        .payment-success {
+            text-align: center; padding: 16px 0;
+        }
+        .payment-success-icon {
+            width: 48px; height: 48px; background: #e6f4ea; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center; margin-bottom: 10px;
+        }
+        .payment-success-icon svg { width: 24px; height: 24px; fill: #1a7431; }
+    </style>
+</head>
+<body>
+
+<div class="ribbon">MOCKUP v2</div>
+<div class="page-bg"></div>
+
+<!-- ==================== SCREEN 1 ==================== -->
+<div class="screen active" id="s1">
+    <div class="modal extra-wide">
+        <div class="modal-header">
+            <h2>Contact & Business Details</h2>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="three-col">
+                <div class="col col-full">
+                    <div class="section-label">Personal Information</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 24px;">
+                        <div class="form-group">
+                            <label class="field-label">First Name <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <input type="text" class="field-input" data-required value="James">
+                        </div>
+                        <div class="form-group">
+                            <label class="field-label">Last Name <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <input type="text" class="field-input" data-required value="Mitchell">
+                        </div>
+                        <div class="form-group">
+                            <label class="field-label">Phone <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <input type="tel" class="field-input" data-required value="0412 345 678">
+                        </div>
+                        <div class="form-group">
+                            <label class="field-label">Email <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <input type="email" class="field-input" data-required value="james@mitchellplumbing.com.au">
+                        </div>
+                        <div class="form-group">
+                            <label class="field-label">Number of Employees <span class="req">*</span></label>
+                            <span class="field-error">Complete this field.</span>
+                            <select class="field-input" data-required>
+                                <option value="">-- Select --</option>
+                                <option>1 (Solo)</option><option selected>2-5</option>
+                                <option>6-10</option><option>11-20</option><option>20+</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="section-label">ABN</div>
+                    <p class="help-text">Enter your ABN or search by business name.</p>
+                    <div class="form-group">
+                        <label class="field-label">ABN / Business Name <span class="req">*</span></label>
+                        <span class="field-error" id="abnError">Complete this field.</span>
+                        <div class="abn-search-wrap">
+                            <input type="text" class="field-input" data-required placeholder="Enter ABN or business name..." id="abnInput" oninput="abnAutocomplete()" autocomplete="off" style="width:100%;">
+                            <div class="abn-dropdown" id="abnDropdown">
+                                <div class="abn-dropdown-item" onclick="pickABN('51 824 753 556','Mitchell Plumbing Pty Ltd')"><div class="abn-name">Mitchell Plumbing Pty Ltd</div><div class="abn-num">ABN: 51 824 753 556 - Active</div></div>
+                                <div class="abn-dropdown-item" onclick="pickABN('23 456 789 012','Mitchell Plumbing Services')"><div class="abn-name">Mitchell Plumbing Services</div><div class="abn-num">ABN: 23 456 789 012 - Active</div></div>
+                                <div class="abn-dropdown-item" onclick="pickABN('67 890 123 456','Mitchell Emergency Plumbing')"><div class="abn-name">Mitchell Emergency Plumbing</div><div class="abn-num">ABN: 67 890 123 456 - Active</div></div>
+                                <div class="abn-dropdown-item" onclick="pickABN('34 567 890 123','JM Plumbing Solutions')"><div class="abn-name">JM Plumbing Solutions</div><div class="abn-num">ABN: 34 567 890 123 - Active</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="abn-result" id="abnResult">
+                        <h4>ABN Found - Active</h4>
+                        <dl class="abn-grid">
+                            <dt>ABN</dt><dd id="abnNum">51 824 753 556</dd>
+                            <dt>Entity Name</dt><dd id="abnEntity">Mitchell Plumbing Pty Ltd</dd>
+                            <dt>Entity Type</dt><dd>Australian Private Company</dd>
+                            <dt>Status</dt><dd>Active</dd>
+                            <dt>GST</dt><dd>Yes (from 01 Jul 2015)</dd>
+                        </dl>
+                    </div>
+                    <div id="abnVerifiedMsg" class="abn-verified" style="display:none;">
+                        <svg viewBox="0 0 20 20"><path d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-1 15l-5-5 1.41-1.41L9 12.17l6.59-6.59L17 7l-8 8z"/></svg>
+                        ABN verified
+                    </div>
+                    <div class="abn-business-select" id="abnBusinessSelect">
+                        <div class="form-group" style="margin-top:8px;">
+                            <label class="field-label">Business name to advertise with <span class="req">*</span></label>
+                            <p class="help-sub" style="font-size:11px;color:#666;margin-bottom:4px;">Select the Business name to advertise with hipages.</p>
+                            <select class="field-input" style="margin-top:4px;">
+                                <option>Mitchell Plumbing Pty Ltd</option>
+                                <option>Mitchell Plumbing Services</option>
+                                <option>Mitchell Emergency Plumbing</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="section-label">Address</div>
+                    <p class="help-text">Search or type the address. All fields are editable.</p>
+                    <div class="form-group" style="margin-bottom:4px;">
+                        <label class="field-label">Address Search</label>
+                        <input type="text" class="field-input" placeholder="Start typing an address..." id="addrSearch" oninput="showAddr()">
+                    </div>
+                    <div class="suggestions" id="addrSugg">
+                        <div class="suggestion-item" onclick="pickAddr('14 Smith St','Parramatta','NSW','2150')">14 Smith St, Parramatta NSW 2150</div>
+                        <div class="suggestion-item" onclick="pickAddr('14 Smith Ave','Ryde','NSW','2112')">14 Smith Ave, Ryde NSW 2112</div>
+                        <div class="suggestion-item" onclick="pickAddr('14A Smith Ln','Epping','NSW','2121')">14A Smith Ln, Epping NSW 2121</div>
+                    </div>
+                    <div class="form-group"><label class="field-label">Street <span class="req">*</span></label><span class="field-error">Complete this field.</span><input type="text" class="field-input" data-required id="fStreet" value="14 Smith St"></div>
+                    <div class="form-group"><label class="field-label">Suburb <span class="req">*</span></label><span class="field-error">Complete this field.</span><input type="text" class="field-input" data-required id="fSuburb" value="Parramatta"></div>
+                    <div class="form-group"><label class="field-label">State <span class="req">*</span></label><span class="field-error">Complete this field.</span><input type="text" class="field-input" data-required id="fState" value="NSW"></div>
+                    <div class="form-group"><label class="field-label">Postcode <span class="req">*</span></label><span class="field-error">Complete this field.</span><input type="text" class="field-input" data-required id="fPostcode" value="2150"></div>
+                    <div class="form-group"><label class="field-label">Country</label><input type="text" class="field-input readonly" value="Australia" readonly></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 1 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" onclick="nextStep(1,2)">Save & Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 2 ==================== -->
+<div class="screen" id="s2">
+    <div class="modal extra-wide">
+        <div class="modal-header"><h2>Categories, Service Area & Licenses</h2><button class="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div class="two-col">
+                <div class="col">
+                    <div class="section-label">Categories</div>
+                    <p class="help-text">Search and select categories. Selecting a main category selects all subcategories, or pick individual ones.</p>
+                    <span class="field-error" id="catError">Select at least one category.</span>
+                    <div class="cat-search-wrap"><input type="text" class="field-input" placeholder="Search categories..." id="catSearch" oninput="filterCats()" style="width:100%;margin-bottom:0;"></div>
+                    <div class="cat-tree" id="catTree">
+                        <div class="cat-main" data-main="Plumbing"><div class="cat-main-header" onclick="toggleSubList(this)"><input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Plumbing')" id="chk_Plumbing"><span>Plumbing</span><span class="cat-count" id="count_Plumbing"></span><span class="cat-expand">&#9662;</span></div><div class="cat-sub-list"><label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: General Plumbing</label><label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: Emergency Plumbing</label><label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: Hot Water Systems</label><label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: Drain Cleaning</label><label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: Toilet Repairs</label><label class="cat-sub-item"><input type="checkbox" data-parent="Plumbing" onchange="toggleSub(this,'Plumbing')"> Plumbing: Leak Detection</label></div></div>
+                        <div class="cat-main" data-main="Gas Fitting"><div class="cat-main-header" onclick="toggleSubList(this)"><input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Gas Fitting')" id="chk_Gas Fitting"><span>Gas Fitting</span><span class="cat-count" id="count_Gas Fitting"></span><span class="cat-expand">&#9662;</span></div><div class="cat-sub-list"><label class="cat-sub-item"><input type="checkbox" data-parent="Gas Fitting" onchange="toggleSub(this,'Gas Fitting')"> Gas Fitting: Gas Appliance Installation</label><label class="cat-sub-item"><input type="checkbox" data-parent="Gas Fitting" onchange="toggleSub(this,'Gas Fitting')"> Gas Fitting: Gas Leak Repairs</label><label class="cat-sub-item"><input type="checkbox" data-parent="Gas Fitting" onchange="toggleSub(this,'Gas Fitting')"> Gas Fitting: Gas Hot Water</label></div></div>
+                        <div class="cat-main" data-main="Bathroom Renovation"><div class="cat-main-header" onclick="toggleSubList(this)"><input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Bathroom Renovation')" id="chk_Bathroom Renovation"><span>Bathroom Renovation</span><span class="cat-count" id="count_Bathroom Renovation"></span><span class="cat-expand">&#9662;</span></div><div class="cat-sub-list"><label class="cat-sub-item"><input type="checkbox" data-parent="Bathroom Renovation" onchange="toggleSub(this,'Bathroom Renovation')"> Bathroom Renovation: Full Renovation</label><label class="cat-sub-item"><input type="checkbox" data-parent="Bathroom Renovation" onchange="toggleSub(this,'Bathroom Renovation')"> Bathroom Renovation: Shower Screens</label><label class="cat-sub-item"><input type="checkbox" data-parent="Bathroom Renovation" onchange="toggleSub(this,'Bathroom Renovation')"> Bathroom Renovation: Tiling</label></div></div>
+                        <div class="cat-main" data-main="Roof Plumbing"><div class="cat-main-header" onclick="toggleSubList(this)"><input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Roof Plumbing')" id="chk_Roof Plumbing"><span>Roof Plumbing</span><span class="cat-count" id="count_Roof Plumbing"></span><span class="cat-expand">&#9662;</span></div><div class="cat-sub-list"><label class="cat-sub-item"><input type="checkbox" data-parent="Roof Plumbing" onchange="toggleSub(this,'Roof Plumbing')"> Roof Plumbing: Gutters & Downpipes</label><label class="cat-sub-item"><input type="checkbox" data-parent="Roof Plumbing" onchange="toggleSub(this,'Roof Plumbing')"> Roof Plumbing: Roof Repairs</label><label class="cat-sub-item"><input type="checkbox" data-parent="Roof Plumbing" onchange="toggleSub(this,'Roof Plumbing')"> Roof Plumbing: Rainwater Tanks</label></div></div>
+                        <div class="cat-main" data-main="Appliance Installation"><div class="cat-main-header" onclick="toggleSubList(this)"><input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Appliance Installation')" id="chk_Appliance Installation"><span>Appliance Installation</span><span class="cat-count" id="count_Appliance Installation"></span><span class="cat-expand">&#9662;</span></div><div class="cat-sub-list"><label class="cat-sub-item"><input type="checkbox" data-parent="Appliance Installation" onchange="toggleSub(this,'Appliance Installation')"> Appliance Installation: Cooktop Installation</label><label class="cat-sub-item"><input type="checkbox" data-parent="Appliance Installation" onchange="toggleSub(this,'Appliance Installation')"> Appliance Installation: Dishwasher Installation</label><label class="cat-sub-item"><input type="checkbox" data-parent="Appliance Installation" onchange="toggleSub(this,'Appliance Installation')"> Appliance Installation: Oven Installation</label><label class="cat-sub-item"><input type="checkbox" data-parent="Appliance Installation" onchange="toggleSub(this,'Appliance Installation')"> Appliance Installation: Rangehood Installation</label></div></div>
+                        <div class="cat-main" data-main="Antenna Services"><div class="cat-main-header" onclick="toggleSubList(this)"><input type="checkbox" onclick="event.stopPropagation();toggleMain(this,'Antenna Services')" id="chk_Antenna Services"><span>Antenna Services</span><span class="cat-count" id="count_Antenna Services"></span><span class="cat-expand">&#9662;</span></div><div class="cat-sub-list"><label class="cat-sub-item"><input type="checkbox" data-parent="Antenna Services" onchange="toggleSub(this,'Antenna Services')"> Antenna Services: Antenna Relocation</label><label class="cat-sub-item"><input type="checkbox" data-parent="Antenna Services" onchange="toggleSub(this,'Antenna Services')"> Antenna Services: Digital TV Points</label><label class="cat-sub-item"><input type="checkbox" data-parent="Antenna Services" onchange="toggleSub(this,'Antenna Services')"> Antenna Services: Foxtel, TV & Satellite</label><label class="cat-sub-item"><input type="checkbox" data-parent="Antenna Services" onchange="toggleSub(this,'Antenna Services')"> Antenna Services: Repairs & Troubleshooting</label></div></div>
+                    </div>
+                    <div class="section-label" style="margin-top:20px;">Service Area</div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="field-label">Radius (km) <span class="req">*</span></label><span class="field-error">Complete this field.</span><select class="field-input" data-required><option value="">-- Select --</option><option>5</option><option>10</option><option>15</option><option>20</option><option>25</option><option selected>30</option><option>40</option><option>50</option></select></div>
+                        <div class="form-group"><label class="field-label">Postcode <span class="req">*</span></label><span class="field-error">Complete this field.</span><input type="text" class="field-input" data-required value="2150"></div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="section-label">Licenses</div>
+                    <p class="help-text">For each selected main category, provide the license details if required. If no license is required, select "No" and provide a reason.</p>
+                    <div id="licCards"></div>
+                    <div id="licEmpty" class="lic-empty">Select categories on the left to see license requirements here.</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 2 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" onclick="nextStep(2,3)">Save & Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 3: Multiple Match ==================== -->
+<div class="screen" id="s3">
+    <div class="modal wide">
+        <div class="modal-spinner-overlay" id="s3-overlay"><div class="spinner"></div></div>
+        <div class="modal-header"><h2>Convert</h2><button class="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div style="font-size:11px; color:#999; margin-bottom:14px; border:1px dashed #ccc; padding:6px 10px; border-radius:4px;">
+                Demo scenario:
+                <a href="#" onclick="setScenario('multiple'); return false;" style="color:#0176d3; font-weight:700;">Multiple matches</a> |
+                <a href="#" onclick="setScenario('single'); return false;" style="color:#0176d3;">Single match</a> |
+                <a href="#" onclick="setScenario('none'); return false;" style="color:#0176d3;">No match</a> |
+
+                <a href="#" onclick="setScenario('sherlock'); return false;" style="color:#0176d3;">Sherlock ban</a>
+                <br>
+                Row 4 performance:
+                <a href="#" onclick="setRow4Performance('Removed Due to Licence'); return false;" id="perfDemo_licence" style="color:#0176d3; font-weight:700;">Removed Due to Licence</a> |
+                <a href="#" onclick="setRow4Performance('Banned - ID Check'); return false;" id="perfDemo_idcheck" style="color:#0176d3;">Banned - ID Check</a>
+                <br>
+                After convert:
+                <a href="#" onclick="setErrorScenario('success'); return false;" class="error-scenario-link" id="errScenario_success" style="color:#0176d3; font-weight:700;">Success</a> |
+                <a href="#" onclick="setErrorScenario('error-then-success'); return false;" class="error-scenario-link" id="errScenario_error-then-success" style="color:#0176d3;">Error &rarr; Retry &rarr; Success</a> |
+                <a href="#" onclick="setErrorScenario('error-twice'); return false;" class="error-scenario-link" id="errScenario_error-twice" style="color:#0176d3;">Error &rarr; Retry &rarr; Blocked</a>
+            </div>
+            <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">Matching Accounts Found</h3>
+            <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 4 matching Tradie account(s) for this lead. Select an eligible account to convert to, or resolve issues to make an account eligible.</p>
+            <div class="table-scroll">
+                <table class="data-table" id="multiTable">
+                    <colgroup>
+                        <col style="width:3%">
+                        <col style="width:3%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                    </colgroup>
+                    <thead><tr>
+                        <th></th><th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th>
+                        <th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th>
+                        <th>Last Cancelled Date &#9662;</th><th>Subscription Status &#9662;</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr class="row-eligible" onclick="pickAcct(this,1,'s3')" data-eligible="true" data-performance="Redeemed" data-collection="Clear" data-invoices="0" data-written-off="$0.00" data-frozen="No" data-abn="51 824 753 556" data-substatus="Cancelled">
+                            <td style="color:#444;">1</td><td><input type="radio" name="acct" value="1"></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td><td>711923</td><td>james@mitchell...</td><td>0412 345 678</td><td>15/09/25</td><td>20/11/25</td><td>Cancelled</td>
+                        </tr>
+                        <tr class="row-not-eligible" onclick="pickAcct(this,2,'s3')" data-eligible="false" data-performance="Last Warning" data-collection="DC Review" data-invoices="3" data-written-off="$450.00" data-frozen="No" data-abn="23 456 789 012" data-substatus="Cancelled">
+                            <td style="color:#444;">2</td><td><input type="radio" name="acct" value="2"></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Services</a></td><td>645853</td><td>james@mitchell...</td><td>0412 345 678</td><td>03/03/24</td><td>15/06/24</td><td>Cancelled</td>
+                        </tr>
+                        <tr class="row-not-eligible" onclick="pickAcct(this,3,'s3')" data-eligible="false" data-performance="None" data-collection="Currently at DC" data-invoices="5" data-written-off="$1,200.00" data-frozen="Yes" data-abn="34 567 890 123" data-substatus="Cancelled">
+                            <td style="color:#444;">3</td><td><input type="radio" name="acct" value="3"></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">JM Plumbing</a></td><td>724270</td><td>james@mitchell...</td><td>0298 765 432</td><td>22/01/23</td><td>10/04/23</td><td>Cancelled</td>
+                        </tr>
+                        <tr class="row-not-eligible" onclick="pickAcct(this,4,'s3')" id="row4" data-eligible="false" data-performance="Removed Due to Licence" data-collection="Clear" data-invoices="0" data-written-off="$0.00" data-frozen="No" data-abn="67 890 123 456" data-substatus="Cancelled">
+                            <td style="color:#444;">4</td><td><input type="radio" name="acct" value="4"></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell & Sons Plumbing</a></td><td>698412</td><td>james@mitchell...</td><td>0412 345 678</td><td>08/06/22</td><td>15/09/22</td><td>Cancelled</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="not-eligible-msg" id="notEligibleMsg_s3">This account has issues that will need to be resolved after conversion. You can still proceed.</div>
+            <div class="eligibility-panel" id="eligPanel_s3">
+                <h4><span id="eligPanelName_s3">Account Name</span> <span id="eligPanelBadge_s3"></span></h4>
+                <ul class="eligibility-list" id="eligList_s3"></ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 3 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" id="confirmBtn" onclick="doConfirm()" disabled>Convert</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 3single -->
+<div class="screen" id="s3single">
+    <div class="modal wide">
+        <div class="modal-spinner-overlay" id="s3single-overlay"><div class="spinner"></div></div>
+        <div class="modal-header"><h2>Convert</h2><button class="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div style="font-size:11px; color:#999; margin-bottom:14px; border:1px dashed #ccc; padding:6px 10px; border-radius:4px;">
+                Demo scenario:
+                <a href="#" onclick="setScenario('multiple'); return false;" style="color:#0176d3;">Multiple matches</a> |
+                <a href="#" onclick="setScenario('single'); return false;" style="color:#0176d3; font-weight:700;">Single match</a> |
+                <a href="#" onclick="setScenario('none'); return false;" style="color:#0176d3;">No match</a> |
+
+                <a href="#" onclick="setScenario('sherlock'); return false;" style="color:#0176d3;">Sherlock ban</a>
+                <br>After convert:
+                <a href="#" onclick="setErrorScenario('success'); return false;" class="error-scenario-link" id="errScenario_success_s" style="color:#0176d3; font-weight:700;">Success</a> |
+                <a href="#" onclick="setErrorScenario('error-then-success'); return false;" class="error-scenario-link" id="errScenario_error-then-success_s" style="color:#0176d3;">Error &rarr; Retry &rarr; Success</a> |
+                <a href="#" onclick="setErrorScenario('error-twice'); return false;" class="error-scenario-link" id="errScenario_error-twice_s" style="color:#0176d3;">Error &rarr; Retry &rarr; Blocked</a>
+            </div>
+            <h3 style="font-size:18px; font-weight:400; margin-bottom:6px;">Matching Account Found</h3>
+            <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 1 matching Tradie account for this lead. This account has been pre-selected.</p>
+            <div class="table-scroll">
+                <table class="data-table" id="singleTable">
+                    <colgroup>
+                        <col style="width:3%">
+                        <col style="width:3%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                        <col style="width:13.4%">
+                    </colgroup>
+                    <thead><tr><th></th><th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th><th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th><th>Last Cancelled Date &#9662;</th><th>Subscription Status &#9662;</th></tr></thead>
+                    <tbody>
+                        <tr class="selected row-eligible" onclick="pickAcct(this,1,'s3single')" data-eligible="true" data-performance="Redeemed" data-collection="Clear" data-invoices="0" data-written-off="$0.00" data-frozen="No" data-abn="51 824 753 556" data-substatus="Cancelled">
+                            <td style="color:#444;">1</td><td><input type="radio" name="acct_single" value="1" checked></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td><td>711923</td><td>james@mitchell...</td><td>0412 345 678</td><td>15/09/25</td><td>20/11/25</td><td>Cancelled</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="not-eligible-msg" id="notEligibleMsg_s3single">This account has issues that will need to be resolved after conversion. You can still proceed.</div>
+            <div class="eligibility-panel" id="eligPanel_s3single">
+                <h4><span id="eligPanelName_s3single">Account Name</span> <span id="eligPanelBadge_s3single"></span></h4>
+                <ul class="eligibility-list" id="eligList_s3single"></ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 3 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" id="confirmBtnSingle" onclick="doConfirm()">Convert</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 3sherlock: Sherlock ban detected -->
+<div class="screen" id="s3sherlock">
+    <div class="modal wide">
+        <div class="modal-header"><h2>Convert</h2><button class="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div style="font-size:11px; color:#999; margin-bottom:14px; border:1px dashed #ccc; padding:6px 10px; border-radius:4px;">
+                Demo scenario:
+                <a href="#" onclick="setScenario('multiple'); return false;" style="color:#0176d3;">Multiple matches</a> |
+                <a href="#" onclick="setScenario('single'); return false;" style="color:#0176d3;">Single match</a> |
+                <a href="#" onclick="setScenario('none'); return false;" style="color:#0176d3;">No match</a> |
+
+                <a href="#" onclick="setScenario('sherlock'); return false;" style="color:#0176d3; font-weight:700;">Sherlock ban</a>
+            </div>
+            <div class="alert-banner alert-banner-error">
+                <span class="alert-banner-icon">&#9888;</span>
+                <div class="alert-banner-content">
+                    <div class="alert-banner-title">Conversion Blocked: Sherlock Ban Detected</div>
+                    <div class="alert-banner-text">A matching account has been flagged as <strong>Banned Due to Sherlock</strong>. This lead cannot be converted and must be disregarded. No accounts can be selected while a Sherlock-banned account exists.</div>
+                </div>
+            </div>
+            <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">Matching Accounts</h3>
+            <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 3 matching account(s) for this lead. Conversion is blocked due to a Sherlock ban.</p>
+            <div class="table-scroll">
+                <table class="data-table">
+                    <colgroup>
+                        <col style="width:3%">
+                        <col style="width:12.125%">
+                        <col style="width:12.125%">
+                        <col style="width:12.125%">
+                        <col style="width:12.125%">
+                        <col style="width:12.125%">
+                        <col style="width:12.125%">
+                        <col style="width:12.125%">
+                    </colgroup>
+                    <thead><tr><th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th><th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th><th>Last Cancelled Date &#9662;</th><th>Subscription Status &#9662;</th></tr></thead>
+                    <tbody>
+                        <tr style="cursor:default;" class="row-blocked" data-substatus="Cancelled"><td style="color:#444;">1</td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td><td>711923</td><td>james@mitchell...</td><td>0412 345 678</td><td>22/01/23</td><td>10/04/23</td><td>Cancelled</td></tr>
+                        <tr style="cursor:default;" class="row-eligible" data-substatus="Cancelled"><td style="color:#444;">2</td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Services</a></td><td>645853</td><td>james@mitchell...</td><td>0412 345 678</td><td>22/01/23</td><td>10/04/23</td><td>Cancelled</td></tr>
+                        <tr style="cursor:default;" class="row-not-eligible" data-substatus="Cancelled"><td style="color:#444;">3</td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">JM Plumbing</a></td><td>724270</td><td>james@mitchell...</td><td>0298 765 432</td><td>22/01/23</td><td>10/04/23</td><td>Cancelled</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 3 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" disabled title="Conversion blocked due to Sherlock ban">Disregard Lead</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 3none -->
+<div class="screen" id="s3none">
+    <div class="modal">
+        <div class="modal-spinner-overlay" id="s3none-overlay"><div class="spinner"></div></div>
+        <div class="modal-header"><h2>Convert</h2><button class="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div style="font-size:11px; color:#999; margin-bottom:14px; border:1px dashed #ccc; padding:6px 10px; border-radius:4px;">
+                Demo scenario:
+                <a href="#" onclick="setScenario('multiple'); return false;" style="color:#0176d3;">Multiple matches</a> |
+                <a href="#" onclick="setScenario('single'); return false;" style="color:#0176d3;">Single match</a> |
+                <a href="#" onclick="setScenario('none'); return false;" style="color:#0176d3; font-weight:700;">No match</a> |
+
+                <a href="#" onclick="setScenario('sherlock'); return false;" style="color:#0176d3;">Sherlock ban</a>
+                <br>After convert:
+                <a href="#" onclick="setErrorScenario('success'); return false;" class="error-scenario-link" id="errScenario_success_n" style="color:#0176d3; font-weight:700;">Success</a> |
+                <a href="#" onclick="setErrorScenario('error-then-success'); return false;" class="error-scenario-link" id="errScenario_error-then-success_n" style="color:#0176d3;">Error &rarr; Retry &rarr; Success</a> |
+                <a href="#" onclick="setErrorScenario('error-twice'); return false;" class="error-scenario-link" id="errScenario_error-twice_n" style="color:#0176d3;">Error &rarr; Retry &rarr; Blocked</a>
+            </div>
+            <h3 style="font-size:18px; font-weight:400; margin-bottom:6px;">A new account will be created.</h3>
+            <p style="font-size:13px; color:#666; margin-bottom:16px;">Click Convert to complete the process.</p>
+        </div>
+        <div class="modal-footer">
+            <span class="step-text">Step 3 of 4</span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" onclick="doConfirm()">Convert</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCREEN 3c: Error -->
+<div class="screen" id="s3c">
+    <div class="modal" style="width:460px;">
+        <div class="modal-header"><h2>Error Encountered</h2><button class="modal-close" onclick="closeFlow()">&times;</button></div>
+        <div class="modal-body"><div style="text-align:center; padding:16px 0;"><p id="errorMessage" style="font-size:13px; color:#666;">The billing system did not respond in time. Please try again.</p></div></div>
+        <div class="modal-footer"><span></span><div class="modal-footer-right"><button class="btn btn-neutral" onclick="closeFlow()">Cancel</button><button class="btn btn-brand" onclick="doRetry()">Retry</button></div></div>
+    </div>
+</div>
+
+<!-- SCREEN 3d: Blocked -->
+<div class="screen" id="s3d">
+    <div class="modal" style="width:460px;">
+        <div class="modal-header"><h2>Error Encountered</h2><button class="modal-close" onclick="closeFlow()">&times;</button></div>
+        <div class="modal-body"><div style="text-align:center; padding:16px 0;"><p style="font-size:13px; color:#666;">The action couldn't be completed. Please contact RevOps for help.</p></div></div>
+        <div class="modal-footer"><span></span><div class="modal-footer-right"><button class="btn btn-neutral" onclick="closeFlow()">Close</button></div></div>
+    </div>
+</div>
+
+<!-- SCREEN 4: Success -->
+<div class="screen" id="s4">
+    <div class="modal">
+        <div class="modal-header"><h2>Conversion Complete</h2><button class="modal-close">&times;</button></div>
+        <div class="modal-body">
+            <div class="success-center">
+                <h2 style="font-size:22px; font-weight:400;">Lead Converted Successfully</h2>
+                <p>&nbsp;</p>
+                <div style="text-align:left; max-width:360px; margin:0 auto;">
+                    <div style="padding:10px 0; border-bottom:1px solid #eee;"><span style="font-size:12px; color:#666;">Account</span><br><a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none; font-size:14px;">Mitchell Plumbing Pty Ltd</a></div>
+                    <div style="padding:10px 0; border-bottom:1px solid #eee;"><span style="font-size:12px; color:#666;">Opportunity</span><br><a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none; font-size:14px;">Reactivation - Mitchell Plumbing</a></div>
+                    <div style="padding:10px 0;"><span style="font-size:12px; color:#666;">Contact</span><br><a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none; font-size:14px;">James Mitchell</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer"><span></span><div class="modal-footer-right"><button class="btn btn-brand" onclick="closeFlow()">Close</button></div></div>
+    </div>
+</div>
+
+<!-- ===== PAYMENT SUB-MODAL ===== -->
+<div class="sub-modal-overlay" id="paymentModal">
+    <div class="sub-modal" style="width:680px;">
+        <div class="modal-header">
+            <h2>Take Payment</h2>
+            <button class="modal-close" onclick="closePayment()">&times;</button>
+        </div>
+        <div class="modal-body" style="max-height:72vh; overflow-y:auto;">
+            <p style="font-size:13px; color:#666; margin-bottom:14px;">
+                Account <strong id="payAcctName">Mitchell Plumbing Services</strong> has outstanding invoices that must be settled before conversion.
+            </p>
+            <table class="invoice-table">
+                <thead><tr><th>Invoice #</th><th>Date</th><th>Description</th><th style="text-align:right;">Amount</th></tr></thead>
+                <tbody>
+                    <tr><td>INV-2024-0847</td><td>12/02/24</td><td>Monthly subscription - Feb 2024</td><td style="text-align:right;">$299.00</td></tr>
+                    <tr><td>INV-2024-0912</td><td>12/03/24</td><td>Monthly subscription - Mar 2024</td><td style="text-align:right;">$299.00</td></tr>
+                    <tr><td>INV-2024-0983</td><td>12/04/24</td><td>Monthly subscription - Apr 2024</td><td style="text-align:right;">$299.00</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="3">Total Outstanding</td><td style="text-align:right; font-size:13px;"><strong>$897.00</strong></td></tr></tfoot>
+            </table>
+
+            <!-- Reactivation Payment Policy -->
+            <div id="policyBanner" style="background:#fff8e1; border:1px solid #ffe082; border-radius:6px; padding:12px 14px; margin-bottom:16px;">
+                <div style="font-weight:700; font-size:12px; color:#6d4c00; margin-bottom:4px;">&#9888; Reactivation Payment Policy</div>
+                <div style="font-size:12px; color:#6d4c00;" id="policyText">
+                    Debt range: <strong>$500 – $999</strong> — Discount case required.<br>
+                    Minimum to collect on reactivation day: <strong>50% ($448.50)</strong>
+                </div>
+                <div style="margin-top:8px;" id="policyCaseArea">
+                    <button class="btn btn-small btn-brand" id="policyCreateCaseBtn" onclick="createPolicyCase()">Create Discount Case</button>
+                    <span id="policyCaseCreated" style="display:none; font-size:11px; color:#1a7431; font-weight:600;">
+                        <svg style="width:12px;height:12px;vertical-align:middle;" viewBox="0 0 20 20"><path fill="currentColor" d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-1 15l-5-5 1.41-1.41L9 12.17l6.59-6.59L17 7l-8 8z"/></svg>
+                        <span id="policyCaseNum"></span> created
+                    </span>
+                </div>
+                <div style="margin-top:8px; font-size:11px; color:#999; border-top:1px dashed #e0c97a; padding-top:6px;">
+                    Policy reference: $1–$499 → discount case, min 50% &nbsp;|&nbsp; $500–$999 → discount case, min 50% &nbsp;|&nbsp; $1,000+ or at DC → reactivation case, Finance decides &nbsp;|&nbsp; &gt;5 yrs → no debt
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="section-label">Payment Method</div>
+            <div class="payment-method-row" style="margin-bottom:4px;">
+                <div class="payment-method-option selected" id="pmCC" onclick="togglePayMethod('cc')">
+                    Credit Card
+                    <div class="payment-method-label">Pay now via card on file</div>
+                </div>
+                <div class="payment-method-option" id="pmPlan" onclick="togglePayMethod('plan')">
+                    Payment Plan
+                    <div class="payment-method-label">Schedule before bill cycle</div>
+                </div>
+                <div class="payment-method-option" id="pmNet14" onclick="togglePayMethod('net14')">
+                    Net14
+                    <div class="payment-method-label">Deferred — does not resolve</div>
+                </div>
+            </div>
+            <p style="font-size:10px; color:#999; margin-bottom:14px;">Credit Card and Payment Plan can be combined. Net14 is standalone and does not resolve the eligibility check.</p>
+
+            <!-- Credit Card Section -->
+            <div id="ccSection">
+                <div style="border:1px solid #ccc; border-radius:6px; padding:14px; margin-bottom:12px; background:#fafafa;">
+                    <div style="font-weight:700; font-size:12px; margin-bottom:10px;">Credit Card Payment</div>
+                    <div class="form-group" style="margin-bottom:8px;">
+                        <label class="field-label">Card on File</label>
+                        <input type="text" class="field-input readonly" value="Visa ending in 4821 - Exp 09/27" readonly>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:flex-end;">
+                        <div class="form-group" style="flex:1; margin-bottom:0;">
+                            <label class="field-label">Amount ($)</label>
+                            <input type="number" class="field-input" id="ccAmount" value="897.00" min="0" step="0.01" oninput="updatePaySummary()">
+                        </div>
+                        <button class="btn btn-brand" onclick="processCCPayment()" style="height:36px; white-space:nowrap;">Take Payment</button>
+                    </div>
+                    <div id="ccMinWarning" style="display:none; font-size:11px; color:#ba1b1b; margin-top:6px;"></div>
+                    <div id="ccPayments" style="margin-top:10px;"></div>
+                </div>
+            </div>
+
+            <!-- Payment Plan Section -->
+            <div id="planSection" style="display:none;">
+                <div style="border:1px solid #ccc; border-radius:6px; padding:14px; margin-bottom:12px; background:#fafafa;">
+                    <div style="font-weight:700; font-size:12px; margin-bottom:4px;">Payment Plan</div>
+                    <p style="font-size:11px; color:#666; margin-bottom:10px;">Next bill cycle date: <strong>15 April 2026</strong>. All plans must be scheduled before this date.</p>
+                    <div style="display:flex; gap:10px; align-items:flex-end;">
+                        <div class="form-group" style="flex:1; margin-bottom:0;">
+                            <label class="field-label">Payment Date</label>
+                            <input type="date" class="field-input" id="planDate" min="2026-03-24" max="2026-04-14">
+                        </div>
+                        <div class="form-group" style="flex:1; margin-bottom:0;">
+                            <label class="field-label">Amount ($)</label>
+                            <input type="number" class="field-input" id="planAmount" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <button class="btn btn-brand btn-small" onclick="addPaymentPlan()" style="height:36px; white-space:nowrap;">Add Plan</button>
+                    </div>
+                    <div id="planError" style="display:none; font-size:11px; color:#ba1b1b; margin-top:6px;"></div>
+                    <div id="planList" style="margin-top:10px;"></div>
+                </div>
+            </div>
+
+            <!-- Net14 Section -->
+            <div id="net14Section" style="display:none;">
+                <div style="border:1px solid #ccc; border-radius:6px; padding:14px; margin-bottom:12px; background:#fafafa;">
+                    <div style="font-weight:700; font-size:12px; margin-bottom:8px;">Net14 — Deferred Payment</div>
+                    <div class="alert-banner" style="background:#fff8e1; border:1px solid #ffe082; color:#6d4c00; margin-bottom:10px; padding:10px 12px;">
+                        <span class="alert-banner-icon" style="font-size:14px;">&#9888;</span>
+                        <div class="alert-banner-content">
+                            <div style="font-size:12px; color:#6d4c00;">Payment will be collected after 14 days. <strong>This does not resolve the eligibility check.</strong> The account will remain not eligible for conversion.</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-small" style="border-color:#6d4c00; color:#6d4c00;" id="net14CaseBtn" onclick="createNet14Case()">Create Payment Case</button>
+                    <span id="net14CaseCreated" style="display:none; font-size:11px; color:#0176d3; font-weight:600; margin-left:8px;">
+                        <svg style="width:12px;height:12px;vertical-align:middle;" viewBox="0 0 20 20"><path fill="currentColor" d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-1 15l-5-5 1.41-1.41L9 12.17l6.59-6.59L17 7l-8 8z"/></svg>
+                        <span id="net14CaseNum"></span> created — does not resolve check
+                    </span>
+                </div>
+            </div>
+
+            <!-- Payment Summary -->
+            <div style="border:2px solid #000; border-radius:6px; padding:14px; background:#fff;">
+                <div style="font-weight:700; font-size:12px; margin-bottom:8px;">Payment Summary</div>
+                <div style="display:grid; grid-template-columns:1fr auto; gap:4px 16px; font-size:12px;">
+                    <span>Credit card payment(s):</span><span style="text-align:right; font-weight:600;" id="sumCC">$0.00</span>
+                    <span>Scheduled payment plan(s):</span><span style="text-align:right; font-weight:600;" id="sumPlans">$0.00</span>
+                    <span style="border-top:1px solid #ddd; padding-top:4px; margin-top:2px;">Total covered:</span><span style="text-align:right; font-weight:600; border-top:1px solid #ddd; padding-top:4px; margin-top:2px;" id="sumTotal">$0.00 / $897.00</span>
+                    <span>Remaining:</span><span style="text-align:right; font-weight:700;" id="sumRemaining">$897.00</span>
+                </div>
+                <div id="sumStatus" style="margin-top:8px; font-size:12px; font-weight:600; padding:6px 10px; border-radius:4px; background:#fde7e7; color:#ba1b1b;">
+                    Full payment required for conversion
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <span id="payFooterStatus" style="font-size:11px; color:#666;"></span>
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closePayment()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== UNFREEZE ESCALATION MODAL ===== -->
+<div class="sub-modal-overlay" id="unfreezeModal">
+    <div class="sub-modal" style="width:460px;">
+        <div class="modal-header"><h2>Account Frozen</h2><button class="modal-close" onclick="closeUnfreeze()">&times;</button></div>
+        <div class="modal-body">
+            <div class="alert-banner" style="background:#fff8e1; border:1px solid #ffe082; color:#6d4c00; margin-bottom:0;">
+                <span class="alert-banner-icon">&#9888;</span>
+                <div class="alert-banner-content">
+                    <div class="alert-banner-title">Escalation Required — Trust & Quality Team</div>
+                    <div class="alert-banner-text" style="color:#6d4c00;">
+                        Account <strong id="unfreezeAcctName">JM Plumbing</strong> is currently frozen. Only the <strong>Trust & Quality (T&Q)</strong> team can unfreeze an account.<br><br>
+                        Please raise this with T&Q before proceeding with the conversion. You can continue with other eligibility checks in the meantime.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer"><span></span><div class="modal-footer-right"><button class="btn btn-neutral" onclick="closeUnfreeze()">Close</button></div></div>
+    </div>
+</div>
+
+<script>
+    // ===== State =====
+    let selectedMains = new Set();
+    let resolvedChecks = {}; // keyed by screenId+rowIndex+checkKey
+
+    function go(n) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('s' + n).classList.add('active');
+    }
+
+    // ===== Validation =====
+    function clearErrors(screenId) {
+        const screen = document.getElementById('s' + screenId);
+        screen.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
+        screen.querySelectorAll('.field-input.error').forEach(e => e.classList.remove('error'));
+    }
+    function validateScreen(screenId) {
+        clearErrors(screenId);
+        const screen = document.getElementById('s' + screenId);
+        let valid = true;
+        if (screenId === 2 && selectedMains.size === 0) { document.getElementById('catError').classList.add('show'); valid = false; }
+        screen.querySelectorAll('[data-required]').forEach(input => {
+            const group = input.closest('.form-group');
+            if (group && group.offsetParent === null) return;
+            if (!input.value.trim()) { input.classList.add('error'); const errSpan = group ? group.querySelector('.field-error') : null; if (errSpan) errSpan.classList.add('show'); valid = false; }
+        });
+        if (screenId === 2) {
+            document.querySelectorAll('#licCards .lic-card').forEach(card => {
+                const isYes = card.querySelector('.lic-toggle').value === 'yes';
+                if (isYes) { card.querySelectorAll('.lic-yes-fields .field-input').forEach(input => { if (!input.value.trim()) { input.classList.add('error'); const errSpan = input.closest('.form-group').querySelector('.field-error'); if (errSpan) errSpan.classList.add('show'); valid = false; } }); }
+                else { const reasonInput = card.querySelector('.lic-reason-input'); if (reasonInput && !reasonInput.value.trim()) { reasonInput.classList.add('error'); const errSpan = reasonInput.closest('.form-group').querySelector('.field-error'); if (errSpan) errSpan.classList.add('show'); valid = false; } }
+            });
+        }
+        return valid;
+    }
+    function nextStep(from, to) { if (!validateScreen(from)) return; if (from === 2) { doConvert(); } else { go(to); } }
+
+    document.addEventListener('input', function(e) { if (e.target.classList.contains('field-input') && e.target.value.trim()) { e.target.classList.remove('error'); const g = e.target.closest('.form-group'); if (g) { const er = g.querySelector('.field-error'); if (er) er.classList.remove('show'); } } });
+    document.addEventListener('change', function(e) { if (e.target.classList.contains('field-input') && e.target.hasAttribute('data-required') && e.target.value.trim()) { e.target.classList.remove('error'); const g = e.target.closest('.form-group'); if (g) { const er = g.querySelector('.field-error'); if (er) er.classList.remove('show'); } } });
+
+    // ===== ABN =====
+    function abnAutocomplete() { const v = document.getElementById('abnInput').value.trim(); document.getElementById('abnDropdown').classList.toggle('show', v.length >= 2); document.getElementById('abnResult').classList.remove('show'); document.getElementById('abnBusinessSelect').classList.remove('show'); document.getElementById('abnVerifiedMsg').style.display = 'none'; }
+    function pickABN(abn, name) { document.getElementById('abnInput').value = abn; document.getElementById('abnDropdown').classList.remove('show'); document.getElementById('abnNum').textContent = abn; document.getElementById('abnEntity').textContent = name; document.getElementById('abnResult').classList.add('show'); document.getElementById('abnVerifiedMsg').style.display = 'inline-flex'; document.getElementById('abnBusinessSelect').classList.add('show'); document.getElementById('abnInput').classList.remove('error'); var e = document.getElementById('abnError'); if (e) e.classList.remove('show'); }
+    document.addEventListener('click', function(e) { if (!e.target.closest('.abn-search-wrap')) document.getElementById('abnDropdown').classList.remove('show'); if (!e.target.closest('#addrSearch') && !e.target.closest('.suggestions')) document.getElementById('addrSugg').classList.remove('show'); });
+
+    // ===== Address =====
+    function showAddr() { document.getElementById('addrSugg').classList.toggle('show', document.getElementById('addrSearch').value.length > 2); }
+    function pickAddr(st, sub, state, pc) { document.getElementById('addrSearch').value = st + ', ' + sub + ' ' + state + ' ' + pc; document.getElementById('addrSugg').classList.remove('show'); document.getElementById('fStreet').value = st; document.getElementById('fSuburb').value = sub; document.getElementById('fState').value = state; document.getElementById('fPostcode').value = pc; }
+
+    // ===== Categories =====
+    function toggleSubList(header) { const subList = header.nextElementSibling; subList.classList.toggle('open'); header.querySelector('.cat-expand').innerHTML = subList.classList.contains('open') ? '&#9652;' : '&#9662;'; }
+    function toggleMain(checkbox, mainName) { const mainEl = checkbox.closest('.cat-main'); mainEl.querySelectorAll('.cat-sub-item input[type="checkbox"]').forEach(s => s.checked = checkbox.checked); if (checkbox.checked) { mainEl.querySelector('.cat-sub-list').classList.add('open'); mainEl.querySelector('.cat-expand').innerHTML = '&#9652;'; } updateCatState(); }
+    function toggleSub(checkbox, mainName) { const mainEl = checkbox.closest('.cat-main'); const subs = mainEl.querySelectorAll('.cat-sub-item input[type="checkbox"]'); const mainChk = mainEl.querySelector('.cat-main-header input[type="checkbox"]'); mainChk.checked = [...subs].every(s => s.checked); mainChk.indeterminate = [...subs].some(s => s.checked) && !mainChk.checked; updateCatState(); }
+    function updateCatState() { selectedMains.clear(); document.querySelectorAll('#catTree .cat-main').forEach(m => { const name = m.dataset.main; const subs = m.querySelectorAll('.cat-sub-item input[type="checkbox"]'); const checked = [...subs].filter(s => s.checked); const countEl = document.getElementById('count_' + name); if (checked.length > 0) { selectedMains.add(name); countEl.textContent = '(' + checked.length + '/' + subs.length + ')'; } else { countEl.textContent = ''; } }); updateLicenseCards(); if (selectedMains.size > 0) document.getElementById('catError').classList.remove('show'); }
+    function filterCats() { const q = document.getElementById('catSearch').value.toLowerCase(); document.querySelectorAll('#catTree .cat-main').forEach(m => { const mainName = m.dataset.main.toLowerCase(); const subs = m.querySelectorAll('.cat-sub-item'); let anyVisible = false; if (mainName.includes(q)) { m.classList.remove('cat-hidden'); subs.forEach(s => s.classList.remove('cat-hidden')); anyVisible = true; } else { subs.forEach(s => { if (s.textContent.toLowerCase().includes(q)) { s.classList.remove('cat-hidden'); anyVisible = true; } else { s.classList.add('cat-hidden'); } }); m.classList.toggle('cat-hidden', !anyVisible); } if (q.length > 0 && anyVisible) { m.querySelector('.cat-sub-list').classList.add('open'); m.querySelector('.cat-expand').innerHTML = '&#9652;'; } }); }
+
+    // ===== Licenses =====
+    function updateLicenseCards() { const container = document.getElementById('licCards'); const empty = document.getElementById('licEmpty'); const existingStates = {}; container.querySelectorAll('.lic-card').forEach(card => { const name = card.dataset.main; existingStates[name] = { required: card.querySelector('.lic-toggle').value, licNum: card.querySelector('.lic-num') ? card.querySelector('.lic-num').value : '', licBody: card.querySelector('.lic-body') ? card.querySelector('.lic-body').value : '', licReason: card.querySelector('.lic-reason-input') ? card.querySelector('.lic-reason-input').value : '' }; }); container.innerHTML = ''; if (selectedMains.size === 0) { empty.style.display = 'block'; return; } empty.style.display = 'none'; selectedMains.forEach(main => { const state = existingStates[main] || { required: 'yes', licNum: '', licBody: '', licReason: '' }; const isYes = state.required === 'yes'; const card = document.createElement('div'); card.className = 'lic-card'; card.dataset.main = main; card.innerHTML = '<div class="lic-card-header"><div class="lic-card-title">' + main + '</div><div class="lic-card-toggle"><label style="font-size:12px;color:#666;font-weight:600;">License Required?</label><select class="lic-toggle" onchange="toggleLicCard(this)" style="padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px;"><option value="yes"' + (isYes ? ' selected' : '') + '>Yes</option><option value="no"' + (!isYes ? ' selected' : '') + '>No</option></select></div></div><div class="lic-yes-fields"' + (!isYes ? ' style="display:none;"' : '') + '><div class="lic-card-fields"><div class="form-group"><label class="field-label">License Number <span class="req">*</span></label><span class="field-error">Complete this field.</span><input type="text" class="field-input lic-num" placeholder="e.g. 234567C" value="' + escHtml(state.licNum) + '"></div><div class="form-group"><label class="field-label">Licensing Body <span class="req">*</span></label><span class="field-error">Complete this field.</span><input type="text" class="field-input lic-body" placeholder="e.g. NSW Fair Trading" value="' + escHtml(state.licBody) + '"></div></div></div><div class="lic-no-fields"' + (isYes ? ' style="display:none;"' : '') + '><div class="form-group lic-reason" style="margin-bottom:0;"><label class="field-label">Reason License Not Required <span class="req">*</span></label><span class="field-error">Complete this field.</span><input type="text" class="field-input lic-reason-input" placeholder="e.g. Trade does not require a license in this state" value="' + escHtml(state.licReason) + '"></div></div>'; container.appendChild(card); }); }
+    function escHtml(str) { return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function toggleLicCard(select) { const card = select.closest('.lic-card'); const isYes = select.value === 'yes'; card.querySelector('.lic-yes-fields').style.display = isYes ? 'block' : 'none'; card.querySelector('.lic-no-fields').style.display = isYes ? 'none' : 'block'; card.querySelectorAll('.field-error').forEach(e => e.classList.remove('show')); card.querySelectorAll('.field-input.error').forEach(e => e.classList.remove('error')); }
+
+    // ===== Eligibility Checks =====
+    var currentSelectedRow = null;
+    var currentScreenId = null;
+    var createdCases = {}; // keyed by screenId+rowIndex+checkKey
+
+    // Performance status categories
+    var validPerformance = ['', 'None', 'Redeemed', 'Redeemed with good feedback', 'Last Warning', 'Negative feedback discussed', 'Sales - License Review', 'Deregistered'];
+    var urgentCaseStatuses = ['Removed Due to Licence', 'Banned - ID Check'];
+    var sherlockStatus = 'Banned Due to Sherlock';
+
+    var checkActions = {
+        'collection': { label: 'Review Collection', action: 'redirect' },
+        'invoices': { label: 'Take Payment', action: 'modal' },
+        'writtenoff': { label: 'Review Debt', action: 'redirect' },
+        'frozen': { label: 'Escalate to T&Q', action: 'modal' }
+    };
+
+    function runEligibilityChecks(row) {
+        const performance = row.dataset.performance;
+        const collection = row.dataset.collection;
+        const invoices = parseInt(row.dataset.invoices, 10);
+        const writtenOff = row.dataset.writtenOff;
+        const frozen = row.dataset.frozen;
+        const abn = row.dataset.abn;
+        const invalidCollection = ['DC Review', 'Currently at DC', 'Bad Debt'];
+
+        var perfPass = validPerformance.includes(performance);
+        var isSherlock = performance === sherlockStatus;
+        var isUrgentCase = urgentCaseStatuses.includes(performance);
+
+        return [
+            { key: 'performance', name: 'Performance status compliant', pass: perfPass, value: performance || '(blank)', isSherlock: isSherlock, isUrgentCase: isUrgentCase },
+            { key: 'collection', name: 'Account is not at DC', pass: !invalidCollection.includes(collection), value: collection || '(blank)' },
+            { key: 'invoices', name: 'Less than 2 invoices outstanding', pass: invoices < 2, value: invoices + ' invoice(s)' },
+            { key: 'writtenoff', name: 'No written-off outstanding debt', pass: writtenOff === '$0.00' || writtenOff === '', value: writtenOff || '$0.00' },
+            { key: 'frozen', name: 'Account is not frozen', pass: frozen === 'No' || frozen === '' || frozen === 'False', value: frozen === 'Yes' ? 'Frozen' : 'Not frozen' },
+            { key: 'abn', name: 'ABN', pass: true, value: abn || '(not set)', isInfo: true }
+        ];
+    }
+
+    function getResolveKey(screenId, rowIndex, checkKey) {
+        return screenId + '_' + rowIndex + '_' + checkKey;
+    }
+
+    function showEligibilityPanel(row, screenId) {
+        const panel = document.getElementById('eligPanel_' + screenId);
+        const nameEl = document.getElementById('eligPanelName_' + screenId);
+        const badgeEl = document.getElementById('eligPanelBadge_' + screenId);
+        const listEl = document.getElementById('eligList_' + screenId);
+        const accountName = row.cells[2].textContent;
+        const rowIndex = row.rowIndex;
+        const checks = runEligibilityChecks(row);
+
+        // Check if all issues resolved (skip info-only items)
+        // Urgent case rows can never become eligible
+        let allPass = true;
+        let hasUrgentCase = false;
+        checks.forEach(function(check) {
+            if (check.isInfo) return;
+            if (check.isUrgentCase) { hasUrgentCase = true; }
+            var rk = getResolveKey(screenId, rowIndex, check.key);
+            if (!check.pass && !resolvedChecks[rk] && !createdCases[rk]) allPass = false;
+        });
+        if (hasUrgentCase) allPass = false;
+
+        nameEl.textContent = accountName + ' — Eligibility Checks';
+        badgeEl.innerHTML = allPass
+            ? '<span class="badge badge-eligible">Eligible</span>'
+            : '<span class="badge badge-not-eligible">Not Eligible</span>';
+
+        listEl.innerHTML = '';
+        checks.forEach(function(check) {
+            var rk = getResolveKey(screenId, rowIndex, check.key);
+            var isResolved = resolvedChecks[rk];
+            var isCaseCreated = createdCases[rk];
+            var effectivePass = check.pass || isResolved;
+
+            const li = document.createElement('li');
+            if (isResolved) li.classList.add('check-resolved');
+
+            var icon;
+            if (check.isInfo) {
+                icon = '<svg class="check-icon" style="color:#666;" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0a8 8 0 100 16A8 8 0 008 0zm.93 12.14h-1.6V6.9h1.6v5.24zm-.8-6.37a.93.93 0 110-1.86.93.93 0 010 1.86z"/></svg>';
+            } else if (effectivePass) {
+                icon = '<svg class="check-icon check-pass" viewBox="0 0 20 20"><path fill="currentColor" d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-1 15l-5-5 1.41-1.41L9 12.17l6.59-6.59L17 7l-8 8z"/></svg>';
+            } else {
+                icon = '<svg class="check-icon check-fail" viewBox="0 0 20 20"><path fill="currentColor" d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm5 13.59L13.59 15 10 11.41 6.41 15 5 13.59 8.59 10 5 6.41 6.41 5 10 8.59 13.59 5 15 6.41 11.41 10 15 13.59z"/></svg>';
+            }
+
+            var rightHtml = '<span class="check-value">' + check.value + '</span>';
+
+            if (check.isInfo) {
+                // Info-only, no action needed
+            } else if (check.isUrgentCase && isCaseCreated) {
+                rightHtml += ' <span class="case-created-label"><svg style="width:12px;height:12px;" viewBox="0 0 20 20"><path fill="currentColor" d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-1 15l-5-5 1.41-1.41L9 12.17l6.59-6.59L17 7l-8 8z"/></svg> Case ' + isCaseCreated + ' created</span>';
+            } else if (check.isUrgentCase && !check.pass) {
+                rightHtml += ' <button class="resolve-btn" style="border-color:#ba1b1b; color:#ba1b1b;" onclick="event.stopPropagation(); createUrgentCase(\'' + screenId + '\', ' + rowIndex + ')">' +
+                    '<svg viewBox="0 0 16 16"><path fill="currentColor" d="M8 0a8 8 0 100 16A8 8 0 008 0zm.93 12.14h-1.6V6.9h1.6v5.24zm-.8-6.37a.93.93 0 110-1.86.93.93 0 010 1.86z"/></svg> ' +
+                    'Create Urgent Case</button>';
+            } else if (isResolved) {
+                rightHtml += ' <span class="resolved-label"><svg style="width:12px;height:12px;" viewBox="0 0 20 20"><path fill="currentColor" d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-1 15l-5-5 1.41-1.41L9 12.17l6.59-6.59L17 7l-8 8z"/></svg> Resolved</span>';
+            } else if (!check.pass) {
+                var actionInfo = checkActions[check.key];
+                if (actionInfo) {
+                    rightHtml += ' <button class="resolve-btn" onclick="event.stopPropagation(); resolveAction(\'' + check.key + '\', \'' + screenId + '\', ' + rowIndex + ')">' +
+                        '<svg viewBox="0 0 16 16"><path fill="currentColor" d="M8 0a8 8 0 100 16A8 8 0 008 0zm.93 12.14h-1.6V6.9h1.6v5.24zm-.8-6.37a.93.93 0 110-1.86.93.93 0 010 1.86z"/></svg> ' +
+                        actionInfo.label + '</button>';
+                }
+            }
+
+            li.innerHTML = icon +
+                '<span class="check-label">' + check.name + '</span>' +
+                '<div class="check-right">' + rightHtml + '</div>';
+            listEl.appendChild(li);
+        });
+
+        panel.classList.add('show');
+
+        // Enable convert — reps convert first, then resolve account issues post-conversion
+        if (screenId === 's3') {
+            document.getElementById('confirmBtn').disabled = false;
+            document.getElementById('notEligibleMsg_s3').classList.toggle('show', !allPass);
+        } else if (screenId === 's3single') {
+            document.getElementById('confirmBtnSingle').disabled = false;
+            document.getElementById('notEligibleMsg_s3single').classList.toggle('show', !allPass);
+        }
+    }
+
+    // ===== Create Urgent Case (Performance: Removed Due to Licence / Banned - ID Check) =====
+    var caseCounter = 50000;
+    function createUrgentCase(screenId, rowIndex) {
+        var rk = getResolveKey(screenId, rowIndex, 'performance');
+        caseCounter++;
+        var caseNum = 'SF-' + caseCounter;
+        createdCases[rk] = caseNum;
+        var table = document.getElementById(screenId === 's3' ? 'multiTable' : 'singleTable');
+        var row = table.rows[rowIndex];
+        showEligibilityPanel(row, screenId);
+    }
+
+    function resolveAction(checkKey, screenId, rowIndex) {
+        currentScreenId = screenId;
+        var table = document.getElementById(screenId === 's3' ? 'multiTable' : 'singleTable');
+        currentSelectedRow = table.rows[rowIndex];
+
+        if (checkKey === 'invoices') {
+            document.getElementById('payAcctName').textContent = currentSelectedRow.cells[2].textContent;
+            resetPaymentModal();
+            document.getElementById('paymentModal').classList.add('show');
+        } else if (checkKey === 'frozen') {
+            document.getElementById('unfreezeAcctName').textContent = currentSelectedRow.cells[2].textContent;
+            document.getElementById('unfreezeModal').classList.add('show');
+        } else if (checkKey === 'collection') {
+            alert('Redirecting to Collection Status Review for this account...\n\n(In production, this opens the collections review screen.)');
+            markResolved(screenId, rowIndex, checkKey);
+        } else if (checkKey === 'writtenoff') {
+            alert('Redirecting to Written-Off Debt Review for this account...\n\n(In production, this opens the debt review screen.)');
+            markResolved(screenId, rowIndex, checkKey);
+        }
+    }
+
+    function markResolved(screenId, rowIndex, checkKey) {
+        var rk = getResolveKey(screenId, rowIndex, checkKey);
+        resolvedChecks[rk] = true;
+
+        // Update row class if all now resolved
+        var table = document.getElementById(screenId === 's3' ? 'multiTable' : 'singleTable');
+        var row = table.rows[rowIndex];
+        var checks = runEligibilityChecks(row);
+        var allPass = true;
+        var hasUrgentCase = false;
+        checks.forEach(function(c) {
+            if (c.isInfo) return;
+            if (c.isUrgentCase) { hasUrgentCase = true; }
+            var rk2 = getResolveKey(screenId, rowIndex, c.key);
+            if (!c.pass && !resolvedChecks[rk2] && !createdCases[rk2]) allPass = false;
+        });
+        if (hasUrgentCase) allPass = false;
+
+        row.classList.remove('row-not-eligible', 'row-eligible');
+        row.classList.add(allPass ? 'row-eligible' : 'row-not-eligible');
+
+        showEligibilityPanel(row, screenId);
+    }
+
+    // ===== Payment Modal =====
+    var totalDebt = 897.00;
+    var minCollection = 448.50; // 50% for $500-$999 range
+    var billCycleDate = '2026-04-15';
+    var ccPaidTotal = 0;
+    var ccPaymentsList = [];
+    var paymentPlans = [];
+    var policyCaseCreatedFlag = false;
+    var net14CaseCreatedFlag = false;
+    var activePayMethods = { cc: true, plan: false, net14: false };
+
+    function togglePayMethod(method) {
+        if (method === 'net14') {
+            // Net14 is exclusive
+            activePayMethods = { cc: false, plan: false, net14: true };
+        } else {
+            // CC and Plan can be combined; deselect net14
+            activePayMethods.net14 = false;
+            activePayMethods[method] = !activePayMethods[method];
+            if (!activePayMethods.cc && !activePayMethods.plan) activePayMethods[method] = true; // keep at least one
+        }
+        document.getElementById('pmCC').classList.toggle('selected', activePayMethods.cc);
+        document.getElementById('pmPlan').classList.toggle('selected', activePayMethods.plan);
+        document.getElementById('pmNet14').classList.toggle('selected', activePayMethods.net14);
+        document.getElementById('ccSection').style.display = activePayMethods.cc ? 'block' : 'none';
+        document.getElementById('planSection').style.display = activePayMethods.plan ? 'block' : 'none';
+        document.getElementById('net14Section').style.display = activePayMethods.net14 ? 'block' : 'none';
+        updatePaySummary();
+    }
+
+    function processCCPayment() {
+        var amount = parseFloat(document.getElementById('ccAmount').value) || 0;
+        if (amount <= 0) return;
+        // Check minimum first payment policy
+        if (ccPaidTotal === 0 && amount < minCollection) {
+            document.getElementById('ccMinWarning').style.display = 'block';
+            document.getElementById('ccMinWarning').textContent = 'Minimum first payment is $' + minCollection.toFixed(2) + ' per reactivation policy. Please collect at least this amount.';
+            return;
+        }
+        document.getElementById('ccMinWarning').style.display = 'none';
+        ccPaidTotal += amount;
+        ccPaymentsList.push(amount);
+        renderCCPayments();
+        // Reset amount field to remaining
+        var remaining = totalDebt - ccPaidTotal - getPlanTotal();
+        document.getElementById('ccAmount').value = remaining > 0 ? remaining.toFixed(2) : '0.00';
+        updatePaySummary();
+    }
+
+    function renderCCPayments() {
+        var html = '';
+        ccPaymentsList.forEach(function(amt, i) {
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; font-size:12px; border-bottom:1px solid #eee;">' +
+                '<span style="color:#1a7431;">&#10003; Payment ' + (i+1) + ': $' + amt.toFixed(2) + ' charged to Visa ending in 4821</span>' +
+                '</div>';
+        });
+        document.getElementById('ccPayments').innerHTML = html;
+    }
+
+    function getPlanTotal() {
+        var total = 0;
+        paymentPlans.forEach(function(p) { total += p.amount; });
+        return total;
+    }
+
+    function addPaymentPlan() {
+        var dateVal = document.getElementById('planDate').value;
+        var amountVal = parseFloat(document.getElementById('planAmount').value) || 0;
+        var errEl = document.getElementById('planError');
+
+        if (!dateVal) { errEl.textContent = 'Please select a payment date.'; errEl.style.display = 'block'; return; }
+        if (amountVal <= 0) { errEl.textContent = 'Please enter a valid amount.'; errEl.style.display = 'block'; return; }
+        if (dateVal >= billCycleDate) {
+            errEl.textContent = 'Payment plan must be scheduled before the next bill cycle date (15/04/2026). Please adjust the date and arrange with the tradie.';
+            errEl.style.display = 'block';
+            return;
+        }
+        errEl.style.display = 'none';
+
+        paymentPlans.push({ date: dateVal, amount: amountVal });
+        renderPlans();
+        document.getElementById('planDate').value = '';
+        document.getElementById('planAmount').value = '';
+        updatePaySummary();
+    }
+
+    function removePlan(index) {
+        paymentPlans.splice(index, 1);
+        renderPlans();
+        updatePaySummary();
+    }
+
+    function renderPlans() {
+        var html = '';
+        if (paymentPlans.length === 0) { document.getElementById('planList').innerHTML = ''; return; }
+        html += '<table class="invoice-table" style="margin-top:6px;"><thead><tr><th>Date</th><th style="text-align:right;">Amount</th><th></th></tr></thead><tbody>';
+        paymentPlans.forEach(function(p, i) {
+            var d = new Date(p.date);
+            var dateStr = ('0'+d.getDate()).slice(-2) + '/' + ('0'+(d.getMonth()+1)).slice(-2) + '/' + d.getFullYear();
+            html += '<tr><td>' + dateStr + '</td><td style="text-align:right;">$' + p.amount.toFixed(2) + '</td>' +
+                '<td style="text-align:right;"><a href="#" onclick="removePlan(' + i + '); return false;" style="color:#ba1b1b; font-size:11px;">Remove</a></td></tr>';
+        });
+        var planTotal = getPlanTotal();
+        html += '</tbody><tfoot><tr><td>Total Scheduled</td><td style="text-align:right;">$' + planTotal.toFixed(2) + '</td><td></td></tr></tfoot></table>';
+        document.getElementById('planList').innerHTML = html;
+    }
+
+    function createPolicyCase() {
+        policyCaseCreatedFlag = true;
+        caseCounter++;
+        var caseNum = 'SF-' + caseCounter;
+        document.getElementById('policyCreateCaseBtn').style.display = 'none';
+        document.getElementById('policyCaseCreated').style.display = 'inline';
+        document.getElementById('policyCaseNum').textContent = caseNum;
+    }
+
+    function createNet14Case() {
+        net14CaseCreatedFlag = true;
+        caseCounter++;
+        var caseNum = 'SF-' + caseCounter;
+        document.getElementById('net14CaseBtn').style.display = 'none';
+        document.getElementById('net14CaseCreated').style.display = 'inline';
+        document.getElementById('net14CaseNum').textContent = caseNum;
+    }
+
+    function updatePaySummary() {
+        var planTotal = getPlanTotal();
+        var totalCovered = ccPaidTotal + planTotal;
+        var remaining = Math.max(0, totalDebt - totalCovered);
+        var isFullyPaid = remaining < 0.01;
+
+        document.getElementById('sumCC').textContent = '$' + ccPaidTotal.toFixed(2);
+        document.getElementById('sumPlans').textContent = '$' + planTotal.toFixed(2);
+        document.getElementById('sumTotal').textContent = '$' + totalCovered.toFixed(2) + ' / $' + totalDebt.toFixed(2);
+        document.getElementById('sumRemaining').textContent = '$' + remaining.toFixed(2);
+
+        var statusEl = document.getElementById('sumStatus');
+        if (activePayMethods.net14) {
+            statusEl.style.background = '#fff8e1';
+            statusEl.style.color = '#6d4c00';
+            statusEl.textContent = 'Net14 selected — does not resolve eligibility check';
+        } else if (isFullyPaid) {
+            statusEl.style.background = '#e6f4ea';
+            statusEl.style.color = '#1a7431';
+            statusEl.textContent = '✓ Fully covered — eligibility check will pass on close';
+        } else {
+            statusEl.style.background = '#fde7e7';
+            statusEl.style.color = '#ba1b1b';
+            statusEl.textContent = 'Full payment required for conversion ($' + remaining.toFixed(2) + ' remaining)';
+        }
+    }
+
+    function resetPaymentModal() {
+        ccPaidTotal = 0;
+        ccPaymentsList = [];
+        paymentPlans = [];
+        policyCaseCreatedFlag = false;
+        net14CaseCreatedFlag = false;
+        activePayMethods = { cc: true, plan: false, net14: false };
+        document.getElementById('ccAmount').value = totalDebt.toFixed(2);
+        document.getElementById('ccPayments').innerHTML = '';
+        document.getElementById('ccMinWarning').style.display = 'none';
+        document.getElementById('planDate').value = '';
+        document.getElementById('planAmount').value = '';
+        document.getElementById('planList').innerHTML = '';
+        document.getElementById('planError').style.display = 'none';
+        document.getElementById('policyCreateCaseBtn').style.display = '';
+        document.getElementById('policyCaseCreated').style.display = 'none';
+        document.getElementById('net14CaseBtn').style.display = '';
+        document.getElementById('net14CaseCreated').style.display = 'none';
+        document.getElementById('pmCC').classList.add('selected');
+        document.getElementById('pmPlan').classList.remove('selected');
+        document.getElementById('pmNet14').classList.remove('selected');
+        document.getElementById('ccSection').style.display = 'block';
+        document.getElementById('planSection').style.display = 'none';
+        document.getElementById('net14Section').style.display = 'none';
+        updatePaySummary();
+    }
+
+    function closePayment() {
+        document.getElementById('paymentModal').classList.remove('show');
+        // Resolve if fully paid via CC + plans (not net14)
+        if (!activePayMethods.net14 && currentSelectedRow) {
+            var totalCovered = ccPaidTotal + getPlanTotal();
+            if (totalCovered >= totalDebt - 0.01) {
+                markResolved(currentScreenId, currentSelectedRow.rowIndex, 'invoices');
+            }
+        }
+    }
+
+    // ===== Unfreeze Escalation Modal =====
+    function closeUnfreeze() {
+        document.getElementById('unfreezeModal').classList.remove('show');
+    }
+
+    // ===== Convert =====
+    let matchScenario = 'multiple';
+    let errorScenario = 'success';
+    let retryCount = 0;
+    const errorMessages = ['The billing system did not respond in time. Please try again.', 'Account data could not be verified. Please try again.'];
+
+    function setScenario(type) {
+        matchScenario = type;
+        doConvert();
+    }
+    function setErrorScenario(type) { errorScenario = type; document.querySelectorAll('.error-scenario-link').forEach(a => a.style.fontWeight = '400'); document.querySelectorAll('[id^="errScenario_' + type + '"]').forEach(a => a.style.fontWeight = '700'); }
+    function doConvert() { if (matchScenario === 'single') go('3single'); else if (matchScenario === 'none') go('3none'); else if (matchScenario === 'sherlock') go('3sherlock'); else go(3); }
+
+    function pickAcct(row, id, screenId) {
+        var table = row.closest('table');
+        table.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected'));
+        row.classList.add('selected');
+        row.querySelector('input[type=radio]').checked = true;
+        currentSelectedRow = row;
+        currentScreenId = screenId;
+
+        showEligibilityPanel(row, screenId);
+    }
+
+    // ===== Row 4 Performance Demo Switcher =====
+    function setRow4Performance(value) {
+        var row4 = document.getElementById('row4');
+        if (!row4) return;
+        row4.dataset.performance = value;
+        row4.classList.remove('row-eligible', 'row-not-eligible');
+        row4.classList.add('row-not-eligible');
+        // Update demo switcher styling
+        document.getElementById('perfDemo_licence').style.fontWeight = value === 'Removed Due to Licence' ? '700' : '400';
+        document.getElementById('perfDemo_idcheck').style.fontWeight = value === 'Banned - ID Check' ? '700' : '400';
+        // Clear any existing case/resolved state for row 4
+        var rowIndex = row4.rowIndex;
+        ['performance','collection','invoices','writtenoff','frozen'].forEach(function(k) {
+            var rk = getResolveKey('s3', rowIndex, k);
+            delete resolvedChecks[rk];
+            delete createdCases[rk];
+        });
+        // If panel is showing for row 4, refresh it
+        if (currentSelectedRow === row4) {
+            showEligibilityPanel(row4, 's3');
+        }
+    }
+
+    let lastConvertScreen = null;
+    function getActiveOverlay() { const active = document.querySelector('.screen.active'); return active ? active.querySelector('.modal-spinner-overlay') : null; }
+    function hideAllOverlays() { document.querySelectorAll('.modal-spinner-overlay').forEach(o => o.classList.remove('active')); }
+    function doConfirm() {
+        const activeScreen = document.querySelector('.screen.active');
+        if (activeScreen) lastConvertScreen = activeScreen.id.replace('s', '');
+        const overlay = getActiveOverlay(); if (overlay) overlay.classList.add('active');
+        setTimeout(() => { hideAllOverlays(); if (errorScenario === 'success') { go(4); } else if (errorScenario === 'error-then-success') { if (retryCount === 0) { document.getElementById('errorMessage').textContent = errorMessages[0]; retryCount = 1; go('3c'); } else { go(4); } } else if (errorScenario === 'error-twice') { if (retryCount === 0) { document.getElementById('errorMessage').textContent = errorMessages[1]; retryCount = 1; go('3c'); } else { go('3d'); } } }, 2000);
+    }
+    function doRetry() {
+        if (lastConvertScreen) { go(lastConvertScreen); const overlay = getActiveOverlay(); if (overlay) overlay.classList.add('active'); }
+        setTimeout(() => { hideAllOverlays(); if (errorScenario === 'error-then-success') { go(4); } else { go('3d'); } }, 2000);
+    }
+
+    function initSingleMatch() {
+        var row = document.querySelector('#s3single .data-table tbody tr.selected');
+        if (row) {
+            showEligibilityPanel(row, 's3single');
+        }
+    }
+
+    function reset() {
+        retryCount = 0; resolvedChecks = {}; createdCases = {};
+        hideAllOverlays(); selectedMains.clear();
+        document.getElementById('abnResult').classList.remove('show'); document.getElementById('abnBusinessSelect').classList.remove('show'); document.getElementById('abnVerifiedMsg').style.display = 'none'; document.getElementById('abnDropdown').classList.remove('show'); document.getElementById('addrSugg').classList.remove('show');
+        document.getElementById('licCards').innerHTML = ''; document.getElementById('licEmpty').style.display = 'block';
+        document.getElementById('confirmBtn').disabled = true; document.getElementById('confirmBtnSingle').disabled = false;
+        document.querySelectorAll('.data-table tbody tr').forEach(r => r.classList.remove('selected'));
+        document.querySelectorAll('.data-table input[type=radio]').forEach(r => r.checked = false);
+        document.querySelectorAll('#catTree input[type="checkbox"]').forEach(c => { c.checked = false; c.indeterminate = false; });
+        document.querySelectorAll('.cat-count').forEach(c => c.textContent = '');
+        document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
+        document.querySelectorAll('.field-input.error').forEach(e => e.classList.remove('error'));
+        document.querySelectorAll('.eligibility-panel').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.not-eligible-msg').forEach(m => m.classList.remove('show'));
+        document.getElementById('catSearch').value = ''; filterCats();
+        // Reset row 4 to default
+        setRow4Performance('Removed Due to Licence');
+        // Reset table row classes back to original
+        document.querySelectorAll('#multiTable tbody tr').forEach(function(r) {
+            if (r.id === 'row4') return; // handled by setRow4Performance
+            var isElig = r.dataset.eligible === 'true';
+            r.classList.remove('row-eligible', 'row-not-eligible');
+            r.classList.add(isElig ? 'row-eligible' : 'row-not-eligible');
+        });
+        var singleRow = document.querySelector('#s3single .data-table tbody tr');
+        if (singleRow) { singleRow.classList.add('selected'); singleRow.querySelector('input[type=radio]').checked = true; }
+        go(1);
+    }
+
+    function closeFlow() {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelector('.page-bg').style.display = 'none';
+        document.querySelector('.ribbon').style.display = 'none';
+        document.body.style.background = '#f4f4f4';
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#666;font-size:16px;">Flow closed. Refresh to restart.</div>';
+    }
+
+    initSingleMatch();
+</script>
+
+</body>
+</html>

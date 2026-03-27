@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reactivation v4 — Performance Status Scenarios</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fff; color: #181818; font-size: 13px;
+        }
+        .page-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 10; }
+
+        .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 640px; max-width: 95vw; max-height: 90vh;
+            background: #fff; border-radius: 8px; border: 1px solid #d8d8d8;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+            z-index: 20; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .modal.wide { width: 620px; }
+        .modal.extra-wide { width: 620px; }
+
+        .modal-header {
+            padding: 16px 24px; border-bottom: 1px solid #d8d8d8;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+        }
+        .modal-header h2 { font-size: 20px; font-weight: 300; color: #181818; text-align: center; flex: 1; }
+        .modal-close {
+            width: 28px; height: 28px; border: none; background: none;
+            font-size: 20px; color: #444; cursor: pointer; border-radius: 4px;
+        }
+        .modal-close:hover { background: #eee; }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+        .modal-footer {
+            padding: 12px 24px; border-top: 1px solid #d8d8d8;
+            display: flex; justify-content: flex-end; align-items: center; flex-shrink: 0;
+        }
+        .modal-footer-right { display: flex; gap: 8px; }
+
+        .btn {
+            padding: 8px 16px; border-radius: 4px; font-size: 13px;
+            font-weight: 400; cursor: pointer; border: 1px solid #c9c9c9;
+        }
+        .btn-neutral { background: #fff; color: #181818; }
+        .btn-neutral:hover { background: #f3f3f3; }
+        .btn-brand { background: #0176d3; color: #fff; border-color: #0176d3; }
+        .btn-brand:hover { background: #014486; border-color: #014486; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-small { padding: 5px 12px; font-size: 12px; }
+
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #181818; table-layout: fixed; }
+        .data-table th {
+            text-align: left; font-size: 12px; font-weight: 700;
+            color: #444; padding: 8px 10px;
+            background: #fafaf9; border-bottom: 1px solid #e5e5e5;
+            border-right: 1px solid #e5e5e5;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .data-table th:last-child { border-right: none; }
+        .data-table td { padding: 10px 6px; border-bottom: 1px solid #e5e5e5; vertical-align: middle; color: #181818; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; font-weight: 300; }
+        .data-table tbody tr { cursor: pointer; }
+        .data-table tbody tr:hover { background: #f3f3f3; }
+        .data-table tbody tr.selected { background: #eef4ff; }
+        .data-table tbody tr.row-eligible td:first-child { border-left: 4px solid #1a7431; }
+        .data-table tbody tr.row-not-eligible td:first-child { border-left: 4px solid #ba1b1b; }
+        .data-table tbody tr.row-blocked td:first-child { border-left: 4px solid #555; }
+        .data-table input[type="radio"] { width: 14px; height: 14px; accent-color: #0176d3; margin: 0; }
+        .data-table td:first-child, .data-table td:nth-child(2) { padding: 10px 2px; text-align: center; }
+        .data-table th:first-child, .data-table th:nth-child(2) { padding: 8px 2px; text-align: center; }
+
+        .table-scroll { overflow-x: auto; border: 1px solid #e5e5e5; border-radius: 4px; }
+
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+        .badge-eligible { background: #e6f4ea; color: #1a7431; }
+        .badge-not-eligible { background: #fde7e7; color: #ba1b1b; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-blocked { background: #555; color: #fff; }
+        .badge-wrap { display: flex; align-items: center; gap: 6px; }
+        .details-link { font-size: 11px; color: #0176d3; cursor: pointer; text-decoration: underline; white-space: nowrap; }
+        .details-link:hover { color: #014486; }
+
+        /* Eligibility panel */
+        .eligibility-panel {
+            display: none; margin-top: 16px;
+            border: 1px solid #ccc; border-radius: 6px; padding: 16px; background: #fafafa;
+        }
+        .eligibility-panel.show { display: block; }
+        .eligibility-panel h4 { font-size: 13px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .eligibility-list { list-style: none; padding: 0; margin: 0; }
+        .eligibility-list li {
+            display: flex; align-items: flex-start; gap: 8px;
+            padding: 8px 0; border-bottom: 1px solid #eee; font-size: 12px;
+        }
+        .eligibility-list li:last-child { border-bottom: none; }
+        .check-icon { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+        .check-pass { color: #1a7431; }
+        .check-fail { color: #ba1b1b; }
+        .check-label { color: #333; }
+        .check-value { color: #666; font-size: 11px; }
+        .check-right { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+        .resolve-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
+            cursor: pointer; border: 1px solid #0176d3; background: #fff; color: #0176d3;
+            white-space: nowrap;
+        }
+        .resolve-btn:hover { background: #e8f4fd; }
+
+        /* Action detail area below the check */
+        .check-action-detail {
+            display: none; margin-top: 8px; padding: 10px 14px;
+            border: 1px solid #ccc; border-radius: 6px; font-size: 12px;
+            background: #fafafa;
+        }
+        .check-action-detail.show { display: block; }
+
+        .alert-banner { padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px; font-size: 13px; }
+        .alert-banner-error { background: #fde7e7; border: 1px solid #f5c6c6; color: #ba1b1b; }
+        .alert-banner-icon { font-size: 18px; flex-shrink: 0; line-height: 1; }
+        .alert-banner-content { flex: 1; }
+        .alert-banner-title { font-weight: 700; margin-bottom: 4px; }
+        .alert-banner-text { font-size: 12px; }
+
+        .row-blocked { opacity: 0.55; }
+        .row-blocked td { cursor: not-allowed !important; }
+
+        .spinner {
+            width: 32px; height: 32px; border: 3px solid #ddd;
+            border-top-color: #000; border-radius: 50%;
+            animation: spin 0.7s linear infinite; margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .modal-spinner-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(3px);
+            z-index: 50; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .modal-spinner-overlay.active { display: flex; }
+        .modal-spinner-overlay p { color: #444; font-size: 13px; margin-top: 14px; }
+
+        .screen { display: none; }
+        .screen.active { display: flex; flex-direction: column; height: 100%; }
+
+        .ribbon {
+            position: fixed; top: 12px; right: -34px;
+            background: #000; color: #fff; padding: 4px 40px; font-size: 10px;
+            font-weight: 700; transform: rotate(45deg); z-index: 30; letter-spacing: 0.5px;
+        }
+
+        .success-center { text-align: center; padding: 20px 0; }
+        .success-item { padding: 10px 0; border-bottom: 1px solid #eee; text-align: left; }
+        .success-item:last-child { border-bottom: none; }
+        .success-label { font-size: 12px; color: #666; }
+        .success-link { color: #0176d3; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="ribbon">MOCKUP v4</div>
+<div class="page-bg"></div>
+
+<!-- ==================== SCREEN 1: Account Selection ==================== -->
+<div class="screen active" id="s1">
+    <div class="modal wide">
+        <div class="modal-spinner-overlay" id="s1-overlay">
+            <div class="spinner"></div>
+            <p>Converting...</p>
+        </div>
+        <div class="modal-header">
+            <h2>Convert</h2>
+            <button class="modal-close" onclick="closeFlow()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:11px; color:#999; margin-bottom:14px; border:1px dashed #ccc; padding:6px 10px; border-radius:4px;">
+                Performance status scenario:
+                <a href="#" onclick="setScenario('abn'); return false;" id="sc_abn" style="color:#0176d3; font-weight:700;">Removed Due to ABN</a> |
+                <a href="#" onclick="setScenario('licence'); return false;" id="sc_licence" style="color:#0176d3;">Removed Due to Licence</a> |
+                <a href="#" onclick="setScenario('complaints'); return false;" id="sc_complaints" style="color:#0176d3;">Banned/Complaints</a> |
+                <a href="#" onclick="setScenario('sherlock'); return false;" id="sc_sherlock" style="color:#0176d3;">Sherlock (blocked)</a>
+            </div>
+
+            <!-- SCENARIO: Removed Due to ABN -->
+            <div id="view_abn">
+                <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">Matching Accounts Found</h3>
+                <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 2 matching Tradie account(s) for this lead. Select an account to convert to.</p>
+                <div class="table-scroll">
+                    <table class="data-table" id="table_abn">
+                        <colgroup>
+                            <col style="width:3%">
+                            <col style="width:3%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                        </colgroup>
+                        <thead><tr>
+                            <th></th><th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th>
+                            <th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th><th>Last Cancelled Date &#9662;</th>
+                            <th>Subscription Status &#9662;</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr class="row-not-eligible" onclick="pickAcct(this,'abn',1)" data-perf="Removed Due to ABN" data-eligible="false" data-substatus="Cancelled">
+                                <td style="color:#444;">1</td><td><input type="radio" name="acct_abn" value="1"></td>
+                                <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td>
+                                <td>711923</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>15/09/25</td><td>20/11/25</td>
+                                <td>Cancelled</td>
+                            </tr>
+                            <tr class="row-eligible" onclick="pickAcct(this,'abn',2)" data-perf="Redeemed" data-eligible="true" data-substatus="Cancelled">
+                                <td style="color:#444;">2</td><td><input type="radio" name="acct_abn" value="2"></td>
+                                <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Services</a></td>
+                                <td>645853</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>03/03/24</td><td>15/06/24</td>
+                                <td>Cancelled</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="eligibility-panel" id="eligPanel_abn">
+                    <h4><span id="eligName_abn"></span> <span id="eligBadge_abn"></span></h4>
+                    <ul class="eligibility-list" id="eligList_abn"></ul>
+                </div>
+            </div>
+
+            <!-- SCENARIO: Removed Due to Licence -->
+            <div id="view_licence" style="display:none;">
+                <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">Matching Accounts Found</h3>
+                <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 2 matching Tradie account(s) for this lead. Select an account to convert to.</p>
+                <div class="table-scroll">
+                    <table class="data-table" id="table_licence">
+                        <colgroup>
+                            <col style="width:3%">
+                            <col style="width:3%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                        </colgroup>
+                        <thead><tr>
+                            <th></th><th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th>
+                            <th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th><th>Last Cancelled Date &#9662;</th>
+                            <th>Subscription Status &#9662;</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr class="row-not-eligible" onclick="pickAcct(this,'licence',1)" data-perf="Removed Due to Licence" data-eligible="false" data-substatus="Cancelled">
+                                <td style="color:#444;">1</td><td><input type="radio" name="acct_lic" value="1"></td>
+                                <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell & Sons Plumbing</a></td>
+                                <td>698412</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>15/09/25</td><td>15/09/22</td>
+                                <td>Cancelled</td>
+                            </tr>
+                            <tr class="row-eligible" onclick="pickAcct(this,'licence',2)" data-perf="Redeemed" data-eligible="true" data-substatus="Cancelled">
+                                <td style="color:#444;">2</td><td><input type="radio" name="acct_lic" value="2"></td>
+                                <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td>
+                                <td>711923</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>03/03/24</td><td>20/11/25</td>
+                                <td>Cancelled</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="eligibility-panel" id="eligPanel_licence">
+                    <h4><span id="eligName_licence"></span> <span id="eligBadge_licence"></span></h4>
+                    <ul class="eligibility-list" id="eligList_licence"></ul>
+                </div>
+            </div>
+
+            <!-- SCENARIO: Banned/Complaints -->
+            <div id="view_complaints" style="display:none;">
+                <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">Matching Accounts Found</h3>
+                <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 2 matching Tradie account(s) for this lead. Select an account to convert to.</p>
+                <div class="table-scroll">
+                    <table class="data-table" id="table_complaints">
+                        <colgroup>
+                            <col style="width:3%">
+                            <col style="width:3%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                            <col style="width:13.4%">
+                        </colgroup>
+                        <thead><tr>
+                            <th></th><th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th>
+                            <th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th><th>Last Cancelled Date &#9662;</th>
+                            <th>Subscription Status &#9662;</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr class="row-not-eligible" onclick="pickAcct(this,'complaints',1)" data-perf="Banned - ID Check" data-eligible="false" data-substatus="Cancelled">
+                                <td style="color:#444;">1</td><td><input type="radio" name="acct_comp" value="1"></td>
+                                <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">JM Plumbing</a></td>
+                                <td>724270</td><td>james@mitchellplumbing.com.au</td><td>0298 765 432</td><td>15/09/25</td><td>10/04/23</td>
+                                <td>Cancelled</td>
+                            </tr>
+                            <tr class="row-eligible" onclick="pickAcct(this,'complaints',2)" data-perf="Redeemed" data-eligible="true" data-substatus="Cancelled">
+                                <td style="color:#444;">2</td><td><input type="radio" name="acct_comp" value="2"></td>
+                                <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td>
+                                <td>711923</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>03/03/24</td><td>20/11/25</td>
+                                <td>Cancelled</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="font-size:11px; color:#999; margin-top:8px; margin-bottom:4px; border:1px dashed #ccc; padding:4px 8px; border-radius:4px; display:inline-block;">
+                    Status variant:
+                    <a href="#" onclick="setComplaintStatus('Banned - ID Check'); return false;" id="cv_idcheck" style="color:#0176d3; font-weight:700;">Banned - ID Check</a> |
+                    <a href="#" onclick="setComplaintStatus('Banned due to Complaints'); return false;" id="cv_complaints" style="color:#0176d3;">Banned due to Complaints</a> |
+                    <a href="#" onclick="setComplaintStatus('Removed due to complaints'); return false;" id="cv_removed" style="color:#0176d3;">Removed due to complaints</a> |
+                    <a href="#" onclick="setComplaintStatus('Removed - Unresolved Complaint'); return false;" id="cv_unresolved" style="color:#0176d3;">Removed - Unresolved Complaint</a>
+                </div>
+
+                <div class="eligibility-panel" id="eligPanel_complaints">
+                    <h4><span id="eligName_complaints"></span> <span id="eligBadge_complaints"></span></h4>
+                    <ul class="eligibility-list" id="eligList_complaints"></ul>
+                </div>
+            </div>
+
+            <!-- SCENARIO: Sherlock (blocked) -->
+            <div id="view_sherlock" style="display:none;">
+                <div class="alert-banner alert-banner-error">
+                    <span class="alert-banner-icon">&#9888;</span>
+                    <div class="alert-banner-content">
+                        <div class="alert-banner-title">Conversion Blocked: Sherlock Ban Detected</div>
+                        <div class="alert-banner-text" style="color:#666;">A matching account has been flagged as <strong>Banned Due to Sherlock</strong>. This lead cannot be converted and must be disregarded. No accounts can be selected while a Sherlock-banned account exists.</div>
+                    </div>
+                </div>
+                <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">Matching Accounts</h3>
+                <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 3 matching account(s) for this lead. Conversion is blocked due to a Sherlock ban.</p>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <colgroup>
+                            <col style="width:3%">
+                            <col style="width:13.85%">
+                            <col style="width:13.85%">
+                            <col style="width:13.85%">
+                            <col style="width:13.85%">
+                            <col style="width:13.85%">
+                            <col style="width:13.85%">
+                            <col style="width:13.85%">
+                        </colgroup>
+                        <thead><tr>
+                            <th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th>
+                            <th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th><th>Last Cancelled Date &#9662;</th>
+                            <th>Subscription Status &#9662;</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr style="cursor:default;" class="row-blocked" data-substatus="Cancelled">
+                                <td style="color:#444;">1</td>
+                                <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td>
+                                <td>711923</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>15/09/25</td><td>20/11/25</td>
+                                <td>Cancelled</td>
+                            </tr>
+                            <tr style="cursor:default;" class="row-eligible" data-substatus="Cancelled">
+                                <td style="color:#444;">2</td>
+                                <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Services</a></td>
+                                <td>645853</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>03/03/24</td><td>15/06/24</td>
+                                <td>Cancelled</td>
+                            </tr>
+                            <tr style="cursor:default;" class="row-not-eligible" data-substatus="Cancelled">
+                                <td style="color:#444;">3</td>
+                                <td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">JM Plumbing</a></td>
+                                <td>724270</td><td>james@mitchellplumbing.com.au</td><td>0298 765 432</td><td>22/01/23</td><td>10/04/23</td>
+                                <td>Cancelled</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" id="convertBtn" onclick="doConvert()" disabled>Convert</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 2: Error (1st failure) ==================== -->
+<div class="screen" id="s2">
+    <div class="modal" style="width:460px;">
+        <div class="modal-header"><h2>Error Encountered</h2><button class="modal-close" onclick="closeFlow()">&times;</button></div>
+        <div class="modal-body"><div style="text-align:center; padding:16px 0;"><p id="errorMessage" style="font-size:13px; color:#666;">The billing system did not respond in time. Please try again.</p></div></div>
+        <div class="modal-footer"><div class="modal-footer-right"><button class="btn btn-neutral" onclick="closeFlow()">Cancel</button><button class="btn btn-brand" onclick="doRetry()">Retry</button></div></div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 3: Blocked (2nd failure) ==================== -->
+<div class="screen" id="s3">
+    <div class="modal" style="width:460px;">
+        <div class="modal-header"><h2>Error Encountered</h2><button class="modal-close" onclick="closeFlow()">&times;</button></div>
+        <div class="modal-body"><div style="text-align:center; padding:16px 0;"><p style="font-size:13px; color:#666;">The action couldn't be completed. Please contact RevOps for help.</p></div></div>
+        <div class="modal-footer"><div class="modal-footer-right"><button class="btn btn-neutral" onclick="closeFlow()">Close</button></div></div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 4: Success ==================== -->
+<div class="screen" id="s4">
+    <div class="modal" style="width:580px;">
+        <div class="modal-header"><h2>Conversion Complete</h2><button class="modal-close" onclick="closeFlow()">&times;</button></div>
+        <div class="modal-body">
+            <div class="success-center">
+                <h2 style="font-size:22px; font-weight:400;">Lead Converted Successfully</h2>
+                <p style="color:#666; font-size:13px; margin-bottom:16px;">&nbsp;</p>
+                <div style="text-align:left; max-width:400px; margin:0 auto;">
+                    <div class="success-item">
+                        <span class="success-label">Account</span><br>
+                        <a href="#" onclick="return false;" class="success-link" id="successAcctName">Mitchell Plumbing Pty Ltd</a>
+                    </div>
+                    <div class="success-item">
+                        <span class="success-label">Opportunity</span><br>
+                        <a href="#" onclick="return false;" class="success-link">Reactivation - Mitchell Plumbing</a>
+                    </div>
+                    <div class="success-item">
+                        <span class="success-label">Contact</span><br>
+                        <a href="#" onclick="return false;" class="success-link">James Mitchell</a>
+                    </div>
+                </div>
+                <div id="successActions" style="display:none; text-align:left; max-width:400px; margin:16px auto 0;">
+                    <div style="font-size:12px; font-weight:700; color:#333; margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid #ddd;">Post-Conversion Actions</div>
+                    <div id="successActionsList"></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer"><div class="modal-footer-right"><button class="btn btn-brand" onclick="closeFlow()">Close</button></div></div>
+    </div>
+</div>
+
+<script>
+    var currentScenario = 'abn';
+    var acknowledged = { abn: false, licence: false, complaints: false };
+    var selectedRow = null;
+    var selectedScenario = null;
+    var selectedRowNum = null;
+    var currentComplaintStatus = 'Banned - ID Check';
+
+    var complaintStatusMap = {
+        'Banned - ID Check': 'cv_idcheck',
+        'Banned due to Complaints': 'cv_complaints',
+        'Removed due to complaints': 'cv_removed',
+        'Removed - Unresolved Complaint': 'cv_unresolved'
+    };
+
+    // All valid (passing) performance statuses
+    var validPerformance = ['', 'None', 'Redeemed', 'Redeemed with good feedback', 'Last Warning',
+        'Negative feedback discussed', 'Sales - License Review', 'Deregistered'];
+
+    var passIcon = '<svg class="check-icon check-pass" viewBox="0 0 20 20"><path fill="currentColor" d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm-1 15l-5-5 1.41-1.41L9 12.17l6.59-6.59L17 7l-8 8z"/></svg>';
+    var failIcon = '<svg class="check-icon check-fail" viewBox="0 0 20 20"><path fill="currentColor" d="M10 0C4.48 0 0 4.48 0 10s4.48 10 10 10 10-4.48 10-10S15.52 0 10 0zm5 13.59L13.59 15 10 11.41 6.41 15 5 13.59 8.59 10 5 6.41 6.41 5 10 8.59 13.59 5 15 6.41 11.41 10 15 13.59z"/></svg>';
+
+    function go(n) {
+        document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+        document.getElementById('s' + n).classList.add('active');
+    }
+
+    function closeFlow() {
+        document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+        document.querySelector('.page-bg').style.display = 'none';
+        document.querySelector('.ribbon').style.display = 'none';
+        document.body.style.background = '#f4f4f4';
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#666;font-size:16px;">Flow closed. Refresh to restart.</div>';
+    }
+
+    function setScenario(type) {
+        currentScenario = type;
+        acknowledged = { abn: false, licence: false, complaints: false };
+        selectedRow = null;
+        selectedScenario = null;
+        selectedRowNum = null;
+
+        ['abn','licence','complaints','sherlock'].forEach(function(v) {
+            document.getElementById('view_' + v).style.display = 'none';
+            document.getElementById('sc_' + v).style.fontWeight = v === type ? '700' : '400';
+        });
+        document.getElementById('view_' + type).style.display = 'block';
+
+        // Reset selections
+        document.querySelectorAll('.data-table tbody tr').forEach(function(r) { r.classList.remove('selected'); });
+        document.querySelectorAll('.data-table input[type=radio]').forEach(function(r) { r.checked = false; });
+        document.querySelectorAll('.eligibility-panel').forEach(function(p) { p.classList.remove('show'); });
+
+        updateConvertBtn();
+    }
+
+    function setComplaintStatus(status) {
+        currentComplaintStatus = status;
+        // Update row data attribute
+        var row1 = document.querySelector('#table_complaints tbody tr:first-child');
+        row1.dataset.perf = status;
+        // Update variant links
+        Object.keys(complaintStatusMap).forEach(function(k) {
+            document.getElementById(complaintStatusMap[k]).style.fontWeight = k === status ? '700' : '400';
+        });
+        // Reset acknowledgment
+        acknowledged.complaints = false;
+        // Refresh panel if row 1 is selected
+        if (selectedScenario === 'complaints' && selectedRowNum === 1) {
+            showEligibilityPanel(selectedRow, 'complaints', 1);
+        }
+        updateConvertBtn();
+    }
+
+    function pickAcct(row, scenario, rowNum) {
+        var table = row.closest('table');
+        table.querySelectorAll('tbody tr').forEach(function(r) { r.classList.remove('selected'); });
+        row.classList.add('selected');
+        row.querySelector('input[type=radio]').checked = true;
+        selectedRow = row;
+        selectedScenario = scenario;
+        selectedRowNum = rowNum;
+
+        showEligibilityPanel(row, scenario, rowNum);
+        updateConvertBtn();
+    }
+
+    function showEligibilityPanel(row, scenario, rowNum) {
+        var panel = document.getElementById('eligPanel_' + scenario);
+        var nameEl = document.getElementById('eligName_' + scenario);
+        var badgeEl = document.getElementById('eligBadge_' + scenario);
+        var listEl = document.getElementById('eligList_' + scenario);
+
+        var accountName = row.cells[2].textContent;
+        var perfStatus = row.dataset.perf;
+        var isEligible = row.dataset.eligible === 'true';
+        var perfPass = validPerformance.includes(perfStatus);
+        var isAcknowledged = acknowledged[scenario];
+
+        // Determine overall eligibility
+        var overallPass = perfPass;
+
+        nameEl.textContent = accountName + ' — Eligibility Checks';
+        badgeEl.innerHTML = overallPass
+            ? '<span class="badge badge-eligible">Eligible</span>'
+            : '<span class="badge badge-warning">Issues to Resolve</span>';
+
+        // Build checks list
+        var html = '';
+
+        // 1. Performance status
+        if (perfPass) {
+            html += checkRow(passIcon, 'Performance status compliant', perfStatus || '(blank)', '');
+        } else {
+            var actionHtml = buildPerfAction(scenario, perfStatus);
+            html += checkRow(failIcon, 'Performance status compliant', perfStatus, '', actionHtml);
+        }
+
+        // 2-5. All other checks pass in this version
+        html += checkRow(passIcon, 'Account is not at DC', 'Clear', '');
+        html += checkRow(passIcon, 'Less than 2 invoices outstanding', '0 invoice(s)', '');
+        html += checkRow(passIcon, 'No written-off outstanding debt', '$0.00', '');
+        html += checkRow(passIcon, 'Account is not frozen', 'Not frozen', '');
+
+        listEl.innerHTML = html;
+        panel.classList.add('show');
+
+    }
+
+    function checkRow(icon, label, value, btnHtml, detailHtml) {
+        var html = '<li>' + icon +
+            '<span class="check-label">' + label + '</span>' +
+            '<div class="check-right"><span class="check-value">' + value + '</span>' + (btnHtml || '') + '</div>' +
+            '</li>';
+        if (detailHtml) {
+            html += detailHtml;
+        }
+        return html;
+    }
+
+    function buildPerfAction(scenario, perfStatus) {
+        if (scenario === 'abn') {
+            return '<div style="padding:12px 16px; margin:0 0 4px; background:#fafafa; border:1px solid #e0e0e0; border-radius:6px; font-size:12px;">' +
+                '<div style="font-weight:700; margin-bottom:6px;">On conversion, the following will happen automatically:</div>' +
+                '<div style="margin-bottom:6px;"><strong>Lead ABN:</strong> 51 824 753 556 — Mitchell Plumbing Pty Ltd</div>' +
+                '<div style="color:#666;">The lead\'s ABN will be submitted for T&Q to review within 1 business day on conversion. The ABN will be synced to the Salesforce Account and Admin page with full details.</div>' +
+                '</div>';
+        }
+
+        var items = '';
+        if (scenario === 'licence') {
+            items = noticeItem('check', 'A "T&Q - Banned business review" case will be created') +
+                noticeItem('check', 'Email sent to Trust & Quality team (cc: Sales Managers)') +
+                noticeItem('clock', 'Licences will be verified within 1 business day');
+        } else if (scenario === 'complaints') {
+            items = noticeItem('check', 'A "T&Q - Banned business review" case will be created') +
+                noticeItem('check', 'Email sent to Trust & Quality team (cc: Sales Managers)') +
+                noticeItem('check', 'Auto-email sent to tradie notifying T&Q review') +
+                '<div style="margin:4px 0 8px 26px; padding:8px 12px; background:#f5f5f5; border-radius:4px; border-left:3px solid #ccc; font-size:11px; font-style:italic; color:#555;">' +
+                '"Thank you for your enquiry. Your account has been flagged as being managed by our Trust &amp; Quality team. We have now referred your request to the team who will be in touch with you within a week to advise if we can proceed with your account request."' +
+                '</div>' +
+                noticeItem('clock', 'T&Q team will review and respond within 1 business day');
+        }
+        return '<div style="padding:12px 16px; margin:0 0 4px; background:#fafafa; border:1px solid #e0e0e0; border-radius:6px; font-size:12px;">' +
+            '<div style="font-weight:700; font-size:12px; margin-bottom:8px;">On conversion, the following will happen automatically:</div>' +
+            items + '</div>';
+    }
+
+    function noticeItem(type, text) {
+        return '<div style="padding:2px 0 2px 16px; font-size:12px; position:relative;">' +
+            '<span style="position:absolute; left:0;">&#8226;</span>' + text + '</div>';
+    }
+
+    function acknowledge(scenario) {
+        acknowledged[scenario] = true;
+        if (selectedRow) {
+            selectedRow.classList.remove('row-not-eligible');
+            selectedRow.classList.add('row-eligible');
+        }
+        showEligibilityPanel(selectedRow, scenario, selectedRowNum);
+        updateConvertBtn();
+    }
+
+    function undoAcknowledge(scenario) {
+        acknowledged[scenario] = false;
+        // Revert row border back to red
+        if (selectedRow) {
+            selectedRow.classList.remove('row-eligible');
+            selectedRow.classList.add('row-not-eligible');
+        }
+        showEligibilityPanel(selectedRow, scenario, selectedRowNum);
+        updateConvertBtn();
+    }
+
+    function updateConvertBtn() {
+        var btn = document.getElementById('convertBtn');
+        btn.textContent = 'Convert';
+        if (currentScenario === 'sherlock') {
+            btn.disabled = true;
+            return;
+        }
+        btn.disabled = !selectedRow;
+    }
+
+    function doConvert() {
+        var overlay = document.getElementById('s1-overlay');
+        overlay.classList.add('active');
+        setTimeout(function() {
+            overlay.classList.remove('active');
+            var acctName = selectedRow.cells[2].textContent;
+            document.getElementById('successAcctName').textContent = acctName;
+
+            var isProblemRow = selectedRowNum === 1;
+            var actionsHtml = '';
+            var showActions = false;
+
+            if (isProblemRow && currentScenario === 'abn') {
+                showActions = true;
+                actionsHtml += actionItem('ABN (51 824 753 556) verification will complete within 1 business day');
+            } else if (isProblemRow && currentScenario === 'licence') {
+                showActions = true;
+                actionsHtml += actionItem('Case <a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none;">SF-50001</a> created: "T&Q - Banned business review"');
+                actionsHtml += actionItem('Email sent to Trust & Quality team (cc: Sales Managers)');
+                actionsHtml += actionItem('Licence verification in progress — will complete within 1 business day');
+            } else if (isProblemRow && currentScenario === 'complaints') {
+                showActions = true;
+                actionsHtml += actionItem('Case <a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none;">SF-50002</a> created: "T&Q - Banned business review"');
+                actionsHtml += actionItem('Email sent to Trust & Quality team (cc: Sales Managers)');
+                actionsHtml += actionItem('Auto-email sent to tradie (james@mitchellplumbing.com.au) notifying T&Q review');
+                actionsHtml += actionItem('T&Q team will review and respond within 1 week');
+            }
+
+            document.getElementById('successActions').style.display = showActions ? 'block' : 'none';
+            document.getElementById('successActionsList').innerHTML = actionsHtml;
+            go(4);
+        }, 2000);
+    }
+
+    function actionItem(text) {
+        return '<div style="padding:3px 0 3px 16px; font-size:12px; color:#333; position:relative;">' +
+            '<span style="position:absolute; left:0;">&#8226;</span>' + text + '</div>';
+    }
+
+    function doRetry() {
+        go(1);
+        var overlay = document.getElementById('s1-overlay');
+        overlay.classList.add('active');
+        setTimeout(function() {
+            overlay.classList.remove('active');
+            go(4);
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>

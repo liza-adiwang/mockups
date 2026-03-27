@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reactivation Screenflow - v1 (Simplified)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fff;
+            color: #181818;
+            font-size: 13px;
+        }
+
+        .page-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 10; }
+
+        .modal {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 640px; max-width: 95vw; max-height: 90vh;
+            background: #fff; border-radius: 8px;
+            border: 1px solid #d8d8d8;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+            z-index: 20; display: flex; flex-direction: column; overflow: hidden;
+        }
+        .modal.wide { width: 620px; }
+        .modal.extra-wide { width: 620px; }
+
+        .modal-header {
+            padding: 16px 24px; border-bottom: 1px solid #d8d8d8;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+        }
+        .modal-header h2 { font-size: 20px; font-weight: 300; text-align: center; flex: 1; color: #181818; }
+        .modal-close {
+            width: 28px; height: 28px; border: none; background: none;
+            font-size: 20px; color: #444; cursor: pointer; border-radius: 4px;
+        }
+        .modal-close:hover { background: #eee; }
+
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+
+        .modal-footer {
+            padding: 12px 24px; border-top: 1px solid #d8d8d8;
+            display: flex; justify-content: flex-end; align-items: center; flex-shrink: 0;
+        }
+        .modal-footer-right { display: flex; gap: 8px; }
+
+        .btn {
+            padding: 8px 16px; border-radius: 4px; font-size: 13px;
+            font-weight: 400; cursor: pointer; border: 1px solid #c9c9c9;
+        }
+        .btn-neutral { background: #fff; color: #181818; }
+        .btn-neutral:hover { background: #f3f3f3; }
+        .btn-brand { background: #0176d3; color: #fff; border-color: #0176d3; }
+        .btn-brand:hover { background: #014486; border-color: #014486; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Data table — matches Salesforce Lightning datatable */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; color: #181818; table-layout: fixed; }
+        .data-table th {
+            text-align: left; font-size: 12px; font-weight: 700;
+            color: #444; padding: 8px 10px;
+            background: #fafaf9; border-bottom: 1px solid #e5e5e5;
+            border-right: 1px solid #e5e5e5;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .data-table th:last-child { border-right: none; }
+        .data-table td { padding: 10px 6px; border-bottom: 1px solid #e5e5e5; vertical-align: middle; color: #181818; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; font-weight: 300; }
+        .data-table tbody tr { cursor: pointer; }
+        .data-table tbody tr:hover { background: #f3f3f3; }
+        .data-table tbody tr.selected { background: #eef4ff; }
+        .data-table input[type="radio"] { width: 14px; height: 14px; accent-color: #0176d3; margin: 0; }
+        .data-table td:first-child, .data-table td:nth-child(2) { padding: 10px 2px; text-align: center; }
+        .data-table th:first-child, .data-table th:nth-child(2) { padding: 8px 2px; text-align: center; }
+
+        .table-scroll { overflow-x: auto; border: 1px solid #e5e5e5; border-radius: 4px; }
+
+        .success-center { text-align: center; padding: 20px 0; }
+
+        .spinner {
+            width: 32px; height: 32px; border: 3px solid #ddd;
+            border-top-color: #000; border-radius: 50%;
+            animation: spin 0.7s linear infinite; margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .modal-spinner-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(3px);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .modal-spinner-overlay.active { display: flex; }
+        .modal-spinner-overlay p { color: #444; font-size: 13px; margin-top: 14px; }
+
+        .screen { display: none; }
+        .screen.active { display: flex; flex-direction: column; height: 100%; }
+
+        .ribbon {
+            position: fixed; top: 12px; right: -34px;
+            background: #000; color: #fff; padding: 4px 40px; font-size: 10px;
+            font-weight: 700; transform: rotate(45deg); z-index: 30; letter-spacing: 0.5px;
+        }
+
+        .hint-text {
+            font-size: 11px; color: #999; margin-top: 8px; font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ribbon">MOCKUP</div>
+<div class="page-bg"></div>
+
+<!-- ==================== SCREEN 1: Account Selection ==================== -->
+<div class="screen active" id="s1">
+    <div class="modal wide">
+        <div class="modal-spinner-overlay" id="s1-overlay">
+            <div class="spinner"></div>
+            <p>Converting...</p>
+        </div>
+        <div class="modal-header">
+            <h2>Convert</h2>
+            <button class="modal-close" onclick="closeFlow()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:11px; color:#999; margin-bottom:14px; border:1px dashed #ccc; padding:6px 10px; border-radius:4px;">
+                After convert:
+                <a href="#" onclick="setErrorScenario('success'); return false;" id="errLink_success" style="color:#0176d3; font-weight:700;">Success</a> |
+                <a href="#" onclick="setErrorScenario('error-then-success'); return false;" id="errLink_error-then-success" style="color:#0176d3;">Error &rarr; Retry &rarr; Success</a> |
+                <a href="#" onclick="setErrorScenario('error-twice'); return false;" id="errLink_error-twice" style="color:#0176d3;">Error &rarr; Retry &rarr; Blocked</a>
+            </div>
+            <h3 style="font-size:20px; font-weight:300; color:#181818; margin-bottom:6px;">Matching Accounts Found</h3>
+            <p style="font-size:13px; color:#444; margin-bottom:16px;">We found 3 matching billing account(s) for this lead. Select the account you want to convert to.</p>
+            <div class="table-scroll">
+                <table class="data-table" id="acctTable">
+                    <colgroup>
+                        <col style="width:3%;">
+                        <col style="width:3%;">
+                        <col style="width:13.4%;">
+                        <col style="width:13.4%;">
+                        <col style="width:13.4%;">
+                        <col style="width:13.4%;">
+                        <col style="width:13.4%;">
+                        <col style="width:13.4%;">
+                        <col style="width:13.4%;">
+                    </colgroup>
+                    <thead><tr>
+                        <th></th><th></th><th>Account Name &#9662;</th><th>Admin Account Number &#9662;</th>
+                        <th>Email &#9662;</th><th>Phone &#9662;</th><th>Last Login &#9662;</th>
+                        <th>Last Cancelled Date &#9662;</th><th>Subscription Status &#9662;</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr onclick="pickAcct(this)">
+                            <td style="color:#444;">1</td><td><input type="radio" name="acct" value="1"></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Pty Ltd</a></td><td>711923</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>15/09/25</td><td>20/11/25</td><td>Cancelled</td>
+                        </tr>
+                        <tr onclick="pickAcct(this)">
+                            <td style="color:#444;">2</td><td><input type="radio" name="acct" value="2"></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">Mitchell Plumbing Services</a></td><td>645853</td><td>james@mitchellplumbing.com.au</td><td>0412 345 678</td><td>03/03/24</td><td>15/06/24</td><td>Cancelled</td>
+                        </tr>
+                        <tr onclick="pickAcct(this)">
+                            <td style="color:#444;">3</td><td><input type="radio" name="acct" value="3"></td><td><a href="#" onclick="event.stopPropagation(); return false;" style="color:#0176d3; text-decoration:none;">JM Plumbing</a></td><td>724270</td><td>james@mitchellplumbing.com.au</td><td>0298 765 432</td><td>22/01/23</td><td>10/04/23</td><td>Cancelled</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" id="convertBtn" onclick="doConvert()" disabled>Convert</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 2: Error (1st failure - Retry available) ==================== -->
+<div class="screen" id="s2">
+    <div class="modal" style="width:460px;">
+        <div class="modal-header">
+            <h2>Error Encountered</h2>
+            <button class="modal-close" onclick="closeFlow()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align:center; padding:16px 0;">
+                <p id="errorMessage" style="font-size:13px; color:#666;">The billing system did not respond in time. Please try again.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Cancel</button>
+                <button class="btn btn-brand" onclick="doRetry()">Retry</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 3: Blocked (2nd failure - no Retry) ==================== -->
+<div class="screen" id="s3">
+    <div class="modal" style="width:460px;">
+        <div class="modal-header">
+            <h2>Error Encountered</h2>
+            <button class="modal-close" onclick="closeFlow()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="text-align:center; padding:16px 0;">
+                <p style="font-size:13px; color:#666;">The action couldn't be completed. Please contact RevOps for help.</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="modal-footer-right">
+                <button class="btn btn-neutral" onclick="closeFlow()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREEN 4: Success ==================== -->
+<div class="screen" id="s4">
+    <div class="modal">
+        <div class="modal-header"><h2>Conversion Complete</h2><button class="modal-close" onclick="closeFlow()">&times;</button></div>
+        <div class="modal-body">
+            <div class="success-center">
+                <h2 style="font-size:22px; font-weight:400;">Lead Converted Successfully</h2>
+                <p style="color:#666; font-size:13px; margin-bottom:20px;">&nbsp;</p>
+                <div style="text-align:left; max-width:360px; margin:0 auto;">
+                    <div style="padding:10px 0; border-bottom:1px solid #eee;">
+                        <span style="font-size:12px; color:#666;">Account</span><br>
+                        <a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none; font-size:14px;" id="successAcctName">Mitchell Plumbing Pty Ltd</a>
+                    </div>
+                    <div style="padding:10px 0; border-bottom:1px solid #eee;">
+                        <span style="font-size:12px; color:#666;">Opportunity</span><br>
+                        <a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none; font-size:14px;">Reactivation - Mitchell Plumbing</a>
+                    </div>
+                    <div style="padding:10px 0;">
+                        <span style="font-size:12px; color:#666;">Contact</span><br>
+                        <a href="#" onclick="return false;" style="color:#0176d3; text-decoration:none; font-size:14px;">James Mitchell</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="modal-footer-right">
+                <button class="btn btn-brand" onclick="closeFlow()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let errorScenario = 'success';
+    let retryCount = 0;
+    let selectedAccountName = '';
+
+    function go(n) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('s' + n).classList.add('active');
+    }
+
+    function closeFlow() {
+        // In real SF, this would close the modal/flow entirely.
+        // For the mockup, reset and show a blank overlay.
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelector('.page-bg').style.display = 'none';
+        document.querySelector('.ribbon').style.display = 'none';
+        document.body.style.background = '#f4f4f4';
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#666;font-size:16px;">Flow closed. Refresh to restart.</div>';
+    }
+
+    function setErrorScenario(type) {
+        errorScenario = type;
+        retryCount = 0;
+        document.querySelectorAll('[id^="errLink_"]').forEach(a => a.style.fontWeight = '400');
+        document.getElementById('errLink_' + type).style.fontWeight = '700';
+    }
+
+    function pickAcct(row) {
+        var table = row.closest('table');
+        table.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected'));
+        row.classList.add('selected');
+        row.querySelector('input[type=radio]').checked = true;
+        selectedAccountName = row.cells[2].textContent;
+        document.getElementById('convertBtn').disabled = false;
+    }
+
+    function doConvert() {
+        var overlay = document.getElementById('s1-overlay');
+        overlay.classList.add('active');
+        setTimeout(function() {
+            overlay.classList.remove('active');
+            if (errorScenario === 'success') {
+                document.getElementById('successAcctName').textContent = selectedAccountName;
+                go(4);
+            } else if (errorScenario === 'error-then-success') {
+                if (retryCount === 0) {
+                    document.getElementById('errorMessage').textContent = 'The billing system did not respond in time. Please try again.';
+                    retryCount = 1;
+                    go(2);
+                } else {
+                    document.getElementById('successAcctName').textContent = selectedAccountName;
+                    go(4);
+                }
+            } else if (errorScenario === 'error-twice') {
+                if (retryCount === 0) {
+                    document.getElementById('errorMessage').textContent = 'Account data could not be verified. Please try again.';
+                    retryCount = 1;
+                    go(2);
+                } else {
+                    go(3);
+                }
+            }
+        }, 2000);
+    }
+
+    function doRetry() {
+        go(1);
+        var overlay = document.getElementById('s1-overlay');
+        overlay.classList.add('active');
+        setTimeout(function() {
+            overlay.classList.remove('active');
+            if (errorScenario === 'error-then-success') {
+                document.getElementById('successAcctName').textContent = selectedAccountName;
+                go(4);
+            } else {
+                go(3);
+            }
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>

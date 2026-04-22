@@ -1,0 +1,2858 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reactivation — Manual</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          "Salesforce Sans",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        background: #f4f4f4;
+        font-size: 14px;
+      }
+      .ribbon {
+        position: fixed;
+        top: 28px;
+        right: -32px;
+        z-index: 9999;
+        background: #000;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 44px;
+        transform: rotate(45deg);
+        letter-spacing: 1px;
+        pointer-events: none;
+      }
+
+      /* Screens */
+      .screen {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.4);
+      }
+      .screen.active {
+        display: flex;
+      }
+
+      /* Modal */
+      .modal {
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid #d8d8d8;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+        width: 980px;
+        max-width: 98vw;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .modal-header {
+        padding: 20px 24px 16px;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+      }
+      .modal-header h2 {
+        font-size: 22px;
+        font-weight: 400;
+        color: #181818;
+      }
+      .modal-close {
+        background: none;
+        border: none;
+        font-size: 22px;
+        cursor: pointer;
+        color: #555;
+        line-height: 1;
+      }
+      .modal-body {
+        padding: 20px 24px;
+        overflow-y: auto;
+        flex: 1;
+      }
+      .modal-footer {
+        padding: 12px 24px;
+        border-top: 1px solid #d8d8d8;
+        flex-shrink: 0;
+      }
+      .modal-footer-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .modal-footer-right {
+        display: flex;
+        gap: 10px;
+      }
+      .modal-footer-left {
+        font-size: 12px;
+        color: #888;
+      }
+      .modal-footer-row2 {
+        border-top: 1px solid #e5e5e5;
+        margin-top: 10px;
+        padding-top: 10px;
+        display: none;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .btn-brand {
+        background: #0176d3;
+        color: #fff;
+        border: 1px solid #0176d3;
+      }
+      .btn-brand:hover:not(:disabled) {
+        background: #014486;
+        border-color: #014486;
+      }
+      .btn-neutral {
+        background: #fff;
+        color: #000;
+        border: 1px solid #000;
+      }
+      .btn-neutral:hover:not(:disabled) {
+        background: #f4f4f4;
+      }
+      .btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      /* Scenario switcher */
+      .switcher-wrapper {
+        margin-bottom: 16px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #eee;
+      }
+      .sc-group {
+        margin-bottom: 10px;
+      }
+      .sc-group:last-child {
+        margin-bottom: 0;
+      }
+      .sc-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+      }
+      .sc-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .pill {
+        padding: 4px 12px;
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        font-size: 12px;
+        cursor: pointer;
+        background: #fff;
+        color: #333;
+        white-space: nowrap;
+        user-select: none;
+      }
+      .pill.active {
+        background: #181818;
+        color: #fff;
+        border-color: #181818;
+        font-weight: 600;
+      }
+
+      /* Sub-switcher */
+      .sub-switcher {
+        display: none;
+        margin-bottom: 12px;
+        padding: 8px 12px;
+        background: #f9f9f9;
+        border: 1px solid #e5e5e5;
+        border-radius: 6px;
+      }
+      .sub-switcher.show {
+        display: block;
+      }
+      .sub-label {
+        font-size: 11px;
+        color: #666;
+        margin-bottom: 6px;
+      }
+      .sub-pill {
+        display: inline-block;
+        padding: 3px 10px;
+        margin: 2px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 12px;
+        cursor: pointer;
+        background: #fff;
+      }
+      .sub-pill.active {
+        background: #181818;
+        color: #fff;
+        border-color: #181818;
+      }
+
+      /* Table */
+      .table-scroll {
+        overflow-x: auto;
+        margin-bottom: 10px;
+      }
+      table.dt {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        border: 1px solid #ccc;
+      }
+      table.dt th {
+        border-bottom: 1px solid #ccc;
+        padding: 6px 8px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+        color: #333;
+      }
+      table.dt td {
+        padding: 8px 8px;
+        border-bottom: 1px solid #eee;
+        vertical-align: middle;
+      }
+      table.dt tbody tr {
+        cursor: pointer;
+      }
+      table.dt tbody tr:hover {
+        background: #f5f5f5;
+      }
+      table.dt tbody tr.selected {
+        background: #eee;
+      }
+      .row-blocked {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      /* Match badge */
+      .match-badge {
+        display: inline-block;
+        background: #f3f4f6;
+        color: #374151;
+        font-size: 12px;
+        font-weight: 400;
+        border-radius: 12px;
+        padding: 2px 10px;
+        margin-left: 8px;
+        vertical-align: middle;
+        white-space: nowrap;
+      }
+
+      .match-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        font-size: 11px;
+        color: #444;
+        white-space: nowrap;
+      }
+
+      /* ===== Status Panel (flat key/value, no icons) ===== */
+      .status-panel {
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background: #fff;
+        margin-top: 8px;
+        display: none;
+      }
+      .status-panel.show {
+        display: block;
+      }
+      .status-panel-hd {
+        padding: 10px 16px;
+        border-bottom: 1px solid #e0e0e0;
+        font-size: 13px;
+        font-weight: 400;
+        color: #181818;
+        letter-spacing: 0.2px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0;
+      }
+      .status-field {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 16px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 12px;
+      }
+      .status-field:last-child {
+        border-bottom: none;
+      }
+      .status-label {
+        color: #555;
+      }
+      .status-value {
+        color: #181818;
+        text-align: right;
+        font-weight: 500;
+      }
+      .status-value.red {
+        color: #d93025;
+      }
+      /* Panel buttons row */
+      .status-panel-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 12px 16px;
+        border-top: 1px solid #e0e0e0;
+        margin-top: 2px;
+      }
+
+      /* Alert banners */
+      .alert {
+        display: flex;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        margin-bottom: 14px;
+        background: #fafafa;
+      }
+      .alert-err {
+        background: #fde7e7;
+        border-color: #f5c6c6;
+      }
+      .alert-warn {
+        background: #fff8e1;
+        border-color: #ffe082;
+      }
+      .alert-info {
+        background: #e8f4fd;
+        border-color: #90caf9;
+      }
+      .alert-icon {
+        font-size: 18px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .alert-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #181818;
+        margin-bottom: 3px;
+      }
+      .alert-text {
+        font-size: 12px;
+        color: #555;
+      }
+
+      .reason-opts {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .reason-opt {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        cursor: pointer;
+      }
+      .reason-opt input {
+        margin-top: 2px;
+        flex-shrink: 0;
+      }
+      .reason-opt label {
+        font-size: 13px;
+        color: #333;
+        cursor: pointer;
+        line-height: 1.4;
+      }
+      .reason-other {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 13px;
+        margin-top: 6px;
+        display: none;
+      }
+      .reason-other:focus {
+        outline: none;
+        border-color: #000;
+      }
+      .reason-err {
+        color: #ea001e;
+        font-size: 12px;
+        margin-top: 6px;
+        display: none;
+      }
+
+      /* Spinner overlay */
+      .spin-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 300;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(3px);
+        align-items: center;
+        justify-content: center;
+      }
+      .spin-overlay.active {
+        display: flex;
+      }
+      .spinner {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 3px solid #ddd;
+        border-top-color: #000;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Section title */
+      .sec-title {
+        font-size: 20px;
+        font-weight: 300;
+        color: #181818;
+        margin-bottom: 6px;
+      }
+      .sec-sub {
+        font-size: 13px;
+        color: #444;
+        margin-bottom: 14px;
+      }
+
+      /* Success screen */
+      .success-wrap {
+        text-align: center;
+        padding: 12px 0;
+      }
+      .success-wrap h2 {
+        font-size: 22px;
+        font-weight: 400;
+        margin-bottom: 4px;
+      }
+      .success-wrap .sub {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 16px;
+      }
+      .success-links {
+        text-align: left;
+        max-width: 540px;
+        margin: 0 auto;
+      }
+      .sl-item {
+        margin-bottom: 14px;
+      }
+      .sl-label {
+        font-size: 12px;
+        color: #666;
+        display: block;
+      }
+      .sl-link {
+        font-size: 14px;
+        color: #0176d3;
+        text-decoration: none;
+      }
+      .nxt-section {
+        text-align: left;
+        max-width: 540px;
+        margin: 12px auto 0;
+      }
+      .nxt-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #333;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 8px;
+      }
+      .nxt-item {
+        display: flex;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+        font-size: 13px;
+        color: #333;
+      }
+      .nxt-arrow {
+        color: #0176d3;
+        font-size: 16px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .override-note {
+        max-width: 540px;
+        margin: 12px auto 0;
+        padding: 10px 14px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background: #fafafa;
+        font-size: 12px;
+        color: #555;
+      }
+      .override-note strong {
+        color: #181818;
+      }
+
+      /* No match view */
+      .no-match-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 32px 24px 16px;
+      }
+      .no-match-body h3 {
+        font-size: 20px;
+        font-weight: 300;
+        color: #181818;
+        margin-bottom: 8px;
+      }
+      .no-match-body p {
+        font-size: 13px;
+        color: #555;
+        max-width: 440px;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ribbon">MOCKUP · Manual</div>
+
+    <!-- Spinner -->
+    <div class="spin-overlay" id="spinner"><div class="spinner"></div></div>
+
+    <!-- ===== SCREEN 1: Account Selection ===== -->
+    <div class="screen active" id="s1">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Convert Lead</h2>
+          <button class="modal-close" onclick="closeFlow()">&#x2715;</button>
+        </div>
+        <div class="modal-body">
+          <!-- Scenario switcher -->
+          <div class="switcher-wrapper">
+            <div class="sc-group">
+              <div class="sc-label">Email Match Scenarios</div>
+              <div class="sc-pills">
+                <span
+                  class="pill active"
+                  id="sc_abn"
+                  onclick="setScenario('abn')"
+                  >ABN Issue</span
+                >
+                <span
+                  class="pill"
+                  id="sc_licence"
+                  onclick="setScenario('licence')"
+                  >Licence Issue</span
+                >
+                <span
+                  class="pill"
+                  id="sc_complaints"
+                  onclick="setScenario('complaints')"
+                  >Complaints / Banned</span
+                >
+                <span
+                  class="pill"
+                  id="sc_sherlock"
+                  onclick="setScenario('sherlock')"
+                  >Sherlock Ban</span
+                >
+                <span
+                  class="pill"
+                  id="sc_nodebt"
+                  onclick="setScenario('nodebt')"
+                  >No Debt + Banned</span
+                >
+                <span
+                  class="pill"
+                  id="sc_lowdebt"
+                  onclick="setScenario('lowdebt')"
+                  >Low Debt ($0–999)</span
+                >
+                <span
+                  class="pill"
+                  id="sc_highdebt"
+                  onclick="setScenario('highdebt')"
+                  >High Debt / DC</span
+                >
+                <span class="pill" id="sc_fraud" onclick="setScenario('fraud')"
+                  >Fraud Ban</span
+                >
+                <span
+                  class="pill"
+                  id="sc_emailactive"
+                  onclick="setScenario('emailactive')"
+                  >Active Account</span
+                >
+              </div>
+            </div>
+            <div class="sc-group">
+              <div class="sc-label">
+                Soft Match Scenarios — no email match found
+              </div>
+              <div class="sc-pills">
+                <span
+                  class="pill"
+                  id="sc_softclean"
+                  onclick="setScenario('softclean')"
+                  >Soft Match — No Issues</span
+                >
+                <span
+                  class="pill"
+                  id="sc_softissues"
+                  onclick="setScenario('softissues')"
+                  >Soft Match — Account with Issues</span
+                >
+              </div>
+            </div>
+            <div class="sc-group">
+              <div class="sc-label">
+                ABN Sole Trader Match — no email match found
+              </div>
+              <div class="sc-pills">
+                <span
+                  class="pill"
+                  id="sc_abnsoletrade"
+                  onclick="setScenario('abnsoletrade')"
+                  >ABN Sole Trader — No Issues</span
+                >
+                <span
+                  class="pill"
+                  id="sc_abnsolissues"
+                  onclick="setScenario('abnsolissues')"
+                  >ABN Sole Trader — Account with Issues</span
+                >
+                <span
+                  class="pill"
+                  id="sc_abnsolactive"
+                  onclick="setScenario('abnsolactive')"
+                  >ABN Sole Trader — Active Account</span
+                >
+              </div>
+            </div>
+            <div class="sc-group">
+              <div class="sc-label">No Match</div>
+              <div class="sc-pills">
+                <span
+                  class="pill"
+                  id="sc_nomatch"
+                  onclick="setScenario('nomatch')"
+                  >No Matches Found</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Complaint sub-status switcher -->
+          <div class="sub-switcher" id="complaint-sub">
+            <div class="sub-label">Complaint sub-status (Row 1):</div>
+            <span
+              class="sub-pill active"
+              id="cv_idcheck"
+              onclick="setComplaintStatus('Banned - ID Check')"
+              >Banned - ID Check</span
+            >
+            <span
+              class="sub-pill"
+              id="cv_complaints"
+              onclick="setComplaintStatus('Banned due to Complaints')"
+              >Banned due to Complaints</span
+            >
+            <span
+              class="sub-pill"
+              id="cv_removed"
+              onclick="setComplaintStatus('Removed due to complaints')"
+              >Removed due to complaints</span
+            >
+            <span
+              class="sub-pill"
+              id="cv_unresolved"
+              onclick="setComplaintStatus('Removed - Unresolved Complaint')"
+              >Removed - Unresolved Complaint</span
+            >
+          </div>
+
+          <!-- ===== EMAIL MATCH: ABN ===== -->
+          <div id="view_abn">
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_abn"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_abn">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'abn', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="Removed Due to ABN"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_abn" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'abn', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="Redeemed"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_abn" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Services</a
+                      >
+                    </td>
+                    <td>645853</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>03/03/24</td>
+                    <td>15/06/24</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'abn', 3)"
+                    data-sub-status="Cancelled"
+                    data-perf="Redeemed"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>3</td>
+                    <td><input type="radio" name="r_abn" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >JM Plumbing</a
+                      >
+                    </td>
+                    <td>724270</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>22/01/23</td>
+                    <td>10/04/23</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_abn">
+              <div class="status-panel-hd" id="epname_abn"></div>
+              <div id="eplist_abn"></div>
+            </div>
+          </div>
+
+          <!-- ===== EMAIL MATCH: Licence ===== -->
+          <div id="view_licence" style="display: none">
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_licence"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_licence">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'licence', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="Removed Due to Licence"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="78 345 219 004"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_licence" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'licence', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="Redeemed"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="78 345 219 004"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_licence" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Services</a
+                      >
+                    </td>
+                    <td>645853</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>03/03/24</td>
+                    <td>15/06/24</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'licence', 3)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="78 345 219 004"
+                  >
+                    <td>3</td>
+                    <td><input type="radio" name="r_licence" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >JM Plumbing</a
+                      >
+                    </td>
+                    <td>724270</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>22/01/23</td>
+                    <td>10/04/23</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_licence">
+              <div class="status-panel-hd" id="epname_licence"></div>
+              <div id="eplist_licence"></div>
+            </div>
+          </div>
+
+          <!-- ===== EMAIL MATCH: Complaints ===== -->
+          <div id="view_complaints" style="display: none">
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_complaints"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_complaints">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'complaints', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="Banned - ID Check"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_complaints" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'complaints', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="Redeemed"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_complaints" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Services</a
+                      >
+                    </td>
+                    <td>645853</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>03/03/24</td>
+                    <td>15/06/24</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_complaints">
+              <div class="status-panel-hd" id="epname_complaints"></div>
+              <div id="eplist_complaints"></div>
+            </div>
+          </div>
+
+          <!-- ===== EMAIL MATCH: Sherlock ===== -->
+          <div id="view_sherlock" style="display: none">
+            <div class="alert alert-err">
+              <span class="alert-icon">&#9888;</span>
+              <div>
+                <div class="alert-title">
+                  Conversion Blocked: Sherlock Ban Detected
+                </div>
+                <div class="alert-text">
+                  One or more matching accounts have a Sherlock ban. Conversion
+                  is not permitted. Disregard this lead and do not contact or
+                  commit to the tradie.
+                </div>
+              </div>
+            </div>
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_sherlock"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_sherlock">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    class="row-blocked"
+                    data-sub-status="Cancelled"
+                    data-perf="Banned Due to Sherlock"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_sherlock" disabled /></td>
+                    <td>Mitchell Plumbing Pty Ltd</td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'sherlock', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="Redeemed"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_sherlock" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Services</a
+                      >
+                    </td>
+                    <td>645853</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>03/03/24</td>
+                    <td>15/06/24</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'sherlock', 3)"
+                    data-sub-status="Cancelled"
+                    data-perf="Redeemed"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>3</td>
+                    <td><input type="radio" name="r_sherlock" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >JM Plumbing</a
+                      >
+                    </td>
+                    <td>724270</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>22/01/23</td>
+                    <td>10/04/23</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_sherlock">
+              <div class="status-panel-hd" id="epname_sherlock"></div>
+              <div id="eplist_sherlock"></div>
+            </div>
+          </div>
+
+          <!-- ===== EMAIL MATCH: No Debt + Banned ===== -->
+          <div id="view_nodebt" style="display: none">
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_nodebt"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_nodebt">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'nodebt', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="DC Review"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_nodebt" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'nodebt', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_nodebt" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Services</a
+                      >
+                    </td>
+                    <td>645853</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>03/03/24</td>
+                    <td>15/06/24</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_nodebt">
+              <div class="status-panel-hd" id="epname_nodebt"></div>
+              <div id="eplist_nodebt"></div>
+            </div>
+          </div>
+
+          <!-- ===== EMAIL MATCH: Low Debt ===== -->
+          <div id="view_lowdebt" style="display: none">
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_lowdebt"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_lowdebt">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'lowdebt', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="2"
+                    data-writeoff="$897.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_lowdebt" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell &amp; Sons Plumbing</a
+                      >
+                    </td>
+                    <td>698412</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>22/01/23</td>
+                    <td>15/09/22</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'lowdebt', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_lowdebt" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_lowdebt">
+              <div class="status-panel-hd" id="epname_lowdebt"></div>
+              <div id="eplist_lowdebt"></div>
+            </div>
+          </div>
+
+          <!-- ===== EMAIL MATCH: High Debt / DC ===== -->
+          <div id="view_highdebt" style="display: none">
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_highdebt"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_highdebt">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'highdebt', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Currently at DC"
+                    data-invoices="3"
+                    data-writeoff="$1,200.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_highdebt" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >JM Plumbing</a
+                      >
+                    </td>
+                    <td>724270</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>22/01/23</td>
+                    <td>10/04/23</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'highdebt', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_highdebt" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_highdebt">
+              <div class="status-panel-hd" id="epname_highdebt"></div>
+              <div id="eplist_highdebt"></div>
+            </div>
+          </div>
+
+          <!-- ===== EMAIL MATCH: Fraud ===== -->
+          <div id="view_fraud" style="display: none">
+            <div class="alert alert-warn">
+              <span class="alert-icon">&#9888;</span>
+              <div>
+                <div class="alert-title">Fraud Ban Detected</div>
+                <div class="alert-text">
+                  One matching account has a Fraud Ban. Conversion can proceed,
+                  but a Finance review case will need to be created manually.
+                  Finance may reverse the reactivation if fraud is confirmed.
+                </div>
+              </div>
+            </div>
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_fraud"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_fraud">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'fraud', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Bad Debt"
+                    data-invoices="1"
+                    data-writeoff="$2,340.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_fraud" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell &amp; Sons Plumbing</a
+                      >
+                    </td>
+                    <td>698412</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>22/01/23</td>
+                    <td>15/09/22</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'fraud', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_fraud" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_fraud">
+              <div class="status-panel-hd" id="epname_fraud"></div>
+              <div id="eplist_fraud"></div>
+            </div>
+          </div>
+
+          <!-- ===== EMAIL MATCH: Active Account ===== -->
+          <div id="view_emailactive" style="display: none">
+            <div class="alert alert-err">
+              <span class="alert-icon">&#9888;</span>
+              <div>
+                <div class="alert-title">
+                  Conversion Blocked: Active Account Found
+                </div>
+                <div class="alert-text">
+                  One or more matching accounts are currently
+                  <strong>Active</strong>. Conversion is not permitted while an
+                  active subscription exists under this email.
+                </div>
+              </div>
+            </div>
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_emailactive"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_emailactive">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'emailactive', 1)"
+                    data-sub-status="Active"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_emailactive" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>09/04/26</td>
+                    <td>—</td>
+                    <td><strong>Active</strong></td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'emailactive', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="Redeemed"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_emailactive" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Services</a
+                      >
+                    </td>
+                    <td>645853</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>03/03/24</td>
+                    <td>15/06/24</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'emailactive', 3)"
+                    data-sub-status="Cancelled"
+                    data-perf="Redeemed"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                  >
+                    <td>3</td>
+                    <td><input type="radio" name="r_emailactive" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >JM Plumbing</a
+                      >
+                    </td>
+                    <td>724270</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>22/01/23</td>
+                    <td>10/04/23</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_emailactive">
+              <div class="status-panel-hd" id="epname_emailactive"></div>
+              <div id="eplist_emailactive"></div>
+            </div>
+          </div>
+
+          <!-- ===== SOFT MATCH: No Issues ===== -->
+          <div id="view_softclean" style="display: none">
+            <div class="alert alert-info">
+              <span class="alert-icon">&#8505;</span>
+              <div>
+                <div class="alert-title">
+                  No email match found — soft matches via ABN / phone
+                </div>
+                <div class="alert-text">
+                  The lead email <strong>james.new@outlook.com.au</strong> did
+                  not match any existing account. The accounts below were found
+                  using ABN and phone number. Review the match reason and select
+                  the correct account, or create a new account if none apply.
+                </div>
+              </div>
+            </div>
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_softclean"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_softclean">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email on Account</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'softclean', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                    data-matchon="ABN"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_softclean" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'softclean', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="Redeemed"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                    data-matchon="Phone"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_softclean" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Services</a
+                      >
+                    </td>
+                    <td>645853</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>03/03/24</td>
+                    <td>15/06/24</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_softclean">
+              <div class="status-panel-hd" id="epname_softclean"></div>
+              <div id="eplist_softclean"></div>
+            </div>
+          </div>
+
+          <!-- ===== SOFT MATCH: With Issues ===== -->
+          <div id="view_softissues" style="display: none">
+            <div class="alert alert-info">
+              <span class="alert-icon">&#8505;</span>
+              <div>
+                <div class="alert-title">
+                  No email match found — soft matches via ABN / phone
+                </div>
+                <div class="alert-text">
+                  The lead email <strong>james.new@outlook.com.au</strong> did
+                  not match any existing account. The accounts below were found
+                  using ABN and phone number. Note: one account has outstanding
+                  issues — review carefully before selecting.
+                </div>
+              </div>
+            </div>
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_softissues"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_softissues">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email on Account</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'softissues', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="2"
+                    data-writeoff="$897.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                    data-matchon="ABN + Phone"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_softissues" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell &amp; Sons Plumbing</a
+                      >
+                    </td>
+                    <td>698412</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>22/01/23</td>
+                    <td>15/09/22</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'softissues', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                    data-matchon="ABN"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_softissues" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_softissues">
+              <div class="status-panel-hd" id="epname_softissues"></div>
+              <div id="eplist_softissues"></div>
+            </div>
+          </div>
+
+          <!-- ===== ABN SOLE TRADER MATCH: No Issues ===== -->
+          <div id="view_abnsoletrade" style="display: none">
+            <div class="alert alert-info">
+              <span class="alert-icon">&#8505;</span>
+              <div>
+                <div class="alert-title">
+                  No email match found — ABN belongs to an Individual / Sole
+                  Trader
+                </div>
+                <div class="alert-text">
+                  The lead email <strong>james.new@outlook.com.au</strong> did
+                  not match any existing account. However, the ABN
+                  <strong>51 824 753 556</strong> is registered to an
+                  <strong>Individual / Sole Trader</strong> entity. Because a
+                  sole trader ABN is uniquely tied to one person, all accounts
+                  under this ABN are shown below. You must select one to convert
+                  to — new account creation is not available.
+                </div>
+              </div>
+            </div>
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_abnsoletrade"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_abnsoletrade">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email on Account</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'abnsoletrade', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                    data-matchon="ABN"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_abnsoletrade" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'abnsoletrade', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="Redeemed"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                    data-matchon="ABN"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_abnsoletrade" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Services</a
+                      >
+                    </td>
+                    <td>645853</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>03/03/24</td>
+                    <td>15/06/24</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_abnsoletrade">
+              <div class="status-panel-hd" id="epname_abnsoletrade"></div>
+              <div id="eplist_abnsoletrade"></div>
+            </div>
+          </div>
+
+          <!-- ===== ABN SOLE TRADER MATCH: With Issues ===== -->
+          <div id="view_abnsolissues" style="display: none">
+            <div class="alert alert-info">
+              <span class="alert-icon">&#8505;</span>
+              <div>
+                <div class="alert-title">
+                  No email match found — ABN belongs to an Individual / Sole
+                  Trader
+                </div>
+                <div class="alert-text">
+                  The lead email <strong>james.new@outlook.com.au</strong> did
+                  not match any existing account. However, the ABN
+                  <strong>51 824 753 556</strong> is registered to an
+                  <strong>Individual / Sole Trader</strong> entity. Note: one
+                  account has outstanding issues — review carefully before
+                  selecting.
+                </div>
+              </div>
+            </div>
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_abnsolissues"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_abnsolissues">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email on Account</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'abnsolissues', 1)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="2"
+                    data-writeoff="$897.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                    data-matchon="ABN"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_abnsolissues" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell &amp; Sons Plumbing</a
+                      >
+                    </td>
+                    <td>698412</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>22/01/23</td>
+                    <td>15/09/22</td>
+                    <td>Cancelled</td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'abnsolissues', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                    data-matchon="ABN"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_abnsolissues" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>15/09/25</td>
+                    <td>20/11/25</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_abnsolissues">
+              <div class="status-panel-hd" id="epname_abnsolissues"></div>
+              <div id="eplist_abnsolissues"></div>
+            </div>
+          </div>
+
+          <!-- ===== ABN SOLE TRADER: Active Account ===== -->
+          <div id="view_abnsolactive" style="display: none">
+            <div class="alert alert-err">
+              <span class="alert-icon">&#9888;</span>
+              <div>
+                <div class="alert-title">
+                  Conversion Blocked: Active Account Found
+                </div>
+                <div class="alert-text">
+                  The ABN <strong>51 824 753 556</strong> is registered to an
+                  <strong>Individual / Sole Trader</strong> and one matching
+                  account is currently <strong>Active</strong>. Conversion is
+                  not permitted while an active subscription exists under this
+                  ABN.
+                </div>
+              </div>
+            </div>
+            <p class="sec-title">Matching Accounts Found</p>
+            <p class="sec-sub" id="sub_abnsolactive"></p>
+            <div class="table-scroll">
+              <table class="dt" id="tbl_abnsolactive">
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Account Name</th>
+                    <th>Account Number</th>
+                    <th>Email on Account</th>
+                    <th>Last Login</th>
+                    <th>Cancelled Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    onclick="pickAcct(this, 'abnsolactive', 1)"
+                    data-sub-status="Active"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                    data-matchon="ABN"
+                  >
+                    <td>1</td>
+                    <td><input type="radio" name="r_abnsolactive" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Pty Ltd</a
+                      >
+                    </td>
+                    <td>711923</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>09/04/26</td>
+                    <td>—</td>
+                    <td><strong>Active</strong></td>
+                  </tr>
+                  <tr
+                    onclick="pickAcct(this, 'abnsolactive', 2)"
+                    data-sub-status="Cancelled"
+                    data-perf="None"
+                    data-coll-status="Clear"
+                    data-invoices="0"
+                    data-writeoff="$0.00"
+                    data-frozen="false"
+                    data-abn="51 824 753 556"
+                    data-matchon="ABN"
+                  >
+                    <td>2</td>
+                    <td><input type="radio" name="r_abnsolactive" /></td>
+                    <td>
+                      <a
+                        href="#"
+                        onclick="return false;"
+                        style="color: #0176d3; text-decoration: none"
+                        >Mitchell Plumbing Services</a
+                      >
+                    </td>
+                    <td>645853</td>
+                    <td>james@mitchellplumbing.com.au</td>
+                    <td>03/03/24</td>
+                    <td>15/06/24</td>
+                    <td>Cancelled</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="status-panel" id="ep_abnsolactive">
+              <div class="status-panel-hd" id="epname_abnsolactive"></div>
+              <div id="eplist_abnsolactive"></div>
+            </div>
+          </div>
+
+          <!-- ===== NO MATCH ===== -->
+          <div id="view_nomatch" style="display: none">
+            <div class="no-match-body">
+              <h3 style="margin-bottom: 10px">A new account will be created</h3>
+              <p>
+                A new tradie account will be set up for
+                <strong>james.new@outlook.com.au</strong>. Click
+                <strong>Convert to New Account</strong> to proceed.
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- end modal-body -->
+
+        <div class="modal-footer">
+          <div class="modal-footer-row">
+            <div class="modal-footer-left" id="footerHint"></div>
+            <div class="modal-footer-right">
+              <button class="btn btn-neutral" onclick="closeFlow()">
+                Cancel
+              </button>
+              <button
+                class="btn btn-brand"
+                id="convertBtn"
+                onclick="doConvert()"
+                disabled
+              >
+                Convert
+              </button>
+            </div>
+          </div>
+          <div class="modal-footer-row2" id="footerRow2">
+            <p style="font-size: 12px; color: #555; margin-bottom: 10px">
+              You are choosing to create a new account despite existing matches.
+              Please select a reason below. This will be recorded for audit
+              purposes.
+            </p>
+            <button
+              class="btn btn-neutral"
+              id="createNewBtn"
+              onclick="onCreateNew()"
+            >
+              Convert to New Account
+            </button>
+            <div id="footerReasons" style="display: none">
+              <h4
+                style="
+                  font-size: 13px;
+                  font-weight: 700;
+                  color: #181818;
+                  margin-bottom: 8px;
+                "
+              >
+                Reason for creating a new account
+              </h4>
+              <div class="reason-opts">
+                <label class="reason-opt"
+                  ><input
+                    type="radio"
+                    name="reason_footer"
+                    value="Franchise - customer has multiple businesses under the same ABN"
+                    onchange="onFooterReasonChange()"
+                  /><span
+                    >Franchise - customer has multiple businesses under the same
+                    ABN</span
+                  ></label
+                >
+                <label class="reason-opt"
+                  ><input
+                    type="radio"
+                    name="reason_footer"
+                    value="Customer confirmed this is a brand new business (e.g., changed category, separating from current business partner)"
+                    onchange="onFooterReasonChange()"
+                  /><span
+                    >Customer confirmed this is a brand new business (e.g.,
+                    changed category, separating from current business
+                    partner)</span
+                  ></label
+                >
+              </div>
+              <div
+                class="reason-err"
+                id="re_footer"
+                style="
+                  display: none;
+                  color: #ea001e;
+                  font-size: 12px;
+                  margin-top: 6px;
+                "
+              >
+                Please select a reason before proceeding.
+              </div>
+              <div style="text-align: right; margin-top: 10px">
+                <button
+                  class="btn btn-brand"
+                  id="convertNewBtn"
+                  onclick="doProceedNewAccount()"
+                  disabled
+                >
+                  Convert to New Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 2: Success — Reactivation ===== -->
+    <div class="screen" id="s2">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>Conversion Complete</h2>
+          <button class="modal-close" onclick="closeFlow()">&#x2715;</button>
+        </div>
+        <div class="modal-body">
+          <div class="success-wrap">
+            <h2>Lead Converted Successfully</h2>
+            <p class="sub">&nbsp;</p>
+            <div class="success-links">
+              <div class="sl-item">
+                <span class="sl-label">Account</span
+                ><a href="#" onclick="return false;" class="sl-link" id="s2acct"
+                  >Mitchell Plumbing Pty Ltd</a
+                >
+              </div>
+              <div class="sl-item">
+                <span class="sl-label">Opportunity</span
+                ><a href="#" onclick="return false;" class="sl-link"
+                  >Reactivation — Mitchell Plumbing</a
+                >
+              </div>
+              <div class="sl-item">
+                <span class="sl-label">Contact</span
+                ><a href="#" onclick="return false;" class="sl-link"
+                  >James Mitchell</a
+                >
+              </div>
+            </div>
+            <div class="nxt-section" id="s2nxtSection" style="display: none">
+              <div class="nxt-title">Next Steps</div>
+              <div id="s2nxtList"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="modal-footer-right">
+            <button class="btn btn-brand" onclick="closeFlow()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 3: New Account Created ===== -->
+    <div class="screen" id="s3">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>New Account Created</h2>
+          <button class="modal-close" onclick="closeFlow()">&#x2715;</button>
+        </div>
+        <div class="modal-body">
+          <div class="success-wrap">
+            <h2>Lead Converted — New Account</h2>
+            <p class="sub">
+              A new tradie account has been created from this lead.
+            </p>
+            <div class="success-links">
+              <div class="sl-item">
+                <span class="sl-label">Account</span
+                ><a href="#" onclick="return false;" class="sl-link"
+                  >James Mitchell Plumbing</a
+                >
+              </div>
+              <div class="sl-item">
+                <span class="sl-label">Opportunity</span
+                ><a href="#" onclick="return false;" class="sl-link"
+                  >New Sign-up — James Mitchell</a
+                >
+              </div>
+              <div class="sl-item">
+                <span class="sl-label">Contact</span
+                ><a href="#" onclick="return false;" class="sl-link"
+                  >James Mitchell</a
+                >
+              </div>
+            </div>
+            <div
+              class="override-note"
+              id="s3overrideNote"
+              style="display: none"
+            >
+              <strong>Override reason recorded:</strong>
+              <span id="s3overrideText"></span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="modal-footer-right">
+            <button class="btn btn-brand" onclick="closeFlow()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var currentScenario = "abn";
+      var selectedRow = null;
+      var selectedScenario = null;
+      var selectedRowNum = null;
+      var currentComplaintStatus = "Banned - ID Check";
+      var overrideReason = "";
+
+      var emailScenarios = [
+        "abn",
+        "licence",
+        "complaints",
+        "sherlock",
+        "nodebt",
+        "lowdebt",
+        "highdebt",
+        "fraud",
+        "emailactive",
+      ];
+      var softScenarios = ["softclean", "softissues"];
+      var abnSoleTraderScenarios = [
+        "abnsoletrade",
+        "abnsolissues",
+        "abnsolactive",
+      ];
+      var allScenarios = emailScenarios
+        .concat(softScenarios)
+        .concat(abnSoleTraderScenarios)
+        .concat(["nomatch"]);
+      var blockedScenarios = ["sherlock", "emailactive", "abnsolactive"];
+
+      // Acceptable performance values → show BLACK. Anything NOT in this list → RED.
+      var acceptablePerf = [
+        "",
+        "None",
+        "Redeemed with good feedback",
+        "Last Warning",
+        "Negative feedback discussed",
+      ];
+      // Negative collection status values → show RED if value IS in this list.
+      var negativeColl = ["DC Review", "Currently at DC", "Bad Debt"];
+
+      var complaintStatusMap = {
+        "Banned - ID Check": "cv_idcheck",
+        "Banned due to Complaints": "cv_complaints",
+        "Removed due to complaints": "cv_removed",
+        "Removed - Unresolved Complaint": "cv_unresolved",
+      };
+
+      function go(n) {
+        document.querySelectorAll(".screen").forEach(function (s) {
+          s.classList.remove("active");
+        });
+        document.getElementById("s" + n).classList.add("active");
+      }
+      function closeFlow() {
+        document.querySelectorAll(".screen").forEach(function (s) {
+          s.classList.remove("active");
+        });
+      }
+      function showSpinner(cb) {
+        var sp = document.getElementById("spinner");
+        sp.classList.add("active");
+        setTimeout(function () {
+          sp.classList.remove("active");
+          cb();
+        }, 1800);
+      }
+
+      function isSoftScenario(sc) {
+        return softScenarios.indexOf(sc) !== -1;
+      }
+      function isAbnSoleTrader(sc) {
+        return abnSoleTraderScenarios.indexOf(sc) !== -1;
+      }
+      function isNoMatch(sc) {
+        return sc === "nomatch";
+      }
+
+      function setScenario(type) {
+        currentScenario = type;
+        selectedRow = null;
+        selectedScenario = null;
+        selectedRowNum = null;
+        overrideReason = "";
+
+        allScenarios.forEach(function (v) {
+          var el = document.getElementById("view_" + v);
+          if (el) el.style.display = "none";
+          var pill = document.getElementById("sc_" + v);
+          if (pill) pill.classList.toggle("active", v === type);
+        });
+        document.getElementById("view_" + type).style.display = "block";
+
+        document
+          .getElementById("complaint-sub")
+          .classList.toggle("show", type === "complaints");
+
+        document
+          .querySelectorAll(".dt input[type=radio]")
+          .forEach(function (r) {
+            r.checked = false;
+          });
+        document.querySelectorAll(".dt tbody tr").forEach(function (r) {
+          r.classList.remove("selected");
+        });
+        document.querySelectorAll(".status-panel").forEach(function (p) {
+          p.classList.remove("show");
+        });
+        resetFooterReasons();
+
+        if (type !== "nomatch") {
+          var tbl = document.getElementById("tbl_" + type);
+          var sub = document.getElementById("sub_" + type);
+          if (tbl && sub) {
+            var count = tbl.querySelectorAll("tbody tr").length;
+            sub.textContent =
+              "We found " +
+              count +
+              " matching Account(s) for this lead. Select the account you want to convert to.";
+          }
+        }
+
+        updateFooter();
+      }
+
+      function setComplaintStatus(status) {
+        currentComplaintStatus = status;
+        var row1 = document.querySelector(
+          "#tbl_complaints tbody tr:first-child",
+        );
+        if (row1) row1.dataset.perf = status;
+        Object.keys(complaintStatusMap).forEach(function (k) {
+          document
+            .getElementById(complaintStatusMap[k])
+            .classList.toggle("active", k === status);
+        });
+        if (selectedScenario === "complaints" && selectedRow === row1)
+          showStatusPanel(row1, "complaints", 1);
+        updateFooter();
+      }
+
+      function pickAcct(row, scenario, rowNum) {
+        resetFooterReasons();
+
+        var table = row.closest("table");
+        table.querySelectorAll("tbody tr").forEach(function (r) {
+          r.classList.remove("selected");
+        });
+        row.classList.add("selected");
+        row.querySelector("input[type=radio]").checked = true;
+        selectedRow = row;
+        selectedScenario = scenario;
+        selectedRowNum = rowNum;
+
+        showStatusPanel(row, scenario, rowNum);
+        updateFooter();
+      }
+
+      /* ===================================================
+         Build the flat status panel for the selected row
+         =================================================== */
+      function isRed(field, value) {
+        if (field === "perf") return acceptablePerf.indexOf(value) === -1;
+        if (field === "coll") return negativeColl.indexOf(value) !== -1;
+        if (field === "invoices") return parseInt(value, 10) > 0;
+        if (field === "writeoff") return value !== "$0.00";
+        if (field === "frozen") return value === "true";
+        return false;
+      }
+
+      function statusField(label, value, redFlag) {
+        var cls = redFlag ? " red" : "";
+        return (
+          '<div class="status-field">' +
+          '<span class="status-label">' +
+          label +
+          "</span>" +
+          '<span class="status-value' +
+          cls +
+          '">' +
+          value +
+          "</span>" +
+          "</div>"
+        );
+      }
+
+      function showStatusPanel(row, scenario, rowNum) {
+        var panel = document.getElementById("ep_" + scenario);
+        var nameEl = document.getElementById("epname_" + scenario);
+        var listEl = document.getElementById("eplist_" + scenario);
+
+        var acctName = row.dataset.acctName || row.cells[2].textContent.trim();
+
+        // Determine match badge label
+        var abnSoleTraderScens = [
+          "abnsoletrade",
+          "abnsolissues",
+          "abnsolactive",
+        ];
+        var nonSoleTraderSoftScens = ["softclean", "softissues"];
+        var rawMatchOn = row.dataset.matchon || "";
+        var matchLabel = "";
+        if (abnSoleTraderScens.indexOf(scenario) !== -1) {
+          // ABN Sole Trader always shows "Matched on ABN" — no phone/mobile variants
+          matchLabel = "Matched on ABN";
+        } else if (nonSoleTraderSoftScens.indexOf(scenario) !== -1) {
+          // Non-sole-trader soft match: use data-matchon to determine display string
+          var mMap = {
+            ABN: "Matched on ABN",
+            Phone: "Matched on ABN, Phone",
+            Mobile: "Matched on ABN, Mobile Phone",
+            "ABN + Phone": "Matched on ABN, Phone",
+            "ABN + Mobile": "Matched on ABN, Mobile Phone",
+            "ABN + Phone + Mobile": "Matched on ABN, Phone, Mobile Phone",
+          };
+          matchLabel =
+            mMap[rawMatchOn] || (rawMatchOn ? "Matched on " + rawMatchOn : "");
+        } else {
+          // All other scenarios (email match) show matched on email
+          matchLabel = "Matched on Email";
+        }
+
+        var badgeHtml = matchLabel
+          ? ' <span class="match-badge">' + matchLabel + "</span>"
+          : "";
+        nameEl.innerHTML =
+          '<span style="font-weight:700">' +
+          acctName
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;") +
+          "</span>" +
+          badgeHtml;
+
+        var subStatus = row.dataset.subStatus || "";
+        var perf = row.dataset.perf || "None";
+        var coll = row.dataset.collStatus || "Clear";
+        var invoices = row.dataset.invoices || "0";
+        var writeoff = row.dataset.writeoff || "$0.00";
+        var frozen = row.dataset.frozen || "false";
+        var abn = row.dataset.abn || "—";
+
+        // Display labels for some values
+        var frozenDisplay = frozen === "true" ? "True" : "False";
+
+        var html = "";
+        html += statusField("Subscription status", subStatus, false);
+        html += statusField("Performance status", perf, isRed("perf", perf));
+        html += statusField("Collection status", coll, isRed("coll", coll));
+        html += statusField(
+          "Invoices outstanding",
+          invoices,
+          isRed("invoices", invoices),
+        );
+        html += statusField(
+          "Written-off outstanding debt",
+          writeoff,
+          isRed("writeoff", writeoff),
+        );
+        html += statusField("Frozen status", frozenDisplay, frozen === "true");
+        html += statusField("ABN", abn, false);
+
+        listEl.innerHTML = html;
+        panel.classList.add("show");
+
+        // Scroll into view
+        setTimeout(function () {
+          panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }, 80);
+      }
+
+      function updateFooter() {
+        var convertBtn = document.getElementById("convertBtn");
+        var createNewBtn = document.getElementById("createNewBtn");
+        var hint = document.getElementById("footerHint");
+        var footerRow2 = document.getElementById("footerRow2");
+        var footerReasons = document.getElementById("footerReasons");
+        var sc = currentScenario;
+
+        if (isNoMatch(sc)) {
+          footerRow2.style.display = "none";
+          convertBtn.style.display = "inline-block";
+          convertBtn.textContent = "Convert to New Account";
+          convertBtn.disabled = false;
+          convertBtn.onclick = function () {
+            onCreateNew();
+          };
+          hint.textContent = "";
+        } else if (isSoftScenario(sc)) {
+          footerRow2.style.display = "block";
+          createNewBtn.style.display = "inline-block";
+          footerReasons.style.display = "none";
+          convertBtn.textContent = "Convert to Existing Account";
+          convertBtn.onclick = function () {
+            doConvert();
+          };
+          if (selectedRow) {
+            convertBtn.disabled = false;
+          } else {
+            convertBtn.disabled = true;
+          }
+          hint.textContent = "";
+        } else if (isAbnSoleTrader(sc)) {
+          footerRow2.style.display = "none";
+          convertBtn.style.display = "inline-block";
+          convertBtn.textContent = "Convert to Existing Account";
+          convertBtn.onclick = function () {
+            doConvert();
+          };
+          if (sc === "abnsolactive") {
+            convertBtn.disabled = true;
+            hint.textContent =
+              "Conversion blocked — active account exists under this sole trader ABN.";
+          } else {
+            convertBtn.disabled = !selectedRow;
+            hint.textContent = "";
+          }
+        } else {
+          footerRow2.style.display = "none";
+          convertBtn.style.display = "inline-block";
+          convertBtn.textContent = "Convert to Existing Account";
+          convertBtn.onclick = function () {
+            doConvert();
+          };
+          if (sc === "sherlock") {
+            convertBtn.disabled = true;
+            hint.textContent = "Conversion blocked — Sherlock ban detected.";
+          } else if (sc === "emailactive") {
+            convertBtn.disabled = true;
+            hint.textContent = "Conversion blocked — active account exists.";
+          } else {
+            convertBtn.disabled = !selectedRow;
+            hint.textContent = "";
+          }
+        }
+      }
+
+      function getFooterReason() {
+        var radios = document.querySelectorAll('input[name="reason_footer"]');
+        for (var i = 0; i < radios.length; i++) {
+          if (radios[i].checked) return radios[i].value;
+        }
+        return "";
+      }
+
+      function onFooterReasonChange() {
+        document.getElementById("re_footer").style.display = "none";
+        var convertNewBtn = document.getElementById("convertNewBtn");
+        convertNewBtn.disabled = !getFooterReason();
+      }
+
+      function resetFooterReasons() {
+        var radios = document.querySelectorAll('input[name="reason_footer"]');
+        for (var i = 0; i < radios.length; i++) radios[i].checked = false;
+        document.getElementById("re_footer").style.display = "none";
+        document.getElementById("convertNewBtn").disabled = true;
+        document.getElementById("footerReasons").style.display = "none";
+        document.getElementById("createNewBtn").style.display = "inline-block";
+      }
+
+      function onCreateNew() {
+        var sc = currentScenario;
+        if (isNoMatch(sc)) {
+          showSpinner(function () {
+            buildNewAccountSuccess("");
+            go(3);
+          });
+          return;
+        }
+        if (isSoftScenario(sc)) {
+          // Deselect row when opening reasons
+          if (selectedRow) {
+            selectedRow.classList.remove("selected");
+            var radio = selectedRow.querySelector("input[type=radio]");
+            if (radio) radio.checked = false;
+            selectedRow = null;
+            selectedScenario = null;
+            selectedRowNum = null;
+            document.querySelectorAll(".status-panel").forEach(function (p) {
+              p.classList.remove("show");
+            });
+            var convertBtn = document.getElementById("convertBtn");
+            convertBtn.disabled = true;
+          }
+          resetFooterReasons();
+          document.getElementById("footerReasons").style.display = "block";
+          document.getElementById("createNewBtn").style.display = "none";
+          var footerReasons = document.getElementById("footerReasons");
+          setTimeout(function () {
+            footerReasons.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            });
+          }, 100);
+        }
+      }
+
+      function doProceedNewAccount() {
+        var reason = getFooterReason();
+        if (!reason) {
+          document.getElementById("re_footer").style.display = "block";
+          return;
+        }
+        overrideReason = reason;
+        showSpinner(function () {
+          buildNewAccountSuccess(reason);
+          go(3);
+        });
+      }
+
+      function buildNewAccountSuccess(reason) {
+        var note = document.getElementById("s3overrideNote");
+        if (reason) {
+          document.getElementById("s3overrideText").textContent = reason;
+          note.style.display = "block";
+        } else {
+          note.style.display = "none";
+        }
+      }
+
+      function doConvert() {
+        showSpinner(function () {
+          buildSuccessScreen();
+          go(2);
+        });
+      }
+
+      function nxtItem(t) {
+        return (
+          '<div class="nxt-item"><span class="nxt-arrow">&#8250;</span><span>' +
+          t +
+          "</span></div>"
+        );
+      }
+
+      function buildSuccessScreen() {
+        var sc = currentScenario;
+        var acctName = selectedRow ? selectedRow.cells[2].textContent : "";
+        document.getElementById("s2acct").textContent = acctName;
+
+        var nxtHtml = "";
+
+        if (["abn", "licence", "complaints", "sherlock"].indexOf(sc) !== -1) {
+          var perf = selectedRow ? selectedRow.dataset.perf || "" : "";
+          var perfPass = acceptablePerf.indexOf(perf) !== -1;
+          if (!perfPass) {
+            if (sc === "abn") {
+              nxtHtml += nxtItem(
+                "Submit ABN 51 824 753 556 to T&amp;Q for verification.",
+              );
+              nxtHtml += nxtItem(
+                "Follow up with T&amp;Q within 1 business day to confirm the outcome.",
+              );
+            } else if (sc === "licence") {
+              nxtHtml += nxtItem(
+                "Create a T&amp;Q - Banned business review case in Salesforce.",
+              );
+              nxtHtml += nxtItem(
+                "Email the Trust &amp; Quality team (cc: Sales Managers).",
+              );
+              nxtHtml += nxtItem(
+                "T&amp;Q will verify licences. Follow up to confirm the outcome before committing to a start date.",
+              );
+            } else if (sc === "complaints") {
+              nxtHtml += nxtItem(
+                "Create a T&amp;Q - Banned business review case in Salesforce.",
+              );
+              nxtHtml += nxtItem(
+                "Email the Trust &amp; Quality team (cc: Sales Managers).",
+              );
+              nxtHtml += nxtItem(
+                "Send an email to the tradie notifying them of the T&amp;Q review.",
+              );
+              nxtHtml += nxtItem(
+                "Follow up once T&amp;Q confirms the outcome.",
+              );
+            } else if (sc === "sherlock") {
+              nxtHtml += nxtItem(
+                "Create a T&amp;Q - Sherlock review case in Salesforce.",
+              );
+              nxtHtml += nxtItem(
+                "Email the Trust &amp; Quality team (cc: Sales Managers).",
+              );
+              nxtHtml += nxtItem(
+                "Send an email to the tradie notifying them of the T&amp;Q review.",
+              );
+              nxtHtml += nxtItem(
+                "Await T&amp;Q approval — the Opportunity will be disregarded if the Sherlock flag is not cleared.",
+              );
+              nxtHtml += nxtItem(
+                "Do not commit to a start date until T&amp;Q confirms the account can proceed.",
+              );
+            }
+          }
+        } else if (isSoftScenario(sc) || isAbnSoleTrader(sc)) {
+          var wo3 = selectedRow
+            ? selectedRow.dataset.writeoff || "$0.00"
+            : "$0.00";
+          var coll3 = selectedRow
+            ? selectedRow.dataset.collStatus || "Clear"
+            : "Clear";
+          var hasDebt3 = wo3 !== "$0.00";
+          var collIssue3 = negativeColl.indexOf(coll3) !== -1;
+          if (collIssue3 && !hasDebt3) {
+            nxtHtml += nxtItem(
+              "Create an Account Reactivation case in Salesforce to unban the account.",
+            );
+            nxtHtml += nxtItem("Notify the Finance team for review.");
+          } else if (hasDebt3) {
+            nxtHtml += nxtItem(
+              "Create a Discount Case for Sales Manager approval.",
+            );
+            nxtHtml += nxtItem(
+              "Review and update the Discount Case if needed.",
+            );
+            nxtHtml += nxtItem(
+              "Take payment if there is an outstanding invoice or written-off debt.",
+            );
+          }
+        } else {
+          var collSc = selectedRow
+            ? selectedRow.dataset.collStatus || "Clear"
+            : "Clear";
+          var woSc = selectedRow
+            ? selectedRow.dataset.writeoff || "$0.00"
+            : "$0.00";
+          if (
+            sc === "fraud" &&
+            selectedRow &&
+            negativeColl.indexOf(collSc) !== -1 &&
+            woSc !== "$0.00"
+          ) {
+            nxtHtml += nxtItem(
+              "Create a Finance - Fraud review case in Salesforce.",
+            );
+            nxtHtml += nxtItem(
+              "Notify the Finance team with the fraud details and account reference.",
+            );
+            nxtHtml += nxtItem(
+              "Finance will review within 2 business days. Do not commit to any account changes until confirmed.",
+            );
+          } else if (
+            sc === "nodebt" &&
+            selectedRow &&
+            negativeColl.indexOf(collSc) !== -1
+          ) {
+            nxtHtml += nxtItem(
+              "Create an Account Reactivation case in Salesforce to unban the account.",
+            );
+            nxtHtml += nxtItem("Notify the Finance team for review.");
+          } else if (sc === "lowdebt" && selectedRow && woSc !== "$0.00") {
+            nxtHtml += nxtItem(
+              "Create a Discount Case in Salesforce for Sales Manager approval.",
+            );
+            nxtHtml += nxtItem(
+              "Take payment once the Discount Case is approved.",
+            );
+            nxtHtml += nxtItem(
+              "Create a Reactivation Case once the Discount Case is approved.",
+            );
+          } else if (sc === "highdebt" && selectedRow && woSc !== "$0.00") {
+            nxtHtml += nxtItem(
+              "Create a Reactivation Case in Salesforce for Finance approval.",
+            );
+            nxtHtml += nxtItem(
+              "Finance will review and advise on the collection amount.",
+            );
+            nxtHtml += nxtItem(
+              "Take payment according to the approved amount from Finance.",
+            );
+          }
+        }
+
+        var nxtSec = document.getElementById("s2nxtSection");
+        if (nxtHtml) {
+          document.getElementById("s2nxtList").innerHTML = nxtHtml;
+          nxtSec.style.display = "block";
+        } else {
+          nxtSec.style.display = "none";
+        }
+      }
+
+      (function () {
+        var tbl = document.getElementById("tbl_abn");
+        var sub = document.getElementById("sub_abn");
+        if (tbl && sub) {
+          var count = tbl.querySelectorAll("tbody tr").length;
+          sub.textContent =
+            "We found " +
+            count +
+            " matching Account(s) for this lead. Select the account you want to convert to.";
+        }
+      })();
+    </script>
+  </body>
+</html>

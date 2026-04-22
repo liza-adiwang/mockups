@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hipages - Account Statement (Updated Layout)</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f0f0f0;
+        padding: 40px;
+        color: #333;
+      }
+      .page {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 50px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 6px;
+      }
+      .logo svg {
+        width: 140px;
+        height: auto;
+      }
+      .doc-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+      }
+      .abn-acn {
+        font-size: 12px;
+        color: #555;
+        margin-bottom: 24px;
+        line-height: 1.5;
+      }
+
+      /* Customer + Meta row */
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+        margin-bottom: 36px;
+        gap: 30px;
+      }
+      .customer-box {
+        flex: 1;
+        background: #f5f5f5;
+        border-left: 4px solid #e87a1e;
+        padding: 18px 20px;
+      }
+      .customer-box .name {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 6px;
+      }
+      .customer-box .detail {
+        font-size: 14px;
+        color: #555;
+        line-height: 1.6;
+      }
+      .statement-meta {
+        min-width: 280px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+      }
+      .statement-meta .row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 16px;
+        border-bottom: 1px solid #eee;
+      }
+      .statement-meta .row:last-child {
+        border-bottom: none;
+      }
+      .statement-meta .label {
+        color: #555;
+      }
+      .statement-meta .value {
+        font-weight: 500;
+        text-align: right;
+      }
+      .statement-meta .row.highlight {
+        background: #f9f9f9;
+      }
+      .statement-meta .row.highlight .label {
+        font-weight: 600;
+        color: #333;
+      }
+      .statement-meta .row.highlight .value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #333;
+      }
+
+      /* Section heading */
+      .section-heading {
+        font-size: 14px;
+        color: #777;
+        margin-bottom: 10px;
+      }
+
+      /* Table */
+      .statement-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 24px;
+        font-size: 14px;
+      }
+      .statement-table thead th {
+        background: #f5f5f5;
+        text-align: left;
+        padding: 12px 14px;
+        font-weight: 700;
+        font-size: 13px;
+        border-bottom: 2px solid #ddd;
+        color: #333;
+      }
+      .statement-table thead th.right {
+        text-align: right;
+      }
+      .statement-table tbody td {
+        padding: 14px;
+        border-bottom: 1px solid #eee;
+        vertical-align: top;
+      }
+      .statement-table tbody td.right {
+        text-align: right;
+      }
+
+      /* Summary box */
+      .summary-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .footnotes {
+        font-size: 12px;
+        color: #555;
+        line-height: 1.8;
+      }
+      .summary-box {
+        background: #f5f5f5;
+        padding: 16px 24px;
+        min-width: 320px;
+        font-size: 14px;
+      }
+      .summary-box .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+      }
+      .summary-box .summary-row.total {
+        border-top: 1px solid #ccc;
+        margin-top: 8px;
+        padding-top: 12px;
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .summary-box .gst-note {
+        font-size: 12px;
+        color: #777;
+        text-align: right;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- Header: logo + title -->
+      <div class="header">
+        <div class="logo">
+          <svg viewBox="0 0 140 40" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="36" height="36" rx="6" fill="#e87a1e" />
+            <text
+              x="9"
+              y="29"
+              font-family="Arial"
+              font-size="22"
+              font-weight="bold"
+              fill="#fff"
+            >
+              hi
+            </text>
+            <text
+              x="44"
+              y="28"
+              font-family="Arial"
+              font-size="24"
+              font-weight="bold"
+              fill="#333"
+            >
+              pages
+            </text>
+          </svg>
+        </div>
+        <div class="doc-title">Statement</div>
+      </div>
+
+      <!-- ABN / ACN -->
+      <div class="abn-acn">
+        ABN 78 109 996 134<br />
+        ACN 109 996 134
+      </div>
+
+      <!-- Customer box + Statement metadata -->
+      <div class="info-row">
+        <div class="customer-box">
+          <div class="name">Test 5 Free Leads Next Month</div>
+          <div class="detail">
+            Christine Ampaire Pitt<br />
+            ADELAIDE, SA 5000
+          </div>
+        </div>
+        <div class="statement-meta">
+          <div class="row">
+            <span class="label">Statement date</span>
+            <span class="value">14/07/2025</span>
+          </div>
+          <div class="row highlight">
+            <span class="label">Payment due</span>
+            <span class="value">$339.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section heading -->
+      <div class="section-heading">Statement of Account</div>
+
+      <!-- Table -->
+      <table class="statement-table">
+        <thead>
+          <tr>
+            <th>Invoice Date</th>
+            <th>Invoice #</th>
+            <th>Due Date</th>
+            <th class="right">Total Invoice Amount</th>
+            <th class="right">Balance Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>01/07/2025</td>
+            <td>INV00888067</td>
+            <td>01/07/2025</td>
+            <td class="right">$339.00</td>
+            <td class="right">$339.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Footnotes (left) + Summary box (right) -->
+      <div class="summary-wrapper">
+        <div class="footnotes">
+          *Credit packs are valid only with active subscriptions<br />
+          **Valid for 60 days
+        </div>
+        <div class="summary-box">
+          <div class="summary-row">
+            <span>Credits applied</span>
+            <span>($0.00)</span>
+          </div>
+          <div class="summary-row">
+            <span>Paid to date</span>
+            <span>($0.00)</span>
+          </div>
+          <div class="summary-row total">
+            <span>Payment due</span>
+            <span>$339.00</span>
+          </div>
+          <div class="gst-note">(The total amount includes GST)</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

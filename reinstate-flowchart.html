@@ -1,0 +1,1754 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reinstate Subscription — Flow Analysis</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f5f5f5;
+        color: #1a1a1a;
+      }
+
+      .page-header {
+        background: #1a1a1a;
+        color: white;
+        padding: 24px 40px;
+        border-bottom: 4px solid #0070d2;
+      }
+      .page-header h1 {
+        font-size: 22px;
+        font-weight: 600;
+      }
+      .page-header p {
+        font-size: 13px;
+        color: #aaa;
+        margin-top: 6px;
+      }
+
+      .tab-bar {
+        background: white;
+        border-bottom: 2px solid #ddd;
+        padding: 0 40px;
+        display: flex;
+        gap: 0;
+      }
+      .tab {
+        padding: 14px 24px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        color: #666;
+        transition: all 0.2s;
+        margin-bottom: -2px;
+      }
+      .tab.active {
+        color: #0070d2;
+        border-bottom-color: #0070d2;
+        font-weight: 600;
+      }
+      .tab:hover:not(.active) {
+        color: #333;
+        background: #f8f8f8;
+      }
+
+      .content {
+        padding: 32px 40px;
+        max-width: 1500px;
+        margin: 0 auto;
+      }
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+
+      /* FLOW STYLES */
+      .flow-wrapper {
+        display: flex;
+        gap: 40px;
+        align-items: flex-start;
+      }
+      .flow-column {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .flow-title {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 10px 16px;
+        border-radius: 4px 4px 0 0;
+      }
+      .flow-title.current {
+        background: #f5dada;
+        color: #9b1c1c;
+        border: 2px solid #e5a5a5;
+        border-bottom: none;
+      }
+      .flow-title.proposed {
+        background: #daeef5;
+        color: #0c3d52;
+        border: 2px solid #7ec8dc;
+        border-bottom: none;
+      }
+
+      .flow-body {
+        border-radius: 0 0 4px 4px;
+        padding: 24px 20px;
+      }
+      .flow-body.current {
+        border: 2px solid #e5a5a5;
+        border-top: none;
+        background: white;
+      }
+      .flow-body.proposed {
+        border: 2px solid #7ec8dc;
+        border-top: none;
+        background: white;
+      }
+
+      .node {
+        border-radius: 4px;
+        padding: 10px 14px;
+        font-size: 13px;
+        line-height: 1.4;
+        margin: 0 auto;
+        text-align: center;
+        position: relative;
+      }
+      .node-start {
+        background: #1a1a1a;
+        color: white;
+        border-radius: 24px;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 10px 20px;
+        display: inline-block;
+        margin: 0 auto;
+      }
+      .node-action {
+        background: white;
+        border: 2px solid #1a1a1a;
+        border-radius: 6px;
+        font-weight: 500;
+      }
+      .node-decision {
+        background: #fff8e1;
+        border: 2px solid #f9a825;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 12px;
+      }
+      .node-decision::before {
+        content: "◆";
+        display: block;
+        font-size: 10px;
+        color: #f9a825;
+        margin-bottom: 4px;
+      }
+      .node-block {
+        background: #fef2f2;
+        border: 2px solid #dc2626;
+        border-radius: 6px;
+        color: #dc2626;
+        font-weight: 600;
+        font-size: 12px;
+      }
+      .node-success {
+        background: #f0fdf4;
+        border: 2px solid #16a34a;
+        border-radius: 6px;
+        color: #15803d;
+        font-weight: 600;
+      }
+      .node-warning {
+        background: #fff7ed;
+        border: 2px solid #ea580c;
+        border-radius: 6px;
+        color: #9a3412;
+        font-size: 12px;
+      }
+      .node-info {
+        background: #eff6ff;
+        border: 2px solid #3b82f6;
+        border-radius: 6px;
+        color: #1d4ed8;
+        font-size: 12px;
+      }
+      .node-auto {
+        background: #f0f9ff;
+        border: 2px dashed #0284c7;
+        border-radius: 6px;
+        color: #0369a1;
+        font-size: 12px;
+      }
+      .node-bug {
+        background: #fdf4ff;
+        border: 2px solid #a855f7;
+        border-radius: 6px;
+        color: #7e22ce;
+        font-size: 12px;
+      }
+
+      .arrow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 4px 0;
+      }
+      .arrow-line {
+        width: 2px;
+        height: 18px;
+        background: #999;
+      }
+      .arrow-head {
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid #999;
+      }
+      .arrow-label {
+        font-size: 11px;
+        color: #666;
+        background: white;
+        padding: 1px 6px;
+        border-radius: 3px;
+        border: 1px solid #ddd;
+        margin: 2px 0;
+      }
+
+      .branch-container {
+        display: flex;
+        gap: 10px;
+        margin: 4px 0;
+        align-items: flex-start;
+        justify-content: center;
+      }
+      .branch {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 0;
+      }
+      .branch-label {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-bottom: 4px;
+        white-space: nowrap;
+      }
+      .branch-label.yes {
+        background: #dcfce7;
+        color: #15803d;
+      }
+      .branch-label.no {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .branch-label.allow {
+        background: #dcfce7;
+        color: #15803d;
+      }
+      .branch-label.block {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .tag {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 3px;
+        margin-top: 4px;
+      }
+      .tag-ticket {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+      .tag-psr {
+        background: #fce7f3;
+        color: #9d174d;
+      }
+      .tag-fix {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .tag-bug {
+        background: #f3e8ff;
+        color: #7e22ce;
+      }
+      .tag-code {
+        background: #1a1a1a;
+        color: white;
+        font-family: monospace;
+      }
+
+      .flow-divider {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-top: 80px;
+        color: #aaa;
+        font-size: 12px;
+        font-weight: 600;
+        gap: 8px;
+      }
+      .flow-divider-line {
+        width: 2px;
+        height: 200px;
+        background: linear-gradient(
+          to bottom,
+          transparent,
+          #ddd,
+          #ddd,
+          transparent
+        );
+      }
+      .flow-divider span {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        transform: rotate(180deg);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .center-wrap {
+        display: flex;
+        justify-content: center;
+      }
+      .flow-node-wrap {
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto;
+      }
+      .flow-node-wrap-wide {
+        width: 100%;
+        max-width: 380px;
+        margin: 0 auto;
+      }
+
+      .source-badge {
+        display: inline-block;
+        font-size: 10px;
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        border-radius: 3px;
+        padding: 1px 6px;
+        color: #374151;
+        font-family: monospace;
+        margin-top: 4px;
+      }
+
+      .gap-note {
+        background: #fff8e1;
+        border: 1px solid #f9a825;
+        border-radius: 6px;
+        padding: 12px 16px;
+        font-size: 12px;
+        margin-top: 16px;
+        color: #7c4a00;
+      }
+      .gap-note strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+      }
+
+      .info-box {
+        background: #eff6ff;
+        border: 1px solid #93c5fd;
+        border-radius: 6px;
+        padding: 12px 16px;
+        font-size: 13px;
+        margin-bottom: 24px;
+        color: #1e40af;
+      }
+      .sources-box {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 12px 16px;
+        font-size: 12px;
+        margin-bottom: 24px;
+        color: #374151;
+      }
+      .sources-box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+      .sources-box ul {
+        padding-left: 16px;
+      }
+      .sources-box li {
+        margin-bottom: 3px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      th {
+        background: #1a1a1a;
+        color: white;
+        padding: 10px 12px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 12px;
+      }
+      td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e5e5e5;
+        vertical-align: top;
+      }
+      tr:nth-child(even) td {
+        background: #fafafa;
+      }
+      tr:hover td {
+        background: #f0f4ff;
+      }
+
+      .badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 10px;
+        white-space: nowrap;
+      }
+      .badge-red {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .badge-green {
+        background: #dcfce7;
+        color: #15803d;
+      }
+      .badge-yellow {
+        background: #fef9c3;
+        color: #a16207;
+      }
+      .badge-blue {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+      .badge-grey {
+        background: #f3f4f6;
+        color: #6b7280;
+      }
+      .badge-orange {
+        background: #ffedd5;
+        color: #ea580c;
+      }
+      .badge-purple {
+        background: #f3e8ff;
+        color: #7e22ce;
+      }
+
+      .legend {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+        padding: 12px 16px;
+        background: white;
+        border: 1px solid #e5e5e5;
+        border-radius: 6px;
+        font-size: 12px;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .legend-box {
+        width: 16px;
+        height: 16px;
+        border-radius: 3px;
+        flex-shrink: 0;
+      }
+
+      .summary-section {
+        margin-bottom: 32px;
+      }
+      .summary-section h2 {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #1a1a1a;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e5e5e5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <h1>Reinstate Subscription — Flow Analysis</h1>
+      <p>
+        Current state sourced from code · hipagesgroup/salesforce +
+        hipagesgroup/billing · April 2026
+      </p>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active" onclick="showTab('flow')">
+        Current vs Proposed Flow
+      </div>
+      <div class="tab" onclick="showTab('issues')">Issues & Fixes</div>
+      <div class="tab" onclick="showTab('edge')">Edge Cases</div>
+      <div class="tab" onclick="showTab('sources')">Sources</div>
+    </div>
+
+    <div class="content">
+      <!-- TAB 1: FLOW -->
+      <div class="tab-panel active" id="tab-flow">
+        <div class="sources-box">
+          <strong>Current flow sourced from:</strong>
+          <ul>
+            <li>
+              <code
+                >hipagesgroup/salesforce ·
+                SFL_Reinstate_Subscription.flow-meta.xml</code
+              >
+              — the actual Salesforce ScreenFlow (all decisions, screens,
+              formulas)
+            </li>
+            <li>
+              <code>hipagesgroup/salesforce · ReinstateSubsService.cls</code> —
+              Apex HTTP callout wrappers (no validation logic)
+            </li>
+            <li>
+              <code
+                >hipagesgroup/billing ·
+                modules/subscription/activation/commands/reinstate-subscription.handler.ts</code
+              >
+              — billing backend command handler (no pre-checks)
+            </li>
+            <li>
+              <code
+                >hipagesgroup/billing ·
+                docs/architecture-decisions/adr020-reinstate-subscription-enhancement.md</code
+              >
+              — ADR documenting the proposed fix (decided Feb 2025, never
+              shipped)
+            </li>
+          </ul>
+        </div>
+
+        <div class="legend">
+          <strong style="margin-right: 4px">Legend:</strong>
+          <div class="legend-item">
+            <div
+              class="legend-box"
+              style="background: #1a1a1a; border-radius: 10px"
+            ></div>
+            Start/End
+          </div>
+          <div class="legend-item">
+            <div
+              class="legend-box"
+              style="border: 2px solid #1a1a1a; background: white"
+            ></div>
+            Action
+          </div>
+          <div class="legend-item">
+            <div
+              class="legend-box"
+              style="background: #fff8e1; border: 2px solid #f9a825"
+            ></div>
+            Decision
+          </div>
+          <div class="legend-item">
+            <div
+              class="legend-box"
+              style="background: #fef2f2; border: 2px solid #dc2626"
+            ></div>
+            Block / Error
+          </div>
+          <div class="legend-item">
+            <div
+              class="legend-box"
+              style="background: #f0fdf4; border: 2px solid #16a34a"
+            ></div>
+            Success
+          </div>
+          <div class="legend-item">
+            <div
+              class="legend-box"
+              style="background: #f0f9ff; border: 2px dashed #0284c7"
+            ></div>
+            Auto (system, new)
+          </div>
+          <div class="legend-item">
+            <div
+              class="legend-box"
+              style="background: #fdf4ff; border: 2px solid #a855f7"
+            ></div>
+            Bug in current flow
+          </div>
+        </div>
+
+        <div class="flow-wrapper">
+          <!-- CURRENT FLOW -->
+          <div class="flow-column">
+            <div class="flow-title current">⚠ Current Flow (from code)</div>
+            <div class="flow-body current">
+              <div class="center-wrap">
+                <div class="flow-node-wrap">
+                  <div class="node-start" style="width: 100%">
+                    Rep clicks "Reinstate" button
+                  </div>
+                </div>
+              </div>
+
+              <div class="arrow">
+                <div class="arrow-line"></div>
+                <div class="arrow-head"></div>
+              </div>
+
+              <div class="center-wrap">
+                <div class="flow-node-wrap">
+                  <div class="node node-action">
+                    Check: rep in Sales Manager group?
+                    <div class="source-badge">
+                      Get_Public_Group → Get_Group_Member
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="branch-container" style="margin-top: 6px">
+                <div class="branch">
+                  <div class="branch-label no">NO</div>
+                  <div
+                    class="node node-block"
+                    style="width: 100%; font-size: 11px"
+                  >
+                    Permission Error<br /><em>"Speak to your sales manager"</em>
+                  </div>
+                </div>
+                <div class="branch">
+                  <div class="branch-label yes">YES</div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-action"
+                    style="width: 100%; font-size: 12px"
+                  >
+                    Check: active Zuora subscription exists?
+                    <div class="source-badge">
+                      Get_Active_Subscriptions<br />Status = 'Active'
+                    </div>
+                  </div>
+                  <div class="branch-container" style="margin-top: 4px">
+                    <div class="branch">
+                      <div class="branch-label yes" style="font-size: 10px">
+                        YES
+                      </div>
+                      <div
+                        class="node node-block"
+                        style="width: 100%; font-size: 11px"
+                      >
+                        "Already has active subscription"
+                      </div>
+                    </div>
+                    <div class="branch">
+                      <div class="branch-label no" style="font-size: 10px">
+                        NO
+                      </div>
+                      <div class="arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-head"></div>
+                      </div>
+                      <div
+                        class="node node-action"
+                        style="width: 100%; font-size: 11px"
+                      >
+                        Call billing: get cancelled<br />sub details
+                        <div class="source-badge">
+                          GetPrevSubsInv callout<br />→ serviceCutOffDate,<br />cancellationReason,
+                          etc.
+                        </div>
+                      </div>
+                      <div class="arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-head"></div>
+                      </div>
+                      <div
+                        class="node node-action"
+                        style="width: 100%; font-size: 11px"
+                      >
+                        Show subscription details<br />to rep for confirmation
+                        <div class="source-badge">
+                          subscription_details screen
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="arrow" style="margin-top: 10px">
+                <div class="arrow-line"></div>
+                <div class="arrow-head"></div>
+              </div>
+
+              <div class="center-wrap">
+                <div class="flow-node-wrap">
+                  <div class="node node-decision">
+                    Is serviceCutOffDate within<br />current calendar month?<br />AND
+                    cancellationReason = "Invoices Not Paid"?
+                    <div class="source-badge">
+                      isWithinCurrentMonth formula<br />isCancellationDueToDebt
+                      formula
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="branch-container" style="margin-top: 6px">
+                <div class="branch">
+                  <div class="branch-label no" style="font-size: 10px">
+                    Not in month + not debt
+                  </div>
+                  <div
+                    class="node node-block"
+                    style="width: 100%; font-size: 10px"
+                  >
+                    "Cancelled prev month, not due to debt — cannot reinstate"
+                  </div>
+                </div>
+                <div class="branch">
+                  <div class="branch-label no" style="font-size: 10px">
+                    Not in month (any reason)
+                  </div>
+                  <div
+                    class="node node-bug"
+                    style="width: 100%; font-size: 10px"
+                  >
+                    "Cancelled prev month — please set up as winback"
+                    <div class="tag tag-bug">
+                      BUG: blocks Dunning cases cross-month
+                    </div>
+                  </div>
+                </div>
+                <div class="branch">
+                  <div class="branch-label no" style="font-size: 10px">
+                    Not due to debt (in month)
+                  </div>
+                  <div
+                    class="node node-block"
+                    style="width: 100%; font-size: 10px"
+                  >
+                    "Not cancelled due to debt — cannot reinstate"
+                  </div>
+                </div>
+                <div class="branch">
+                  <div class="branch-label yes" style="font-size: 10px">
+                    In month + debt ✓
+                  </div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-action"
+                    style="width: 100%; font-size: 11px"
+                  >
+                    Rollover credit input screen
+                    <div class="source-badge">screen_Rollover_Credit_Input</div>
+                  </div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-action"
+                    style="width: 100%; font-size: 11px"
+                  >
+                    Call billing API: reinstate<br />subscription in Zuora +
+                    Admin
+                    <div class="source-badge">
+                      ReinstateSubsServiceInv callout<br />billing:
+                      reinstate-subscription.handler.ts<br />NO debt/payment
+                      plan check
+                    </div>
+                  </div>
+                  <div class="branch-container" style="margin-top: 4px">
+                    <div class="branch">
+                      <div class="branch-label yes" style="font-size: 10px">
+                        SUCCESS
+                      </div>
+                      <div
+                        class="node node-success"
+                        style="width: 100%; font-size: 11px"
+                      >
+                        ✅ "Subscription reinstated!"<br /><span
+                          style="color: #dc2626; font-size: 10px"
+                          >No Collection Case update</span
+                        >
+                      </div>
+                    </div>
+                    <div class="branch">
+                      <div class="branch-label no" style="font-size: 10px">
+                        FAILURE
+                      </div>
+                      <div
+                        class="node node-block"
+                        style="width: 100%; font-size: 10px"
+                      >
+                        "Something went wrong.<br /><em>null code:null</em>"
+                        <div class="tag tag-bug">
+                          No Slack alert. Retry button only.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="gap-note" style="margin-top: 16px">
+                <strong>What's missing from the current flow:</strong>
+                ① Cross-month + debt cases wrongly sent to winback (the main
+                source of ~50 code:null PSRs)<br />
+                ② No 80-day invoice age check before calling the API<br />
+                ③ No payment received / $0 balance check (Dunning re-cancels
+                overnight)<br />
+                ④ No Collection Case update after success (BTE-3020 — 19 months
+                old)<br />
+                ⑤ "null code:null" error with no Slack alert — BEST investigates
+                blind
+              </div>
+            </div>
+          </div>
+
+          <!-- DIVIDER -->
+          <div class="flow-divider">
+            <div class="flow-divider-line"></div>
+            <span>vs</span>
+            <div class="flow-divider-line"></div>
+          </div>
+
+          <!-- PROPOSED FLOW -->
+          <div class="flow-column">
+            <div class="flow-title proposed">
+              ✓ Proposed Flow (with BTE-3509 + BTE-3501 + spike)
+            </div>
+            <div class="flow-body proposed">
+              <div class="center-wrap">
+                <div class="flow-node-wrap">
+                  <div class="node-start" style="width: 100%">
+                    Rep clicks "Reinstate" button
+                  </div>
+                </div>
+              </div>
+
+              <div class="arrow">
+                <div class="arrow-line"></div>
+                <div class="arrow-head"></div>
+              </div>
+
+              <div class="center-wrap">
+                <div class="flow-node-wrap">
+                  <div class="node node-action" style="font-size: 12px">
+                    Permission check + active subscription check<br />
+                    <span style="color: #888; font-size: 11px"
+                      >(unchanged from current)</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="arrow">
+                <div class="arrow-line"></div>
+                <div class="arrow-head"></div>
+              </div>
+
+              <div class="center-wrap">
+                <div class="flow-node-wrap">
+                  <div class="node node-action" style="font-size: 12px">
+                    Call billing: get cancelled sub details<br />+ show to rep
+                    for confirmation<br />
+                    <span style="color: #888; font-size: 11px"
+                      >(unchanged from current)</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <div class="arrow">
+                <div class="arrow-line"></div>
+                <div class="arrow-head"></div>
+              </div>
+
+              <!-- NEW: Debt check -->
+              <div class="center-wrap">
+                <div class="flow-node-wrap">
+                  <div class="node node-decision">
+                    Does account have outstanding debt?
+                    <div class="tag tag-ticket">BTE-3509 · BTE-3501 — NEW</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="branch-container" style="margin-top: 6px">
+                <div class="branch">
+                  <div class="branch-label no">NO — $0 balance</div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-auto"
+                    style="width: 100%; font-size: 11px"
+                  >
+                    Auto-set Collection Case = "Paid"
+                    <div class="tag tag-ticket">BTE-3501</div>
+                  </div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-info"
+                    style="width: 100%; font-size: 11px"
+                  >
+                    → Skip to cross-month check
+                  </div>
+                </div>
+                <div class="branch">
+                  <div class="branch-label yes">YES — debt exists</div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-decision"
+                    style="width: 100%; font-size: 11px"
+                  >
+                    Oldest invoice &gt; 80 days?
+                    <div class="tag tag-ticket">BTE-3509</div>
+                  </div>
+                  <div class="branch-container" style="margin-top: 4px">
+                    <div class="branch">
+                      <div class="branch-label allow" style="font-size: 10px">
+                        &lt;80 days
+                      </div>
+                      <div class="arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-head"></div>
+                      </div>
+                      <div
+                        class="node node-info"
+                        style="width: 100%; font-size: 10px"
+                      >
+                        → Continue
+                      </div>
+                    </div>
+                    <div class="branch">
+                      <div class="branch-label block" style="font-size: 10px">
+                        &gt;80 days
+                      </div>
+                      <div class="arrow">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-head"></div>
+                      </div>
+                      <div
+                        class="node node-decision"
+                        style="width: 100%; font-size: 10px"
+                      >
+                        Payment received on oldest invoice?<br />(even partial)
+                      </div>
+                      <div class="branch-container" style="margin-top: 4px">
+                        <div class="branch">
+                          <div
+                            class="branch-label allow"
+                            style="font-size: 9px"
+                          >
+                            YES
+                          </div>
+                          <div
+                            class="node node-info"
+                            style="width: 100%; font-size: 10px"
+                          >
+                            → Continue
+                            <div class="tag tag-ticket" style="font-size: 9px">
+                              BTE-3509
+                            </div>
+                          </div>
+                        </div>
+                        <div class="branch">
+                          <div
+                            class="branch-label block"
+                            style="font-size: 9px"
+                          >
+                            NO
+                          </div>
+                          <div
+                            class="node node-block"
+                            style="width: 100%; font-size: 10px"
+                          >
+                            BLOCK<br /><em
+                              >"Make sure at least a partial payment has been
+                              applied"</em
+                            ><br /><span style="font-size: 9px; color: #999"
+                              >Payment plan alone not sufficient</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="arrow" style="margin-top: 10px">
+                <div class="arrow-line"></div>
+                <div class="arrow-head"></div>
+              </div>
+
+              <!-- NEW: Cross-month fix -->
+              <div class="center-wrap">
+                <div class="flow-node-wrap">
+                  <div class="node node-decision">
+                    Is serviceCutOffDate in current month?
+                    <div class="tag tag-ticket">Spike from PSR-4632 — NEW</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="branch-container" style="margin-top: 6px">
+                <div class="branch">
+                  <div class="branch-label yes">YES</div>
+                  <div
+                    class="node node-info"
+                    style="width: 100%; font-size: 11px"
+                  >
+                    → Continue to API call
+                  </div>
+                </div>
+                <div class="branch">
+                  <div class="branch-label no">NO (cross-month)</div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-auto"
+                    style="width: 100%; font-size: 11px"
+                  >
+                    Auto-adjust cutoff date<br />to current month in Zuora
+                    <div class="tag tag-ticket">Spike fix</div>
+                  </div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-info"
+                    style="width: 100%; font-size: 11px"
+                  >
+                    → Retry API call
+                  </div>
+                </div>
+              </div>
+
+              <div class="arrow" style="margin-top: 10px">
+                <div class="arrow-line"></div>
+                <div class="arrow-head"></div>
+              </div>
+
+              <div class="center-wrap">
+                <div class="flow-node-wrap">
+                  <div class="node node-action">
+                    Rollover credit + call billing API to reinstate
+                  </div>
+                </div>
+              </div>
+
+              <div class="arrow">
+                <div class="arrow-line"></div>
+                <div class="arrow-head"></div>
+              </div>
+
+              <div class="branch-container">
+                <div class="branch">
+                  <div class="branch-label yes">SUCCESS</div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-auto"
+                    style="width: 100%; font-size: 12px"
+                  >
+                    Auto-update Collection Case<br />→ "Paid" or "Paid from DC"
+                    <div class="tag tag-ticket">BTE-3020</div>
+                  </div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div class="node node-success" style="width: 100%">
+                    ✅ Subscription reinstated<br /><span
+                      style="font-size: 11px"
+                      >Dunning won't re-trigger</span
+                    >
+                  </div>
+                </div>
+                <div class="branch">
+                  <div class="branch-label no">FAILURE</div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-block"
+                    style="width: 100%; font-size: 12px"
+                  >
+                    Human-readable error message<br /><span
+                      style="font-size: 11px"
+                      >(not "null code:null")</span
+                    >
+                  </div>
+                  <div class="arrow">
+                    <div class="arrow-line"></div>
+                    <div class="arrow-head"></div>
+                  </div>
+                  <div
+                    class="node node-auto"
+                    style="width: 100%; font-size: 12px"
+                  >
+                    🔔 Slack alert to BEST<br />with account + error detail
+                    <div class="tag tag-ticket">BTE-3501</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: ISSUES -->
+      <div class="tab-panel" id="tab-issues">
+        <div class="info-box">
+          Analysis based on 179 PSR tickets (Jan 2025–Apr 2026). ~85 PSRs
+          estimated addressable by the three planned stories. Current flow
+          confirmed from
+          <code>SFL_Reinstate_Subscription.flow-meta.xml</code> and
+          <code>reinstate-subscription.handler.ts</code>.
+        </div>
+        <div class="summary-section">
+          <h2>Issue Breakdown & Recommended Fixes</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Issue</th>
+                <th>Est. PSRs</th>
+                <th>What current code does (or doesn't do)</th>
+                <th>Fix</th>
+                <th>Ticket</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>
+                  <strong
+                    >Cross-month Dunning cases blocked / generic
+                    <code>code:null</code></strong
+                  ><br /><small
+                    >Rep gets useless error or told to "set up as winback" for a
+                    Dunning debt case.</small
+                  >
+                </td>
+                <td><span class="badge badge-red">~50</span></td>
+                <td>
+                  Flow checks <code>isWithinCurrentMonth</code> on
+                  <code>serviceCutOffDate</code>. If cutoff date is from
+                  cancellation month (not current month), even debt cases are
+                  redirected to winback. On failure, shows
+                  <code>{apexaction…message}</code> which returns "null
+                  code:null". No Slack alert raised.
+                </td>
+                <td>
+                  Fix cross-month check: allow debt cases regardless of cutoff
+                  month, auto-adjust cutoff date. Add human-readable error +
+                  Slack alert on failure.
+                </td>
+                <td><span class="badge badge-blue">BTE-3501</span> + spike</td>
+                <td>
+                  <span class="badge badge-yellow">⚠ Partially scoped</span>
+                </td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>
+                  <strong
+                    >Dunning re-cancels account the night after
+                    reinstatement</strong
+                  ><br /><small
+                    >Dunning sees unpaid invoices &gt;80 days and
+                    re-cancels.</small
+                  >
+                </td>
+                <td><span class="badge badge-red">~30</span></td>
+                <td>
+                  Billing handler
+                  (<code>reinstate-subscription.handler.ts</code>) has no
+                  pre-validation. ADR020 (Feb 2025) says billing should validate
+                  80-day rule + payment schedule before reinstating — decision
+                  agreed but never implemented.
+                </td>
+                <td>
+                  Add pre-check in ScreenFlow: if &gt;80 days + no payment
+                  received on oldest invoice → block. Even partial payment
+                  unblocks. Payment plan alone not sufficient.
+                </td>
+                <td><span class="badge badge-blue">BTE-3509</span></td>
+                <td><span class="badge badge-red">❌ Unassigned</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><strong>Vague PSRs — no diagnostic detail</strong></td>
+                <td><span class="badge badge-orange">~30</span></td>
+                <td>
+                  Failure screen shows <code>{message}</code> from API. API
+                  returns "null code:null". Rep has nothing useful to paste into
+                  PSR description.
+                </td>
+                <td>
+                  Fix error message (BTE-3501 alerting). Also: add required
+                  error message field to PSR form.
+                </td>
+                <td>No ticket for PSR form</td>
+                <td><span class="badge badge-grey">Not scoped</span></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>
+                  <strong>Self-ascension reversals (separate process)</strong>
+                </td>
+                <td><span class="badge badge-grey">~20</span></td>
+                <td>Not a reinstate bug. Different process under BTE-4087.</td>
+                <td>Track separately.</td>
+                <td><span class="badge badge-blue">BTE-4087</span></td>
+                <td><span class="badge badge-grey">🔀 Separate track</span></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>
+                  <strong>Debt paid but reinstate still blocked</strong
+                  ><br /><small
+                    >DunningHold flag not cleared after $0 balance.</small
+                  >
+                </td>
+                <td><span class="badge badge-orange">~18</span></td>
+                <td>
+                  No $0 balance check in ScreenFlow.
+                  <code>DunningHold__c</code> not auto-cleared. Flow just
+                  proceeds to API and the API blocks it.
+                </td>
+                <td>
+                  If balance = $0 → auto-set Collection Case = "Paid" and allow
+                  reinstate.
+                </td>
+                <td><span class="badge badge-blue">BTE-3501</span></td>
+                <td><span class="badge badge-red">❌ Unassigned</span></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>
+                  <strong
+                    ><code>processedThroughDate</code> — unrecoverable</strong
+                  ><br /><small
+                    >Second reinstate attempt after Dunning loop creates sub
+                    with no invoices.</small
+                  >
+                </td>
+                <td><span class="badge badge-orange">~10</span></td>
+                <td>
+                  Billing handler throws <code>BadRequestException</code> when
+                  <code>processedThroughDate</code> is null. No fallback.
+                </td>
+                <td>
+                  Billing service should compute from last invoice period or
+                  default to current date.
+                </td>
+                <td>New spike</td>
+                <td><span class="badge badge-red">❌ Not scoped</span></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>
+                  <strong>DC flag not cleared after reinstatement</strong
+                  ><br /><small
+                    >Collection Status remains "Approved to Send to DC" →
+                    Dunning re-triggers.</small
+                  >
+                </td>
+                <td><span class="badge badge-grey">~7</span></td>
+                <td>
+                  Success screen just shows ✅ message. No Collection Case
+                  record is updated by the ScreenFlow after successful
+                  reinstate.
+                </td>
+                <td>
+                  After success, auto-update Collection Case to "Paid" or "Paid
+                  from DC".
+                </td>
+                <td><span class="badge badge-blue">BTE-3020</span></td>
+                <td>
+                  <span class="badge badge-red">❌ Unassigned (19 months)</span>
+                </td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td><strong>Admin/Zuora billing mismatch</strong></td>
+                <td><span class="badge badge-grey">~8</span></td>
+                <td>
+                  ScreenFlow has no path for accounts where Zuora sub is
+                  missing. PSR-4648 added a self-heal in the cancellation
+                  handler but doesn't fix existing broken accounts.
+                </td>
+                <td>
+                  Separate investigation. PSR-4648 mitigates future occurrences.
+                </td>
+                <td>No ticket</td>
+                <td><span class="badge badge-grey">Partial</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="summary-section">
+          <h2>Priority Build Order</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Ticket</th>
+                <th>What it does</th>
+                <th>Issues addressed</th>
+                <th>Effort</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>BTE-3509</strong></td>
+                <td>
+                  Pre-reinstate 80-day check. Block if no payment received on
+                  oldest invoice. Even partial payment unblocks. Payment plan
+                  alone not sufficient.
+                </td>
+                <td>Issue #2 (~30 PSRs)</td>
+                <td>Salesforce ScreenFlow</td>
+                <td>
+                  <span class="badge badge-red"
+                    >High — build with BTE-3501</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td><strong>BTE-3501</strong></td>
+                <td>
+                  $0 balance path + Collection Case auto-clear. Surface real
+                  error. Slack alert on failure.
+                </td>
+                <td>Issues #1, #3, #5 (~96 PSRs combined)</td>
+                <td>Salesforce ScreenFlow + Slack</td>
+                <td>
+                  <span class="badge badge-red"
+                    >High — build with BTE-3509</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td><strong>BTE-3020</strong></td>
+                <td>
+                  Auto-update Collection Case after successful reinstate (any
+                  path, including manual SF edits bypassing ScreenFlow).
+                </td>
+                <td>Issue #7 (~7 PSRs) — safety net</td>
+                <td>Backend automation</td>
+                <td>
+                  <span class="badge badge-orange"
+                    >Medium — safety net even after 3509/3501</span
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td><strong>New spike (from PSR-4632)</strong></td>
+                <td>
+                  Investigate cross-month cutoff date mismatch. Auto-adjust in
+                  billing handler. Start from PSR-4632 finding.
+                </td>
+                <td>Issue #1 core fix (~50 PSRs)</td>
+                <td>Backend (billing)</td>
+                <td><span class="badge badge-orange">Medium</span></td>
+              </tr>
+              <tr>
+                <td><strong>PSR form update</strong></td>
+                <td>
+                  Require error message field on reinstate PSR submissions.
+                </td>
+                <td>Issue #3 (~30 vague PSRs)</td>
+                <td>Form config</td>
+                <td>
+                  <span class="badge badge-grey">Low effort quick win</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin-top: 12px; font-size: 12px; color: #666">
+            ⚠ BTE-3509 and BTE-3501 must ship together — different paths in the
+            same ScreenFlow. Only building one leaves the other path broken.
+          </p>
+        </div>
+      </div>
+
+      <!-- TAB 3: EDGE CASES -->
+      <div class="tab-panel" id="tab-edge">
+        <div class="summary-section">
+          <h2>Edge Cases to Handle</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Expected Behaviour</th>
+                <th>Risk if Not Handled</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Rep reinstates → Dunning cancels same night</td>
+                <td>
+                  BTE-3020 auto-updates Collection Case to "Paid" → prevents
+                  re-cancellation
+                </td>
+                <td>Loop continues even after BTE-3509/3501 ship</td>
+              </tr>
+              <tr>
+                <td>Multiple invoices — oldest paid, others remain</td>
+                <td>Check <em>oldest</em> invoice date, not total balance</td>
+                <td>
+                  Risk of blocking legitimate reinstates if total balance logic
+                  used
+                </td>
+              </tr>
+              <tr>
+                <td>Payment plan exists but no actual payment made</td>
+                <td>
+                  Payment plan alone does NOT qualify — at least one payment
+                  (even partial) must have been applied to the &gt;80-day
+                  invoice
+                </td>
+                <td>
+                  Allowing reinstate on plan alone → Dunning re-cancels
+                  overnight
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Rep manually changes Collection Status in Salesforce (bypasses
+                  ScreenFlow)
+                </td>
+                <td>
+                  BTE-3020 auto-corrects post-reinstate regardless of path
+                </td>
+                <td>
+                  Without BTE-3020, Dunning still re-triggers even after
+                  BTE-3509/3501 ship
+                </td>
+              </tr>
+              <tr>
+                <td>Account reinstated multiple times in same month</td>
+                <td>
+                  Each reinstate creates new sub with no invoices → Dunning
+                  re-triggers
+                </td>
+                <td>
+                  Need reinstate date check in Dunning logic before
+                  re-cancelling
+                </td>
+              </tr>
+              <tr>
+                <td>DC case with partial payment — not $0 but under 80 days</td>
+                <td>Allow reinstate if oldest invoice &lt; 80 days</td>
+                <td>
+                  Partial payment scenarios unclear — needs Rev Ops confirmation
+                </td>
+              </tr>
+              <tr>
+                <td>Account manually cancelled by rep (not via Dunning)</td>
+                <td>May not be eligible for ScreenFlow reinstate path</td>
+                <td>
+                  Manually cancelled accounts need a separate handling path
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Account reinstated months after cancellation — start date
+                  backdated
+                </td>
+                <td>
+                  Start date = reinstatement date, not original
+                  ChargedThroughDate
+                </td>
+                <td>
+                  Tradie billed for inactive months; manual invoice write-off
+                  required (PSR-4834)
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Cancelled sub has null <code>processedThroughDate</code>
+                </td>
+                <td>
+                  Billing computes from last invoice period or defaults to
+                  current date
+                </td>
+                <td>
+                  Billing throws <code>BadRequestException</code>; account
+                  unrecoverable via UI (PSR-4268)
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Legacy <code>PackageType__c</code> value no longer in catalog
+                </td>
+                <td>Billing falls back to rate plan name for package type</td>
+                <td>
+                  Fails with "invalid multi-select option value" — data fix
+                  only, no code guard (PSR-4796)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="summary-section" style="margin-top: 32px">
+          <h2>Rev Ops Validation Rules to Reconfirm Before Dev Starts</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Rule</th>
+                <th>Current Understanding</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>80-day threshold</td>
+                <td>Invoices &gt; 80 days trigger Dunning re-cancellation</td>
+                <td>Confirm threshold hasn't changed</td>
+              </tr>
+              <tr>
+                <td>Collection Status values</td>
+                <td>
+                  "Approved to Send to DC", "Payment Scheduled", "Paid", "Paid
+                  from DC"
+                </td>
+                <td>Confirm all values still valid</td>
+              </tr>
+              <tr>
+                <td>Payment received criteria (superseded)</td>
+                <td>
+                  At least one payment (even partial) applied to oldest
+                  &gt;80-day invoice. Payment plan alone not sufficient.
+                </td>
+                <td>Updated Apr 2026 — was "active payment schedule"</td>
+              </tr>
+              <tr>
+                <td>DC case partial payment</td>
+                <td>Unclear — partial payment + invoice &lt;80 days</td>
+                <td>Rev Ops to clarify</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 4: SOURCES -->
+      <div class="tab-panel" id="tab-sources">
+        <div class="summary-section">
+          <h2>Source Files Used for Current Flow</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Repo</th>
+                <th>What it told us</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <code
+                    >unpackaged/main/default/flows/SFL_Reinstate_Subscription.flow-meta.xml</code
+                  >
+                </td>
+                <td>hipagesgroup/salesforce</td>
+                <td>
+                  The complete ScreenFlow. All decisions, formulas, screens
+                  sourced from here. Confirmed: permission check, active-sub
+                  check, serviceCutOffDate formula, isCancellationDueToDebt
+                  formula, error screens, rollover credit input, success/fail
+                  screens.
+                  <strong>No debt age or payment plan checks present.</strong>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code
+                    >unpackaged/main/default/classes/ReinstateSubsService.cls</code
+                  >
+                </td>
+                <td>hipagesgroup/salesforce</td>
+                <td>
+                  Apex HTTP callout wrapper only. Two methods:
+                  <code>callBillingForSubscription()</code> (GET to fetch
+                  cancelled sub) and
+                  <code>calloutReinstateSubscriptionAdminZuora()</code> (POST to
+                  reinstate). No validation logic.
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code
+                    >modules/subscription/activation/commands/reinstate-subscription.handler.ts</code
+                  >
+                </td>
+                <td>hipagesgroup/billing</td>
+                <td>
+                  The billing-side command handler. Fetches cancelled
+                  subscription → finds account → runs activation workflow.
+                  <strong
+                    >No debt validation, no 80-day check, no payment plan
+                    check.</strong
+                  >
+                  On failure: emits <code>ProcessFailedEvent</code>, throws
+                  <code>BadRequestException</code> (this is what produces "null
+                  code:null" in SF).
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code
+                    >docs/architecture-decisions/adr020-reinstate-subscription-enhancement.md</code
+                  >
+                </td>
+                <td>hipagesgroup/billing</td>
+                <td>
+                  ADR written Feb 18, 2025. Describes the problem. Three options
+                  proposed.
+                  <strong
+                    >Team decided on Option 1 (billing-side validation) on Feb
+                    28, 2025. This has never been shipped.</strong
+                  >
+                  ADR references BTE-3501 and the Dunning workflow.
+                </td>
+              </tr>
+              <tr>
+                <td>BTE-3509 Jira ticket</td>
+                <td>Jira / BTE project</td>
+                <td>
+                  Full ACs for the 80-day payment received check. Confirms
+                  80-day threshold, actual payment received requirement (payment
+                  plan alone not sufficient). Even partial payment unblocks.
+                  Status: UX or Analysis.
+                </td>
+              </tr>
+              <tr>
+                <td>BTE-3501 Jira ticket</td>
+                <td>Jira / BTE project</td>
+                <td>
+                  Full ACs for $0 balance path + error alerting. Saved to disk
+                  (too large for inline). Status: UX or Analysis.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="summary-section" style="margin-top: 24px">
+          <h2>Key Correction vs. Original Diagram</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>What the original diagram assumed</th>
+                <th>What the code actually shows</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>"No pre-checks, no validation — direct API call"</td>
+                <td>
+                  Flow has permission check, active-sub check, serviceCutOffDate
+                  / cancellationReason checks, and a subscription detail
+                  confirmation screen before calling the API
+                </td>
+              </tr>
+              <tr>
+                <td>Cross-month cases silently fail with code:null</td>
+                <td>
+                  Most cross-month cases are explicitly BLOCKED by the flow with
+                  "please set it up as a winback" — including cross-month
+                  Dunning debt cases (the bug)
+                </td>
+              </tr>
+              <tr>
+                <td>"Dunning re-cancels after every reinstate"</td>
+                <td>
+                  Only reinstates that pass the flow's checks AND happen to be
+                  in the same calendar month as cancellation proceed to the API.
+                  Cross-month debt cases never even reach the API.
+                </td>
+              </tr>
+              <tr>
+                <td>Billing handler has no pre-checks (correct)</td>
+                <td>
+                  Confirmed —
+                  <code>reinstate-subscription.handler.ts</code> runs activation
+                  workflow directly with no debt/dunning validation
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showTab(id) {
+        document.querySelectorAll(".tab").forEach((t, i) => {
+          t.classList.toggle(
+            "active",
+            ["flow", "issues", "edge", "sources"][i] === id,
+          );
+        });
+        document.querySelectorAll(".tab-panel").forEach((p) => {
+          p.classList.toggle("active", p.id === "tab-" + id);
+        });
+      }
+    </script>
+  </body>
+</html>

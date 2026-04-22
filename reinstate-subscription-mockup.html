@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reinstate Subscription — Mockup</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          "Salesforce Sans",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        font-size: 14px;
+        color: #000;
+        background: #f4f6f9;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .ribbon {
+        position: fixed;
+        top: 18px;
+        right: -34px;
+        background: #000;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 40px;
+        transform: rotate(45deg);
+        z-index: 1000;
+        letter-spacing: 1px;
+      }
+
+      .scenario-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #1a1a1a;
+        color: #fff;
+        padding: 10px 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 900;
+        font-size: 12px;
+        flex-wrap: wrap;
+      }
+      .scenario-bar label {
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .scenario-btn {
+        padding: 5px 12px;
+        border-radius: 4px;
+        border: 1px solid #555;
+        background: transparent;
+        color: #ccc;
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .scenario-btn:hover {
+        background: #333;
+        color: #fff;
+      }
+      .scenario-btn.active {
+        background: #0176d3;
+        color: #fff;
+        border-color: #0176d3;
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding-top: 56px;
+      }
+
+      .modal {
+        background: #fff;
+        border-radius: 8px;
+        width: 640px;
+        max-height: calc(90vh - 56px);
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #d8d8d8;
+        box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+      }
+      .modal-header {
+        padding: 20px 24px 16px;
+        text-align: center;
+        position: relative;
+        border-bottom: 1px solid #d8d8d8;
+      }
+      .modal-header h2 {
+        font-size: 22px;
+        font-weight: 400;
+      }
+      .modal-close {
+        position: absolute;
+        right: 16px;
+        top: 16px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #666;
+        cursor: pointer;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+      }
+      .modal-close:hover {
+        background: #f0f0f0;
+        color: #000;
+      }
+      .modal-body {
+        padding: 24px;
+        overflow-y: auto;
+        flex: 1;
+      }
+      .modal-footer {
+        padding: 12px 24px;
+        border-top: 1px solid #d8d8d8;
+        background: #f3f3f3;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 0 0 8px 8px;
+      }
+      .footer-step {
+        font-size: 12px;
+        color: #999;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-primary {
+        background: #0176d3;
+        color: #fff;
+        border-color: #0176d3;
+      }
+      .btn-primary:hover {
+        background: #014486;
+        border-color: #014486;
+      }
+      .btn-secondary {
+        background: #fff;
+        color: #000;
+        border-color: #000;
+      }
+      .btn-secondary:hover {
+        background: #f5f5f5;
+      }
+      .btn-group {
+        display: flex;
+        gap: 8px;
+      }
+
+      .field-row {
+        margin-bottom: 12px;
+      }
+      .field-label {
+        font-weight: 700;
+        font-size: 14px;
+        display: inline;
+      }
+      .field-value {
+        font-size: 14px;
+        display: inline;
+      }
+      .detail-text {
+        font-size: 13px;
+        color: #333;
+        margin-bottom: 16px;
+        line-height: 1.5;
+      }
+
+      .detail-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+      }
+      .detail-table td {
+        padding: 8px 0;
+        font-size: 13px;
+        border-bottom: 1px solid #eee;
+        vertical-align: top;
+      }
+      .detail-table td:first-child {
+        font-weight: 600;
+        color: #333;
+        width: 220px;
+        padding-right: 16px;
+      }
+      .detail-table td:last-child {
+        color: #000;
+      }
+      .detail-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .divider {
+        border: none;
+        border-top: 1px solid #ddd;
+        margin: 16px 0;
+      }
+      .red {
+        color: #ea001e;
+        font-weight: 600;
+      }
+      .msg-success {
+        color: #2e844a;
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      .msg-error {
+        color: #ea001e;
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      .msg-warning {
+        color: #dd7a01;
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      .msg-body {
+        font-size: 13px;
+        color: #333;
+        margin-bottom: 16px;
+        line-height: 1.5;
+      }
+
+      .spinner-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+      }
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid #ddd;
+        border-top-color: #000;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .screen {
+        display: none;
+      }
+      .screen.active {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ribbon">MOCKUP</div>
+
+    <div class="scenario-bar">
+      <label>Scenario:</label>
+      <button
+        class="scenario-btn active"
+        onclick="loadScenario('no-debt')"
+        id="sb-no-debt"
+      >
+        1. No Debt
+      </button>
+      <button
+        class="scenario-btn"
+        onclick="loadScenario('payment-received')"
+        id="sb-payment-received"
+      >
+        2. Payment Received
+      </button>
+      <button
+        class="scenario-btn"
+        onclick="loadScenario('no-payment')"
+        id="sb-no-payment"
+      >
+        3. No Payment (blocked)
+      </button>
+      <button
+        class="scenario-btn"
+        onclick="loadScenario('already-active')"
+        id="sb-already-active"
+      >
+        4. Already Active
+      </button>
+      <button
+        class="scenario-btn"
+        onclick="loadScenario('success')"
+        id="sb-success"
+      >
+        Success
+      </button>
+      <button
+        class="scenario-btn"
+        onclick="loadScenario('error')"
+        id="sb-error"
+      >
+        Error
+      </button>
+    </div>
+
+    <div class="overlay">
+      <!-- SCENARIO 1: No Debt — Reinstate → Success -->
+      <div class="modal screen active" id="screen-no-debt">
+        <div class="modal-header">
+          <h2>Reinstate Subscription</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="detail-text">
+            The subscription will be reinstated with the following information,
+            please confirm to proceed:
+          </p>
+          <table class="detail-table">
+            <tr>
+              <td>Account Name</td>
+              <td>COOKSEY, ROBERT CROSBY</td>
+            </tr>
+            <tr>
+              <td>Subscription Start Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription End Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription Amount</td>
+              <td>$219.00 / month</td>
+            </tr>
+            <tr>
+              <td>Next Billing Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Total Amount Outstanding</td>
+              <td>AUD $0.00</td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <span class="footer-step"></span>
+          <div class="btn-group">
+            <button
+              class="btn btn-primary"
+              onclick="showSpinnerThen('success')"
+            >
+              Reinstate
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENARIO 2: Payment Received — Debt exists but payment applied, allowed -->
+      <div class="modal screen" id="screen-payment-received">
+        <div class="modal-header">
+          <h2>Reinstate Subscription</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="msg-success">Reinstatement can proceed.</p>
+          <p class="msg-body">
+            Payment has been received on the oldest outstanding invoice.
+          </p>
+          <table class="detail-table">
+            <tr>
+              <td>Account Name</td>
+              <td>COOKSEY, ROBERT CROSBY</td>
+            </tr>
+            <tr>
+              <td>Subscription Start Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription End Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription Amount</td>
+              <td>$219.00 / month</td>
+            </tr>
+            <tr>
+              <td>Next Billing Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Total Amount Outstanding</td>
+              <td><span class="red">AUD $450.00</span></td>
+            </tr>
+            <tr>
+              <td>Oldest Outstanding Invoice</td>
+              <td><span class="red">92 days old (AUD $450.00)</span></td>
+            </tr>
+            <tr>
+              <td>Payment Received</td>
+              <td>AUD $200.00</td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <span class="footer-step"></span>
+          <div class="btn-group">
+            <button
+              class="btn btn-primary"
+              onclick="showSpinnerThen('success')"
+            >
+              Reinstate
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENARIO 3: No Payment — BLOCKED -->
+      <div class="modal screen" id="screen-no-payment">
+        <div class="modal-header">
+          <h2>Reinstate Subscription</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="msg-error">Reinstatement blocked.</p>
+          <p class="msg-body">
+            This subscription has an outstanding invoice exceeding 80 days with
+            no payment received. Make sure to take a payment and apply to the
+            oldest outstanding invoice before reinstating the subscription.
+          </p>
+          <table class="detail-table">
+            <tr>
+              <td>Account Name</td>
+              <td>COOKSEY, ROBERT CROSBY</td>
+            </tr>
+            <tr>
+              <td>Subscription Start Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription End Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription Amount</td>
+              <td>$219.00 / month</td>
+            </tr>
+            <tr>
+              <td>Next Billing Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Total Amount Outstanding</td>
+              <td><span class="red">AUD $680.00</span></td>
+            </tr>
+            <tr>
+              <td>Oldest Outstanding Invoice</td>
+              <td><span class="red">105 days old (AUD $680.00)</span></td>
+            </tr>
+            <tr>
+              <td>Payment Received</td>
+              <td>None</td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <span class="footer-step"></span>
+          <div class="btn-group">
+            <button class="btn btn-primary">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENARIO 4: Already Active — BLOCKED -->
+      <div class="modal screen" id="screen-already-active">
+        <div class="modal-header">
+          <h2>Reinstate Subscription</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="msg-warning">Reinstatement not required.</p>
+          <p class="msg-body">
+            This account already has an active subscription. No action is
+            needed.
+          </p>
+          <table class="detail-table">
+            <tr>
+              <td>Account Name</td>
+              <td>COOKSEY, ROBERT CROSBY</td>
+            </tr>
+            <tr>
+              <td>Subscription Start Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription End Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription Amount</td>
+              <td>$219.00 / month</td>
+            </tr>
+            <tr>
+              <td>Next Billing Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Total Amount Outstanding</td>
+              <td>AUD $0.00</td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <span class="footer-step"></span>
+          <div class="btn-group">
+            <button class="btn btn-primary">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="modal screen" id="screen-success">
+        <div class="modal-header">
+          <h2>Reinstate Subscription</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body" style="text-align: center; padding: 40px 24px">
+          <p class="msg-success" style="font-size: 16px; margin-bottom: 8px">
+            Subscription has been successfully reinstated.
+          </p>
+          <table
+            class="detail-table"
+            style="text-align: left; max-width: 360px; margin: 16px auto"
+          >
+            <tr>
+              <td>Account Name</td>
+              <td>COOKSEY, ROBERT CROSBY</td>
+            </tr>
+            <tr>
+              <td>Subscription Status</td>
+              <td>Active</td>
+            </tr>
+            <tr>
+              <td>Collection Case</td>
+              <td>Updated to "Paid"</td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <span class="footer-step"></span>
+          <div class="btn-group">
+            <button class="btn btn-primary">Done</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ERROR -->
+      <div class="modal screen" id="screen-error">
+        <div class="modal-header">
+          <h2>Reinstate Subscription</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="msg-error">
+            This subscription was cancelled in a previous month and cannot be
+            reinstated.
+          </p>
+          <table class="detail-table" style="margin-top: 16px">
+            <tr>
+              <td>Account Name</td>
+              <td>COOKSEY, ROBERT CROSBY</td>
+            </tr>
+            <tr>
+              <td>Subscription Start Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription End Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription Amount</td>
+              <td>$219.00 / month</td>
+            </tr>
+            <tr>
+              <td>Next Billing Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Total Amount Outstanding</td>
+              <td>AUD $0.00</td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <span class="footer-step"></span>
+          <div class="btn-group">
+            <button class="btn btn-primary">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPINNER -->
+      <div class="spinner-overlay" id="spinner" style="display: none">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <script>
+      function loadScenario(id) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById("screen-" + id).classList.add("active");
+        document
+          .querySelectorAll(".scenario-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById("sb-" + id).classList.add("active");
+      }
+
+      function showSpinnerThen(targetId) {
+        const spinner = document.getElementById("spinner");
+        spinner.style.display = "flex";
+        setTimeout(() => {
+          spinner.style.display = "none";
+          loadScenario(targetId);
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>

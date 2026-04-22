@@ -324,7 +324,7 @@
         onclick="loadScenario('dc-status')"
         id="sb-dc-status"
       >
-        3b. DC status (blocked)
+        3b. Collection status (blocked)
       </button>
       <button
         class="scenario-btn"
@@ -442,10 +442,6 @@
               <td>Oldest Outstanding Invoice</td>
               <td><span class="red">92 days old (AUD $450.00)</span></td>
             </tr>
-            <tr>
-              <td>Payment Received</td>
-              <td>AUD $200.00</td>
-            </tr>
           </table>
         </div>
         <div class="modal-footer">
@@ -522,10 +518,8 @@
         <div class="modal-body">
           <p class="msg-error">Reinstatement cannot proceed.</p>
           <p class="msg-body">
-            The Collections Case for this account has a status of "Requested to
-            Send to DC". The subscription cannot be reinstated until this status
-            is updated. Please contact the Collections team to resolve this
-            before proceeding.
+            The Account Collection Status is "Approved to Send to DC".
+            Reinstatement is not allowed while this status is active.
           </p>
           <table class="detail-table">
             <tr>
@@ -553,8 +547,8 @@
               <td><span class="red">AUD $450.00</span></td>
             </tr>
             <tr>
-              <td>Collections Case Status</td>
-              <td><span class="red">Requested to Send to DC</span></td>
+              <td>Account Collection Status</td>
+              <td><span class="red">Approved to Send to DC</span></td>
             </tr>
           </table>
         </div>

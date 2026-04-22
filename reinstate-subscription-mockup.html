@@ -410,7 +410,8 @@
         <div class="modal-body">
           <p class="msg-success">Reinstatement can proceed.</p>
           <p class="msg-body">
-            Payment has been received on the oldest outstanding invoice.
+            The oldest outstanding invoice is less than 70 days old and the
+            Collections Case status allows reinstatement.
           </p>
           <table class="detail-table">
             <tr>
@@ -460,18 +461,18 @@
         </div>
       </div>
 
-      <!-- SCENARIO 3: No Payment — BLOCKED -->
-      <div class="modal screen" id="screen-no-payment">
+      <!-- SCENARIO 3a: Invoice too old — BLOCKED -->
+      <div class="modal screen" id="screen-invoice-too-old">
         <div class="modal-header">
           <h2>Reinstate Subscription</h2>
           <button class="modal-close">&times;</button>
         </div>
         <div class="modal-body">
-          <p class="msg-error">Reinstatement blocked.</p>
+          <p class="msg-error">Reinstatement cannot proceed.</p>
           <p class="msg-body">
-            This subscription has an outstanding invoice exceeding 80 days with
-            no payment received. Make sure to take a payment and apply to the
-            oldest outstanding invoice before reinstating the subscription.
+            The oldest outstanding invoice is 70 days or older. A payment must
+            be applied to this invoice before the subscription can be
+            reinstated.
           </p>
           <table class="detail-table">
             <tr>
@@ -500,11 +501,60 @@
             </tr>
             <tr>
               <td>Oldest Outstanding Invoice</td>
-              <td><span class="red">105 days old (AUD $680.00)</span></td>
+              <td><span class="red">85 days old (AUD $680.00)</span></td>
+            </tr>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <span class="footer-step"></span>
+          <div class="btn-group">
+            <button class="btn btn-primary">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENARIO 3b: Collections Case status — BLOCKED -->
+      <div class="modal screen" id="screen-dc-status">
+        <div class="modal-header">
+          <h2>Reinstate Subscription</h2>
+          <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="msg-error">Reinstatement cannot proceed.</p>
+          <p class="msg-body">
+            The Collections Case for this account has a status of "Requested to
+            Send to DC". The subscription cannot be reinstated until this status
+            is updated. Please contact the Collections team to resolve this
+            before proceeding.
+          </p>
+          <table class="detail-table">
+            <tr>
+              <td>Account Name</td>
+              <td>COOKSEY, ROBERT CROSBY</td>
             </tr>
             <tr>
-              <td>Payment Received</td>
-              <td>None</td>
+              <td>Subscription Start Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription End Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Subscription Amount</td>
+              <td>$219.00 / month</td>
+            </tr>
+            <tr>
+              <td>Next Billing Date</td>
+              <td>8/5/2025</td>
+            </tr>
+            <tr>
+              <td>Total Amount Outstanding</td>
+              <td><span class="red">AUD $450.00</span></td>
+            </tr>
+            <tr>
+              <td>Collections Case Status</td>
+              <td><span class="red">Requested to Send to DC</span></td>
             </tr>
           </table>
         </div>

@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BEST Delivery Lifecycle — Journey</title>
+    <style>
+      :root {
+        --blue: #0176d3;
+        --blue-deep: #014486;
+        --ink: #181818;
+        --muted: #555;
+        --line: #e3e7ed;
+        --bg: #f7f9fc;
+        --card-bg: #ffffff;
+        --stage-1-bg: #eaf2fb;
+        --stage-1-fg: #4a7fb0;
+        --stage-2-bg: #d8e6f4;
+        --stage-2-fg: #2c5d8c;
+        --stage-3-bg: #c1d6ea;
+        --stage-3-fg: #1e4870;
+        --stage-4-bg: #1e3a5f;
+        --stage-4-fg: #ffffff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          "Salesforce Sans",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 56px 24px 64px;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+      .header .eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--blue);
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .header h1 {
+        font-size: 38px;
+        font-weight: 800;
+        margin: 0 0 6px;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+      }
+      .header .subtitle {
+        font-size: 15px;
+        color: var(--muted);
+      }
+
+      /* Key principle banner */
+      .principle {
+        background: var(--card-bg);
+        border-left: 4px solid var(--blue);
+        padding: 16px 22px;
+        margin: 0 auto 48px;
+        max-width: 900px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .principle .label {
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--blue);
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .principle .text {
+        font-size: 13px;
+        color: var(--ink);
+      }
+      .principle .text strong {
+        color: var(--blue-deep);
+      }
+
+      /* Stage section */
+      .stage-section {
+        background: var(--stage-bg);
+        color: var(--stage-fg);
+        border-radius: 16px;
+        padding: 32px 32px 36px;
+        margin-bottom: 32px;
+        position: relative;
+      }
+      .stage-section.dark {
+        color: #fff;
+      }
+      .stage-section.dark .phase-card {
+        background: rgba(255, 255, 255, 0.07);
+        backdrop-filter: blur(2px);
+      }
+      .stage-section.dark .phase-card .desc {
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .stage-section.dark .phase-card .desc strong {
+        color: #fff;
+      }
+      .stage-section.dark .phase-card .name {
+        color: #fff;
+      }
+      .stage-section.dark .phase-card .chip {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+        color: #cee5ff;
+      }
+      .stage-section.dark .stage-num {
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+      }
+      .stage-section.dark .stage-name {
+        color: #fff;
+      }
+      .stage-section.dark .stage-desc {
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      .stage-head {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .stage-num {
+        background: rgba(0, 0, 0, 0.08);
+        color: var(--stage-fg);
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 3px;
+      }
+      .stage-name {
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        margin: 0;
+        color: var(--stage-fg);
+      }
+      .stage-desc {
+        font-size: 13px;
+        color: var(--stage-fg);
+        opacity: 0.75;
+        margin-left: auto;
+        text-align: right;
+        max-width: 400px;
+      }
+
+      /* Phases row */
+      .phases-row {
+        display: grid;
+        gap: 24px;
+        align-items: stretch;
+        grid-template-columns: 1fr;
+      }
+      .phases-row.two {
+        grid-template-columns: 1fr 1fr;
+      }
+      .phases-row.three {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .phase-card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 22px 22px 24px;
+        box-shadow: 0 2px 8px rgba(20, 40, 80, 0.06);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      .phase-card .icon-wrap {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: var(--stage-bg);
+        color: var(--stage-fg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+        position: relative;
+      }
+      .phase-card.dark-bg .icon-wrap {
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+      }
+      .phase-card .num-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--blue);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 12px;
+        border: 3px solid var(--card-bg);
+      }
+      .phase-card .name {
+        font-size: 17px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: var(--ink);
+      }
+      .phase-card .desc {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-bottom: 14px;
+        flex: 1;
+        line-height: 1.45;
+      }
+      .phase-card .desc strong {
+        color: var(--ink);
+      }
+      .phase-card .substep {
+        font-size: 11.5px;
+        color: var(--muted);
+        padding-left: 8px;
+        border-left: 2px solid var(--line);
+        margin-top: 4px;
+      }
+      .phase-card .substep strong {
+        color: var(--ink);
+      }
+      .phase-card .skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .chip {
+        font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+        font-size: 10.5px;
+        background: #f1f4f8;
+        border: 1px solid var(--line);
+        padding: 2px 7px;
+        border-radius: 3px;
+        color: var(--blue);
+      }
+      .chip.muted {
+        color: var(--muted);
+        font-style: italic;
+        font-family: inherit;
+        border-style: dashed;
+        background: transparent;
+      }
+
+      /* Stage connector arrow */
+      .stage-arrow {
+        display: flex;
+        justify-content: center;
+        margin: -16px 0 16px;
+        position: relative;
+        z-index: 2;
+      }
+      .stage-arrow svg {
+        background: var(--bg);
+        border-radius: 50%;
+        padding: 6px;
+      }
+
+      /* Cycle loop indicator */
+      .cycle-loop {
+        text-align: center;
+        margin: 40px auto 0;
+        max-width: 600px;
+        padding: 16px 22px;
+        border: 2px dashed var(--blue);
+        border-radius: 999px;
+        background: var(--card-bg);
+        color: var(--blue);
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      /* BAU stripe */
+      .bau-stripe {
+        background: var(--ink);
+        color: #fff;
+        padding: 28px 32px;
+        margin: 56px 0 32px;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+      }
+      .bau-stripe::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        background: var(--blue);
+      }
+      .bau-stripe .head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin-bottom: 6px;
+      }
+      .bau-stripe .label {
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--blue);
+        font-weight: 700;
+      }
+      .bau-stripe h2 {
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0;
+        color: #fff;
+      }
+      .bau-stripe .subtitle {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 18px;
+      }
+      .bau-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+      .bau-item {
+        background: rgba(255, 255, 255, 0.07);
+        padding: 14px 16px;
+        border-radius: 8px;
+        border-left: 3px solid var(--blue);
+      }
+      .bau-item .name {
+        font-family: "SF Mono", Menlo, Monaco, monospace;
+        font-size: 13px;
+        color: #fff;
+        margin-bottom: 4px;
+      }
+      .bau-item .freq {
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--blue);
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .bau-item .purpose {
+        font-size: 11.5px;
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      /* Things to remember */
+      .callouts {
+        background: var(--card-bg);
+        padding: 28px 32px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+      .callouts h2 {
+        text-align: center;
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 700;
+        margin: 0 0 24px;
+      }
+      .callout-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+      }
+      .callout {
+        text-align: center;
+      }
+      .callout .icon {
+        width: 44px;
+        height: 44px;
+        margin: 0 auto 10px;
+        border-radius: 50%;
+        background: var(--blue);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 18px;
+      }
+      .callout .head {
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+      .callout .body {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .footer {
+        margin-top: 32px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+      }
+      .footer a {
+        color: var(--blue);
+        text-decoration: none;
+      }
+
+      /* Ribbon */
+      .ribbon {
+        position: fixed;
+        top: 18px;
+        right: -42px;
+        background: var(--blue);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        padding: 4px 50px;
+        transform: rotate(45deg);
+        z-index: 99;
+      }
+
+      @media (max-width: 900px) {
+        .phases-row.two,
+        .phases-row.three {
+          grid-template-columns: 1fr;
+        }
+        .stage-desc {
+          display: none;
+        }
+        .stage-head {
+          flex-wrap: wrap;
+        }
+        .bau-grid,
+        .callout-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 600px) {
+        .bau-grid,
+        .callout-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media print {
+        body {
+          background: #fff;
+        }
+        .ribbon {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ribbon">v1</div>
+    <div class="page">
+      <header class="header">
+        <div class="eyebrow">BEST Team Playbook</div>
+        <h1>Delivery Lifecycle</h1>
+        <div class="subtitle">
+          A journey from discovery to monitoring — 9 phases · 4 stages
+        </div>
+      </header>
+
+      <div class="principle">
+        <span class="label">Key Principle</span>
+        <span class="text"
+          >Sign-off is targeted but <strong>not a blocker</strong>. Once the
+          team has enough understanding, story creation runs in parallel with
+          finalising sign-off.</span
+        >
+      </div>
+
+      <!-- ──────────────── STAGE 1: PLAN ──────────────── -->
+      <section
+        class="stage-section"
+        style="--stage-bg: var(--stage-1-bg); --stage-fg: var(--stage-1-fg)"
+      >
+        <div class="stage-head">
+          <span class="stage-num">Stage 1</span>
+          <h2 class="stage-name">Plan</h2>
+          <p class="stage-desc">
+            Align with stakeholders on what to build. Stories begin in parallel.
+          </p>
+        </div>
+        <div class="phases-row two">
+          <div class="phase-card">
+            <div class="icon-wrap">
+              <span class="num-badge">1</span>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 28 28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="11" cy="11" r="6" />
+                <line x1="16" y1="16" x2="22" y2="22" />
+              </svg>
+            </div>
+            <div class="name">Discovery</div>
+            <div class="desc">
+              Calls, mockups, whiteboards, shared sheets. Aim for a requirements
+              meeting and stakeholder sign-off — but don't wait for it.
+            </div>
+            <div class="skills"><span class="chip">/best-mockup</span></div>
+          </div>
+          <div class="phase-card">
+            <div class="icon-wrap">
+              <span class="num-badge">2</span>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 28 28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="6" y="4" width="16" height="20" rx="1.5" />
+                <line x1="9" y1="9" x2="19" y2="9" />
+                <line x1="9" y1="13" x2="19" y2="13" />
+                <line x1="9" y1="17" x2="15" y2="17" />
+              </svg>
+            </div>
+            <div class="name">Spike + Story creation</div>
+            <div class="desc">
+              <strong>Fix version defined.</strong> Spikes and user stories
+              created and refined. RKD created in Confluence and updated
+              continuously.
+            </div>
+            <div class="skills">
+              <span class="chip">/create-spike</span>
+              <span class="chip">/create-user-story</span>
+              <span class="chip">/release-kickoff</span>
+              <span class="chip">/update-rkd</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- arrow -->
+      <div class="stage-arrow">
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 40 40"
+          fill="none"
+          stroke="#0176d3"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="20" y1="8" x2="20" y2="30" />
+          <polyline points="12,22 20,30 28,22" />
+        </svg>
+      </div>
+
+      <!-- ──────────────── STAGE 2: BUILD ──────────────── -->
+      <section
+        class="stage-section"
+        style="--stage-bg: var(--stage-2-bg); --stage-fg: var(--stage-2-fg)"
+      >
+        <div class="stage-head">
+          <span class="stage-num">Stage 2</span>
+          <h2 class="stage-name">Build</h2>
+          <p class="stage-desc">
+            Plan effort and write tests in parallel with engineering work.
+          </p>
+        </div>
+        <div class="phases-row two">
+          <div class="phase-card">
+            <div class="icon-wrap">
+              <span class="num-badge">3</span>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 28 28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="14" cy="14" r="9" />
+                <line x1="14" y1="14" x2="14" y2="9" />
+                <line x1="14" y1="14" x2="18" y2="14" />
+              </svg>
+            </div>
+            <div class="name">Estimation</div>
+            <div class="desc">
+              Release owner runs an estimation meeting using a shared sheet to
+              collect estimates from team members.
+            </div>
+            <div class="skills"><span class="chip">/estimation</span></div>
+          </div>
+          <div class="phase-card">
+            <div class="icon-wrap">
+              <span class="num-badge">4</span>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 28 28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="4" y="4" width="20" height="20" rx="2" />
+                <polyline points="9,14 13,18 19,10" />
+              </svg>
+            </div>
+            <div class="name">Test scenarios</div>
+            <div class="desc">
+              E2E scenarios written in parallel with engineering. Output goes to
+              a new tab in the BT E2E Master List sheet.
+            </div>
+            <div class="skills">
+              <span class="chip">/create-test-scenarios</span>
+              <span class="chip">/regression-tests</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- arrow -->
+      <div class="stage-arrow">
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 40 40"
+          fill="none"
+          stroke="#0176d3"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="20" y1="8" x2="20" y2="30" />
+          <polyline points="12,22 20,30 28,22" />
+        </svg>
+      </div>
+
+      <!-- ──────────────── STAGE 3: VALIDATE ──────────────── -->
+      <section
+        class="stage-section"
+        style="--stage-bg: var(--stage-3-bg); --stage-fg: var(--stage-3-fg)"
+      >
+        <div class="stage-head">
+          <span class="stage-num">Stage 3</span>
+          <h2 class="stage-name">Validate</h2>
+          <p class="stage-desc">
+            Walk through internally, then expose to PM and stakeholders.
+          </p>
+        </div>
+        <div class="phases-row three">
+          <div class="phase-card">
+            <div class="icon-wrap">
+              <span class="num-badge">5</span>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 28 28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="9" cy="9" r="3" />
+                <path d="M 4 21 c 0 -3 2 -5 5 -5 s 5 2 5 5" />
+                <circle cx="19" cy="9" r="3" />
+                <path d="M 14 21 c 0 -3 2 -5 5 -5 s 5 2 5 5" />
+              </svg>
+            </div>
+            <div class="name">Pre-E2E (two parts)</div>
+            <div class="substep" style="margin-bottom: 4px">
+              <strong>5a — Engineering team:</strong> internal walkthrough.
+            </div>
+            <div class="substep" style="margin-bottom: 14px">
+              <strong>5b — PM (Christine):</strong> review before stakeholders.
+            </div>
+            <div class="skills"><span class="chip muted">no skill</span></div>
+          </div>
+          <div class="phase-card">
+            <div class="icon-wrap">
+              <span class="num-badge">6</span>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 28 28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="6" y="5" width="16" height="20" rx="1.5" />
+                <rect x="10" y="3" width="8" height="4" rx="0.5" />
+                <polyline points="9,16 12,19 18,12" />
+              </svg>
+            </div>
+            <div class="name">UAT preparation</div>
+            <div class="desc">
+              UAT Confluence page from the test sheet, rewritten for the
+              stakeholder audience.
+            </div>
+            <div class="skills"><span class="chip">/create-uat</span></div>
+          </div>
+          <div class="phase-card">
+            <div class="icon-wrap">
+              <span class="num-badge">7</span>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 28 28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M 4 6 h 16 v 12 h -10 l -6 4 z" />
+                <polyline points="9,12 12,15 17,9" />
+              </svg>
+            </div>
+            <div class="name">E2E with stakeholder</div>
+            <div class="desc">
+              Live walkthrough with stakeholders, then UAT page handed over for
+              them to execute and sign off.
+            </div>
+            <div class="skills"><span class="chip muted">no skill</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- arrow -->
+      <div class="stage-arrow">
+        <svg
+          width="40"
+          height="40"
+          viewBox="0 0 40 40"
+          fill="none"
+          stroke="#0176d3"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="20" y1="8" x2="20" y2="30" />
+          <polyline points="12,22 20,30 28,22" />
+        </svg>
+      </div>
+
+      <!-- ──────────────── STAGE 4: DELIVER & MONITOR ──────────────── -->
+      <section
+        class="stage-section dark"
+        style="--stage-bg: var(--stage-4-bg); --stage-fg: var(--stage-4-fg)"
+      >
+        <div class="stage-head">
+          <span class="stage-num">Stage 4</span>
+          <h2 class="stage-name">Deliver &amp; Monitor</h2>
+          <p class="stage-desc">
+            Ship to production and watch how it performs.
+          </p>
+        </div>
+        <div class="phases-row two">
+          <div class="phase-card dark-bg">
+            <div class="icon-wrap">
+              <span class="num-badge">8</span>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 28 28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M 14 4 l 6 8 h -3 v 8 h -6 v -8 h -3 z" />
+                <line x1="11" y1="22" x2="13" y2="22" />
+                <line x1="15" y1="22" x2="17" y2="22" />
+              </svg>
+            </div>
+            <div class="name">Release</div>
+            <div class="desc">
+              After UAT sign-offs, release goes to production with release notes
+              sent ahead. Internal and stakeholder Slack drafts.
+            </div>
+            <div class="skills">
+              <span class="chip">/create-release-notes</span>
+              <span class="chip">/release-announcement</span>
+            </div>
+          </div>
+          <div class="phase-card dark-bg">
+            <div class="icon-wrap">
+              <span class="num-badge">9</span>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 28 28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="4" y1="22" x2="24" y2="22" />
+                <rect x="6" y="14" width="4" height="8" />
+                <rect x="12" y="10" width="4" height="12" />
+                <rect x="18" y="6" width="4" height="16" />
+              </svg>
+            </div>
+            <div class="name">Post-release monitoring</div>
+            <div class="desc">
+              Feature monitored on production with a report and SLO tracking.
+              Bugs flow into the BAU PSR triage process.
+            </div>
+            <div class="skills"><span class="chip muted">no skill</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cycle-loop">
+        ↻ Cycle continues — next release feeds back into Plan ↻
+      </div>
+
+      <!-- BAU stripe -->
+      <div class="bau-stripe">
+        <div class="head">
+          <span class="label">Always-on</span>
+          <h2>BAU — Daily &amp; Ongoing</h2>
+        </div>
+        <div class="subtitle">Runs independently of any release flow.</div>
+        <div class="bau-grid">
+          <div class="bau-item">
+            <div class="name">/triage-psr</div>
+            <div class="freq">Daily</div>
+            <div class="purpose">
+              Triage all stakeholder-raised PSR tickets — entry point for any
+              new bug.
+            </div>
+          </div>
+          <div class="bau-item">
+            <div class="name">/create-psr</div>
+            <div class="freq">Ad-hoc</div>
+            <div class="purpose">
+              Log new PSR bug tickets with templates for known recurring bugs.
+            </div>
+          </div>
+          <div class="bau-item">
+            <div class="name">/bva</div>
+            <div class="freq">Daily 17:00 VN</div>
+            <div class="purpose">
+              BVA team summary draft posted to #best-trials-and-alex.
+            </div>
+          </div>
+          <div class="bau-item">
+            <div class="name">/create-showcase</div>
+            <div class="freq">Monthly</div>
+            <div class="purpose">
+              Customer Operations Showcase deck refresh for SLT / CEO.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Things to remember -->
+      <div class="callouts">
+        <h2>Things to remember</h2>
+        <div class="callout-grid">
+          <div class="callout">
+            <div class="icon">!</div>
+            <div class="head">Sign-off is not a gate</div>
+            <div class="body">
+              Story creation can start as soon as the team understands the work.
+            </div>
+          </div>
+          <div class="callout">
+            <div class="icon">↻</div>
+            <div class="head">RKD ties it together</div>
+            <div class="body">
+              Per-release artefact spanning phases 2 → 9 for one fix version.
+            </div>
+          </div>
+          <div class="callout">
+            <div class="icon">2</div>
+            <div class="head">Pre-E2E is two parts</div>
+            <div class="body">
+              First with engineering, then with PM Christine before any
+              stakeholder sees it.
+            </div>
+          </div>
+          <div class="callout">
+            <div class="icon">∞</div>
+            <div class="head">BAU runs in parallel</div>
+            <div class="body">
+              PSR triage, bug logging, BVA, and the showcase are independent of
+              any release.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        BEST Team · v1 · Will evolve as new skills are adopted ·
+        <a
+          href="https://hipagesgroup.atlassian.net/wiki/spaces/BTS/pages/4197318752/BEST+Discovery+and+Delivery+Playbook"
+          target="_blank"
+          >Confluence page</a
+        >
+      </div>
+    </div>
+  </body>
+</html>

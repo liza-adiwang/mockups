@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BEST Discovery and Delivery Playbook</title>
+    <style>
+      :root {
+        --blue: #0176d3;
+        --ink: #181818;
+        --muted: #555;
+        --line: #d6d6d6;
+        --bg: #fafafa;
+        --bau-bg: #f3f3f3;
+        --chip-bg: #ffffff;
+        --chip-border: #cfcfcf;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          "Salesforce Sans",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 48px 32px 64px;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        border-bottom: 2px solid var(--ink);
+        padding-bottom: 24px;
+        margin-bottom: 32px;
+      }
+      .header .eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 0 0 6px;
+        letter-spacing: -0.01em;
+      }
+      .header .subtitle {
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      /* Key principle banner */
+      .principle {
+        border: 1px solid var(--ink);
+        background: #fff;
+        padding: 14px 20px;
+        margin-bottom: 36px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .principle .label {
+        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--blue);
+        white-space: nowrap;
+      }
+      .principle .text {
+        font-size: 14px;
+      }
+
+      /* 2-column layout */
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 40px;
+      }
+
+      /* Section header */
+      .section-title {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 700;
+        margin-bottom: 18px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      /* Per-release flow */
+      .flow {
+        position: relative;
+      }
+      .flow::before {
+        content: "";
+        position: absolute;
+        left: 22px;
+        top: 12px;
+        bottom: 12px;
+        width: 2px;
+        background: var(--ink);
+        z-index: 0;
+      }
+      .phase {
+        position: relative;
+        display: grid;
+        grid-template-columns: 46px 1fr;
+        gap: 16px;
+        padding: 14px 0;
+        z-index: 1;
+      }
+      .phase + .phase {
+        border-top: 1px dashed var(--line);
+      }
+      .phase .num {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: var(--ink);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 18px;
+        z-index: 2;
+        position: relative;
+      }
+      .phase .body {
+        padding-top: 4px;
+      }
+      .phase .title {
+        font-weight: 700;
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+      .phase .desc {
+        color: var(--muted);
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+      .phase .desc strong {
+        color: var(--ink);
+      }
+      .phase .skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .chip {
+        font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+        background: var(--chip-bg);
+        border: 1px solid var(--chip-border);
+        padding: 2px 8px;
+        border-radius: 3px;
+        color: var(--blue);
+      }
+      .chip.muted {
+        color: var(--muted);
+        font-style: italic;
+        font-family: inherit;
+        border-style: dashed;
+      }
+      .substep {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--muted);
+        padding-left: 10px;
+        border-left: 2px solid var(--line);
+      }
+      .substep + .substep {
+        margin-top: 4px;
+      }
+      .substep strong {
+        color: var(--ink);
+      }
+
+      /* BAU sidebar */
+      .bau {
+        background: var(--bau-bg);
+        border: 1px solid var(--line);
+        padding: 20px;
+        align-self: start;
+        position: sticky;
+        top: 24px;
+      }
+      .bau .section-title {
+        margin-bottom: 8px;
+        border: none;
+        padding: 0;
+      }
+      .bau-note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 18px;
+        font-style: italic;
+      }
+      .bau-item {
+        padding: 12px 0;
+        border-top: 1px dashed var(--line);
+      }
+      .bau-item:first-of-type {
+        border-top: none;
+      }
+      .bau-item .name {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4px;
+      }
+      .bau-item .chip {
+        font-size: 11px;
+      }
+      .bau-item .freq {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--blue);
+        font-weight: 700;
+      }
+      .bau-item .purpose {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      /* Key callouts row */
+      .callouts {
+        margin-top: 40px;
+        border-top: 2px solid var(--ink);
+        padding-top: 24px;
+      }
+      .callouts-title {
+        text-align: center;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+        font-weight: 700;
+        margin-bottom: 18px;
+      }
+      .callout-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+      .callout {
+        border: 1px solid var(--line);
+        background: #fff;
+        padding: 14px;
+      }
+      .callout .num {
+        display: inline-block;
+        width: 22px;
+        height: 22px;
+        background: var(--blue);
+        color: #fff;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 22px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .callout .head {
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 4px;
+      }
+      .callout .body {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      /* Footer */
+      .footer {
+        margin-top: 32px;
+        text-align: center;
+        font-size: 11px;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+      }
+      .footer a {
+        color: var(--blue);
+        text-decoration: none;
+      }
+
+      /* MOCKUP/draft ribbon */
+      .ribbon {
+        position: fixed;
+        top: 18px;
+        right: -42px;
+        background: var(--blue);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        padding: 4px 50px;
+        transform: rotate(45deg);
+        z-index: 99;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .bau {
+          position: static;
+        }
+        .callout-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media print {
+        body {
+          background: #fff;
+        }
+        .ribbon {
+          display: none;
+        }
+        .bau {
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ribbon">v1</div>
+    <div class="page">
+      <header class="header">
+        <div class="eyebrow">BEST Team · BTS Space</div>
+        <h1>Discovery and Delivery Playbook</h1>
+        <div class="subtitle">How we take work from idea to monitoring</div>
+      </header>
+
+      <div class="principle">
+        <span class="label">Key principle</span>
+        <span class="text"
+          >Sign-off is targeted but <strong>not a blocker</strong>. Once the
+          team has enough understanding, story creation runs in parallel with
+          finalising sign-off.</span
+        >
+      </div>
+
+      <div class="layout">
+        <!-- Per-release flow -->
+        <div>
+          <div class="section-title">Per-release flow · 9 phases</div>
+          <div class="flow">
+            <div class="phase">
+              <div class="num">1</div>
+              <div class="body">
+                <div class="title">Discovery</div>
+                <div class="desc">
+                  Liza and Christine align on requirements through calls,
+                  mockups, whiteboards, and shared sheets. Aim for a
+                  requirements meeting and stakeholder sign-off.
+                </div>
+                <div class="skills"><span class="chip">/best-mockup</span></div>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="num">2</div>
+              <div class="body">
+                <div class="title">Spike + Story creation</div>
+                <div class="desc">
+                  Spikes and user stories created and refined.
+                  <strong>Fix version defined.</strong> RKD created in
+                  Confluence and updated continuously.
+                </div>
+                <div class="skills">
+                  <span class="chip">/create-spike</span>
+                  <span class="chip">/create-user-story</span>
+                  <span class="chip">/release-kickoff</span>
+                  <span class="chip">/update-rkd</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="num">3</div>
+              <div class="body">
+                <div class="title">Estimation</div>
+                <div class="desc">
+                  Release owner runs an estimation meeting using a shared sheet
+                  to collect estimates from team members.
+                </div>
+                <div class="skills"><span class="chip">/estimation</span></div>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="num">4</div>
+              <div class="body">
+                <div class="title">Test scenarios</div>
+                <div class="desc">
+                  E2E scenarios written in parallel with engineering. Output
+                  goes to a new tab in the BT E2E Master List sheet.
+                </div>
+                <div class="skills">
+                  <span class="chip">/create-test-scenarios</span>
+                  <span class="chip">/regression-tests</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="num">5</div>
+              <div class="body">
+                <div class="title">Pre-E2E (two parts)</div>
+                <div class="desc">
+                  Two internal walkthroughs before any stakeholder is involved.
+                </div>
+                <div class="substep">
+                  <strong>5a — With engineering team:</strong> internal
+                  walkthrough of test scenarios.
+                </div>
+                <div class="substep">
+                  <strong>5b — With PM (Christine):</strong> review before
+                  exposing to stakeholders.
+                </div>
+                <div class="skills" style="margin-top: 8px">
+                  <span class="chip muted">no skill</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="num">6</div>
+              <div class="body">
+                <div class="title">UAT preparation</div>
+                <div class="desc">
+                  UAT Confluence page prepared from the test sheet (UAT-flagged
+                  rows only), rewritten for stakeholders without backend
+                  technical detail.
+                </div>
+                <div class="skills"><span class="chip">/create-uat</span></div>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="num">7</div>
+              <div class="body">
+                <div class="title">E2E with stakeholder</div>
+                <div class="desc">
+                  Stakeholder-facing E2E session walking through the feature
+                  live. UAT page is then handed over for them to execute and
+                  sign off.
+                </div>
+                <div class="skills">
+                  <span class="chip muted">no skill</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="num">8</div>
+              <div class="body">
+                <div class="title">Release</div>
+                <div class="desc">
+                  After UAT sign-offs, release goes to production with release
+                  notes sent ahead. Internal and stakeholder Slack announcements
+                  drafted.
+                </div>
+                <div class="skills">
+                  <span class="chip">/create-release-notes</span>
+                  <span class="chip">/release-announcement</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="phase">
+              <div class="num">9</div>
+              <div class="body">
+                <div class="title">Post-release monitoring</div>
+                <div class="desc">
+                  Feature monitored on production with a report and SLO tracking
+                  performance. Bugs raised by stakeholders flow into the BAU PSR
+                  triage process.
+                </div>
+                <div class="skills">
+                  <span class="chip muted">no skill</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BAU sidebar -->
+        <aside class="bau">
+          <div class="section-title">BAU · daily &amp; ongoing</div>
+          <div class="bau-note">Runs independently of any release.</div>
+
+          <div class="bau-item">
+            <div class="name">
+              <span class="chip">/triage-psr</span
+              ><span class="freq">Daily</span>
+            </div>
+            <div class="purpose">
+              Triage all stakeholder-raised PSR tickets. Entry point for any new
+              bug or issue raised against BEST.
+            </div>
+          </div>
+
+          <div class="bau-item">
+            <div class="name">
+              <span class="chip">/create-psr</span
+              ><span class="freq">Ad-hoc</span>
+            </div>
+            <div class="purpose">
+              Log new PSR bug tickets, with templates for known recurring bugs.
+            </div>
+          </div>
+
+          <div class="bau-item">
+            <div class="name">
+              <span class="chip">/bva</span
+              ><span class="freq">Daily 17:00 VN</span>
+            </div>
+            <div class="purpose">
+              BVA team summary draft posted to #best-trials-and-alex.
+            </div>
+          </div>
+
+          <div class="bau-item">
+            <div class="name">
+              <span class="chip">/create-showcase</span
+              ><span class="freq">Monthly</span>
+            </div>
+            <div class="purpose">
+              Customer Operations Showcase deck refresh for SLT / CEO audience.
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Key callouts -->
+      <div class="callouts">
+        <div class="callouts-title">Things to remember</div>
+        <div class="callout-grid">
+          <div class="callout">
+            <div class="num">1</div>
+            <div class="head">Sign-off is not a gate</div>
+            <div class="body">
+              Discovery aims for sign-off, but story creation can start as soon
+              as the team understands the work.
+            </div>
+          </div>
+          <div class="callout">
+            <div class="num">2</div>
+            <div class="head">RKD ties it together</div>
+            <div class="body">
+              The Release Kickoff Document is the per-release artefact spanning
+              phases 2 → 9 for one fix version.
+            </div>
+          </div>
+          <div class="callout">
+            <div class="num">3</div>
+            <div class="head">Pre-E2E is two parts</div>
+            <div class="body">
+              First with engineering, then with PM Christine — before any
+              stakeholder sees the work.
+            </div>
+          </div>
+          <div class="callout">
+            <div class="num">4</div>
+            <div class="head">BAU runs in parallel</div>
+            <div class="body">
+              PSR triage, bug logging, BVA, and the monthly showcase are
+              independent of any release flow.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        BEST Team · v1 · Will evolve as new skills are adopted ·
+        <a
+          href="https://hipagesgroup.atlassian.net/wiki/spaces/BTS/pages/4197318752/BEST+Discovery+and+Delivery+Playbook"
+          target="_blank"
+          >Confluence page</a
+        >
+      </div>
+    </div>
+  </body>
+</html>

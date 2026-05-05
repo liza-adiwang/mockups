@@ -95,7 +95,37 @@
         color: var(--blue-deep);
       }
 
-      /* Wheel — bigger, denser, stage labels on the band */
+      .stage-legend {
+        display: flex;
+        justify-content: center;
+        gap: 22px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+      .stage-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: var(--ink);
+      }
+      .stage-pill .swatch {
+        width: 24px;
+        height: 12px;
+        border-radius: 2px;
+      }
+      .stage-pill .nums {
+        font-family: "SF Mono", Menlo, Monaco, monospace;
+        font-size: 10px;
+        letter-spacing: 0;
+        color: var(--muted);
+        margin-left: 4px;
+      }
+
+      /* Wheel — bigger, denser, no stage labels on band */
       .wheel-wrap {
         display: flex;
         justify-content: center;
@@ -417,7 +447,30 @@
         >
       </div>
 
-      <!-- Wheel: thicker band, stage names ON the band, dots on outer edge, phase names just outside -->
+      <div class="stage-legend">
+        <span class="stage-pill"
+          ><span class="swatch" style="background: var(--stage-1)"></span
+          >Plan<span class="nums">1·2</span></span
+        >
+        <span class="stage-pill"
+          ><span class="swatch" style="background: var(--stage-2)"></span
+          >Build<span class="nums">3-7</span></span
+        >
+        <span class="stage-pill"
+          ><span class="swatch" style="background: var(--stage-3)"></span
+          >Validate<span class="nums">8-11</span></span
+        >
+        <span class="stage-pill"
+          ><span class="swatch" style="background: var(--stage-4)"></span
+          >Deliver<span class="nums">12·13</span></span
+        >
+        <span class="stage-pill"
+          ><span class="swatch" style="background: var(--stage-5)"></span
+          >Monitor<span class="nums">14</span></span
+        >
+      </div>
+
+      <!-- Wheel: thicker band, dots on outer edge, phase names just outside, stage legend above -->
       <div class="wheel-wrap">
         <div class="wheel">
           <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
@@ -466,21 +519,6 @@
               stroke="#1a3859"
               stroke-width="70"
             />
-
-            <!-- Stage labels ON the band (mid-band at r=235, midpoint angle of each stage) -->
-            <g
-              class="stage-label"
-              text-anchor="middle"
-              dominant-baseline="central"
-            >
-              <text x="652.2" y="370.9" fill="#1a3859">PLAN</text>
-              <text x="829.1" y="652.2" fill="#0a2a47">BUILD</text>
-              <text x="453.4" y="783.8" fill="#ffffff">VALIDATE</text>
-              <text x="388.3" y="497.8" fill="#ffffff">DELIVER</text>
-              <text x="497.8" y="388.3" fill="#ffffff" font-size="14">
-                MONITOR
-              </text>
-            </g>
 
             <!-- Phase dots at r=290 (just outside band) -->
             <g>

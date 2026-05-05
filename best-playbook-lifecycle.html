@@ -41,13 +41,12 @@
       .page {
         max-width: 1320px;
         margin: 0 auto;
-        padding: 56px 32px 64px;
+        padding: 36px 24px 48px;
       }
 
-      /* Header */
       .header {
         text-align: center;
-        margin-bottom: 32px;
+        margin-bottom: 16px;
       }
       .header .eyebrow {
         font-size: 11px;
@@ -55,31 +54,30 @@
         text-transform: uppercase;
         color: var(--blue);
         font-weight: 700;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
       }
       .header h1 {
-        font-size: 38px;
+        font-size: 34px;
         font-weight: 800;
-        margin: 0 0 6px;
+        margin: 0 0 4px;
         letter-spacing: -0.02em;
         color: var(--ink);
       }
       .header .subtitle {
-        font-size: 15px;
+        font-size: 14px;
         color: var(--muted);
       }
 
-      /* Key principle banner */
       .principle {
         background: var(--card-bg);
         border-left: 4px solid var(--blue);
-        padding: 16px 22px;
-        margin: 0 auto 40px;
+        padding: 12px 18px;
+        margin: 0 auto 24px;
         max-width: 900px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 14px;
       }
       .principle .label {
         font-size: 10px;
@@ -97,46 +95,15 @@
         color: var(--blue-deep);
       }
 
-      /* Stage legend */
-      .stage-legend {
-        display: flex;
-        justify-content: center;
-        gap: 28px;
-        margin-bottom: 40px;
-        flex-wrap: wrap;
-      }
-      .stage-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 11px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        font-weight: 700;
-        color: var(--ink);
-      }
-      .stage-pill .dot {
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-      }
-      .stage-pill .nums {
-        font-family: "SF Mono", Menlo, Monaco, monospace;
-        font-size: 10px;
-        letter-spacing: 0;
-        color: var(--muted);
-        margin-left: 4px;
-      }
-
-      /* Wheel */
+      /* Wheel — bigger, denser, stage labels on the band */
       .wheel-wrap {
         display: flex;
         justify-content: center;
-        margin-bottom: 56px;
+        margin-bottom: 32px;
       }
       .wheel {
         width: 100%;
-        max-width: 820px;
+        max-width: 1000px;
         aspect-ratio: 1 / 1;
       }
       .wheel svg {
@@ -146,36 +113,43 @@
       }
       .wheel svg .stage-label {
         font-family: "Salesforce Sans", sans-serif;
-        font-size: 18px;
+        font-size: 22px;
         font-weight: 800;
-        letter-spacing: 0.18em;
-        fill: var(--ink);
+        letter-spacing: 0.22em;
       }
       .wheel svg .phase-label {
         font-family: "Salesforce Sans", sans-serif;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 600;
         fill: var(--ink);
+      }
+      .wheel svg .phase-num-text {
+        font-family: "Salesforce Sans", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        fill: #fff;
+        text-anchor: middle;
+        dominant-baseline: central;
       }
 
       /* Stage cards row */
       .stages {
         display: grid;
         grid-template-columns: 2fr 5fr 4fr 2fr 1.5fr;
-        gap: 14px;
-        margin-bottom: 56px;
+        gap: 12px;
+        margin-bottom: 36px;
       }
       .stage-card {
         background: var(--card-bg);
         border-top: 5px solid var(--c);
         box-shadow: 0 2px 10px rgba(20, 40, 80, 0.06);
-        padding: 18px 16px 18px;
+        padding: 14px 14px 14px;
         display: flex;
         flex-direction: column;
       }
       .stage-card .head {
-        margin-bottom: 14px;
-        padding-bottom: 12px;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
         border-bottom: 1px dashed var(--line);
       }
       .stage-card .stage-num {
@@ -187,29 +161,29 @@
         font-weight: 700;
         padding: 2px 7px;
         border-radius: 2px;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
       }
       .stage-card .stage-num.dark-text {
         color: var(--ink);
       }
       .stage-card .stage-name {
-        font-size: 17px;
+        font-size: 16px;
         font-weight: 800;
         margin: 0;
       }
       .phase-row {
         display: grid;
-        grid-template-columns: 28px 1fr;
-        gap: 10px;
+        grid-template-columns: 26px 1fr;
+        gap: 8px;
         align-items: start;
-        padding: 10px 0;
+        padding: 8px 0;
       }
       .phase-row + .phase-row {
         border-top: 1px dotted var(--line);
       }
       .phase-row .num {
-        width: 28px;
-        height: 28px;
+        width: 26px;
+        height: 26px;
         border-radius: 50%;
         background: var(--c);
         color: #fff;
@@ -224,12 +198,12 @@
         color: var(--ink);
       }
       .phase-row .body {
-        padding-top: 3px;
+        padding-top: 2px;
       }
       .phase-row .name {
-        font-size: 13px;
+        font-size: 12.5px;
         font-weight: 700;
-        line-height: 1.25;
+        line-height: 1.2;
         margin-bottom: 4px;
       }
       .phase-row .meta {
@@ -271,12 +245,11 @@
         color: var(--blue-deep);
       }
 
-      /* BAU stripe */
       .bau-stripe {
         background: var(--ink);
         color: #fff;
-        padding: 28px 32px;
-        margin-bottom: 48px;
+        padding: 24px 28px;
+        margin-bottom: 28px;
         position: relative;
         overflow: hidden;
       }
@@ -293,7 +266,7 @@
         display: flex;
         align-items: baseline;
         gap: 14px;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
       }
       .bau-stripe .label {
         font-size: 11px;
@@ -303,31 +276,31 @@
         font-weight: 700;
       }
       .bau-stripe h2 {
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 700;
         margin: 0;
         color: #fff;
       }
       .bau-stripe .subtitle {
-        font-size: 13px;
+        font-size: 12px;
         color: rgba(255, 255, 255, 0.7);
-        margin-bottom: 18px;
+        margin-bottom: 14px;
       }
       .bau-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
+        gap: 14px;
       }
       .bau-item {
         background: rgba(255, 255, 255, 0.07);
-        padding: 14px 16px;
+        padding: 12px 14px;
         border-left: 3px solid var(--blue);
       }
       .bau-item .name {
         font-family: "SF Mono", Menlo, Monaco, monospace;
         font-size: 13px;
         color: #fff;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
       }
       .bau-item .freq {
         font-size: 10px;
@@ -335,17 +308,16 @@
         text-transform: uppercase;
         color: var(--blue);
         font-weight: 700;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
       }
       .bau-item .purpose {
         font-size: 11.5px;
         color: rgba(255, 255, 255, 0.85);
       }
 
-      /* Things to remember */
       .callouts {
         background: var(--card-bg);
-        padding: 28px 32px;
+        padding: 22px 28px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
       }
       .callouts h2 {
@@ -355,20 +327,20 @@
         text-transform: uppercase;
         color: var(--muted);
         font-weight: 700;
-        margin: 0 0 24px;
+        margin: 0 0 18px;
       }
       .callout-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 22px;
+        gap: 18px;
       }
       .callout {
         text-align: center;
       }
       .callout .icon {
-        width: 44px;
-        height: 44px;
-        margin: 0 auto 10px;
+        width: 40px;
+        height: 40px;
+        margin: 0 auto 8px;
         border-radius: 50%;
         background: var(--blue);
         color: #fff;
@@ -389,7 +361,7 @@
       }
 
       .footer {
-        margin-top: 32px;
+        margin-top: 24px;
         text-align: center;
         font-size: 11px;
         color: var(--muted);
@@ -445,33 +417,7 @@
         >
       </div>
 
-      <!-- Stage legend -->
-      <div class="stage-legend">
-        <span class="stage-pill"
-          ><span class="dot" style="background: var(--stage-1)"></span>Plan<span
-            class="nums"
-            >1·2</span
-          ></span
-        >
-        <span class="stage-pill"
-          ><span class="dot" style="background: var(--stage-2)"></span
-          >Build<span class="nums">3-7</span></span
-        >
-        <span class="stage-pill"
-          ><span class="dot" style="background: var(--stage-3)"></span
-          >Validate<span class="nums">8-11</span></span
-        >
-        <span class="stage-pill"
-          ><span class="dot" style="background: var(--stage-4)"></span
-          >Deliver<span class="nums">12·13</span></span
-        >
-        <span class="stage-pill"
-          ><span class="dot" style="background: var(--stage-5)"></span
-          >Monitor<span class="nums">14</span></span
-        >
-      </div>
-
-      <!-- Wheel -->
+      <!-- Wheel: thicker band, stage names ON the band, dots on outer edge, phase names just outside -->
       <div class="wheel-wrap">
         <div class="wheel">
           <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
@@ -489,340 +435,229 @@
               </marker>
             </defs>
 
-            <!-- Stage arcs at radius 220, stroke-width 40 (band r=200 to r=240) -->
-            <!-- Plan: 257.14° → 308.57° -->
+            <!-- Stage arcs at r=235, stroke-width=70 (band spans r=200 to r=270) -->
             <path
-              d="M 551.2 385.5 A 220 220 0 0 1 737.3 427.9"
+              d="M 547.8 370.9 A 235 235 0 0 1 746.6 416.2"
               fill="none"
               stroke="#c4dbf0"
-              stroke-width="40"
+              stroke-width="70"
             />
-            <!-- Build: 308.57° → 77.14° (passes 0°) -->
             <path
-              d="M 737.3 427.9 A 220 220 0 0 1 648.8 814.5"
+              d="M 746.6 416.2 A 235 235 0 0 1 652.2 829.1"
               fill="none"
               stroke="#93b8d8"
-              stroke-width="40"
+              stroke-width="70"
             />
-            <!-- Validate: 77.14° → 180° -->
             <path
-              d="M 648.8 814.5 A 220 220 0 0 1 380 600"
+              d="M 652.2 829.1 A 235 235 0 0 1 365 600"
               fill="none"
               stroke="#5e90bc"
-              stroke-width="40"
+              stroke-width="70"
             />
-            <!-- Deliver: 180° → 231.43° -->
             <path
-              d="M 380 600 A 220 220 0 0 1 462.7 427.9"
+              d="M 365 600 A 235 235 0 0 1 453.4 416.2"
               fill="none"
               stroke="#2c659a"
-              stroke-width="40"
+              stroke-width="70"
             />
-            <!-- Monitor: 231.43° → 257.14° -->
             <path
-              d="M 462.7 427.9 A 220 220 0 0 1 551.2 385.5"
+              d="M 453.4 416.2 A 235 235 0 0 1 547.8 370.9"
               fill="none"
               stroke="#1a3859"
-              stroke-width="40"
+              stroke-width="70"
             />
 
-            <!-- Phase dots at r=240, numbered -->
+            <!-- Stage labels ON the band (mid-band at r=235, midpoint angle of each stage) -->
             <g
-              font-family="Salesforce Sans, sans-serif"
-              font-size="14"
-              font-weight="700"
+              class="stage-label"
               text-anchor="middle"
+              dominant-baseline="central"
             >
-              <g>
-                <circle
-                  cx="600"
-                  cy="360"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text x="600" y="360" dominant-baseline="central" fill="#fff">
-                  1
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="704.4"
-                  cy="383.8"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="704.4"
-                  y="383.8"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  2
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="787.7"
-                  cy="450.5"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="787.7"
-                  y="450.5"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  3
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="834.0"
-                  cy="546.7"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="834.0"
-                  y="546.7"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  4
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="834.0"
-                  cy="653.3"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="834.0"
-                  y="653.3"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  5
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="787.7"
-                  cy="749.5"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="787.7"
-                  y="749.5"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  6
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="704.4"
-                  cy="816.2"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="704.4"
-                  y="816.2"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  7
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="600"
-                  cy="840"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text x="600" y="840" dominant-baseline="central" fill="#fff">
-                  8
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="495.6"
-                  cy="816.2"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="495.6"
-                  y="816.2"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  9
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="412.3"
-                  cy="749.5"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="412.3"
-                  y="749.5"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  10
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="366.0"
-                  cy="653.3"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="366.0"
-                  y="653.3"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  11
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="366.0"
-                  cy="546.7"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="366.0"
-                  y="546.7"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  12
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="412.3"
-                  cy="450.5"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="412.3"
-                  y="450.5"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  13
-                </text>
-              </g>
-              <g>
-                <circle
-                  cx="495.6"
-                  cy="383.8"
-                  r="18"
-                  fill="#181818"
-                  stroke="#fff"
-                  stroke-width="3"
-                />
-                <text
-                  x="495.6"
-                  y="383.8"
-                  dominant-baseline="central"
-                  fill="#fff"
-                >
-                  14
-                </text>
-              </g>
+              <text x="652.2" y="370.9" fill="#1a3859">PLAN</text>
+              <text x="829.1" y="652.2" fill="#0a2a47">BUILD</text>
+              <text x="453.4" y="783.8" fill="#ffffff">VALIDATE</text>
+              <text x="388.3" y="497.8" fill="#ffffff">DELIVER</text>
+              <text x="497.8" y="388.3" fill="#ffffff" font-size="14">
+                MONITOR
+              </text>
             </g>
 
-            <!-- Phase short labels (next to each dot at r=275) -->
+            <!-- Phase dots at r=290 (just outside band) -->
+            <g>
+              <circle
+                cx="600"
+                cy="310"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="600" y="310">1</text>
+              <circle
+                cx="726.2"
+                cy="338.7"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="726.2" y="338.7">2</text>
+              <circle
+                cx="826.8"
+                cy="419.3"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="826.8" y="419.3">3</text>
+              <circle
+                cx="882.8"
+                cy="535.6"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="882.8" y="535.6">4</text>
+              <circle
+                cx="882.8"
+                cy="664.4"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="882.8" y="664.4">5</text>
+              <circle
+                cx="826.8"
+                cy="780.7"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="826.8" y="780.7">6</text>
+              <circle
+                cx="726.2"
+                cy="861.3"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="726.2" y="861.3">7</text>
+              <circle
+                cx="600"
+                cy="890"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="600" y="890">8</text>
+              <circle
+                cx="473.8"
+                cy="861.3"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="473.8" y="861.3">9</text>
+              <circle
+                cx="373.2"
+                cy="780.7"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="373.2" y="780.7">10</text>
+              <circle
+                cx="317.2"
+                cy="664.4"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="317.2" y="664.4">11</text>
+              <circle
+                cx="317.2"
+                cy="535.6"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="317.2" y="535.6">12</text>
+              <circle
+                cx="373.2"
+                cy="419.3"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="373.2" y="419.3">13</text>
+              <circle
+                cx="473.8"
+                cy="338.7"
+                r="20"
+                fill="#181818"
+                stroke="#fff"
+                stroke-width="3"
+              />
+              <text class="phase-num-text" x="473.8" y="338.7">14</text>
+            </g>
+
+            <!-- Phase short names at r=345 (just outside dots) -->
             <g class="phase-label">
-              <text x="600" y="318" text-anchor="middle">Discovery</text>
+              <text x="600" y="248" text-anchor="middle">Discovery</text>
               <text
-                x="719.6"
-                y="352.3"
+                x="750.1"
+                y="289.1"
                 text-anchor="start"
                 dominant-baseline="middle"
               >
                 Spike + Story
               </text>
               <text
-                x="815.0"
-                y="428.5"
+                x="869.8"
+                y="385.1"
                 text-anchor="start"
                 dominant-baseline="middle"
               >
                 Estimation
               </text>
               <text
-                x="868.0"
-                y="538.9"
+                x="936.4"
+                y="523.4"
                 text-anchor="start"
                 dominant-baseline="middle"
               >
                 Tests
               </text>
               <text
-                x="868.0"
-                y="661.1"
+                x="936.4"
+                y="676.6"
                 text-anchor="start"
                 dominant-baseline="middle"
               >
                 Tech Analysis
               </text>
               <text
-                x="815.0"
-                y="771.5"
+                x="869.8"
+                y="814.9"
                 text-anchor="start"
                 dominant-baseline="middle"
               >
                 Development
               </text>
               <text
-                x="719.6"
-                y="847.8"
+                x="750.1"
+                y="910.9"
                 text-anchor="start"
                 dominant-baseline="middle"
               >
@@ -830,55 +665,55 @@
               </text>
               <text
                 x="600"
-                y="882"
+                y="952"
                 text-anchor="middle"
                 dominant-baseline="hanging"
               >
                 BAT
               </text>
               <text
-                x="480.4"
-                y="847.8"
+                x="449.9"
+                y="910.9"
                 text-anchor="end"
                 dominant-baseline="middle"
               >
                 Pre-E2E
               </text>
               <text
-                x="385.0"
-                y="771.5"
+                x="330.2"
+                y="814.9"
                 text-anchor="end"
                 dominant-baseline="middle"
               >
                 UAT prep
               </text>
               <text
-                x="332.0"
-                y="661.1"
+                x="263.6"
+                y="676.6"
                 text-anchor="end"
                 dominant-baseline="middle"
               >
                 Stakeholder E2E
               </text>
               <text
-                x="332.0"
-                y="538.9"
+                x="263.6"
+                y="523.4"
                 text-anchor="end"
                 dominant-baseline="middle"
               >
                 Canary
               </text>
               <text
-                x="385.0"
-                y="428.5"
+                x="330.2"
+                y="385.1"
                 text-anchor="end"
                 dominant-baseline="middle"
               >
                 Deploy
               </text>
               <text
-                x="480.4"
-                y="352.3"
+                x="449.9"
+                y="289.1"
                 text-anchor="end"
                 dominant-baseline="middle"
               >
@@ -886,58 +721,21 @@
               </text>
             </g>
 
-            <!-- Stage labels (positioned outside the wheel at stage midpoints) -->
-            <g class="stage-label">
-              <text x="675.5" y="252" text-anchor="middle" fill="#4a7fb0">
-                PLAN
-              </text>
-              <text
-                x="941.0"
-                y="675.5"
-                text-anchor="start"
-                dominant-baseline="middle"
-                fill="#3a6e9f"
-              >
-                BUILD
-              </text>
-              <text x="382.0" y="881.0" text-anchor="middle" fill="#2c5d8c">
-                VALIDATE
-              </text>
-              <text
-                x="285.5"
-                y="448.0"
-                text-anchor="end"
-                dominant-baseline="middle"
-                fill="#1e4870"
-              >
-                DELIVER
-              </text>
-              <text
-                x="448.0"
-                y="285.5"
-                text-anchor="end"
-                dominant-baseline="middle"
-                fill="#1a3859"
-              >
-                MONITOR
-              </text>
-            </g>
-
-            <!-- Center hub -->
+            <!-- Center hub (smaller, tighter) -->
             <circle
               cx="600"
               cy="600"
-              r="160"
+              r="150"
               fill="#ffffff"
               stroke="#181818"
               stroke-width="2"
             />
             <text
               x="600"
-              y="555"
+              y="565"
               text-anchor="middle"
               fill="#0176d3"
-              font-size="13"
+              font-size="12"
               font-weight="700"
               letter-spacing="3"
               font-family="Salesforce Sans, sans-serif"
@@ -946,10 +744,10 @@
             </text>
             <text
               x="600"
-              y="600"
+              y="605"
               text-anchor="middle"
               fill="#181818"
-              font-size="36"
+              font-size="32"
               font-weight="800"
               letter-spacing="-1"
               font-family="Salesforce Sans, sans-serif"
@@ -961,13 +759,11 @@
               y="630"
               text-anchor="middle"
               fill="#555"
-              font-size="13"
+              font-size="12"
               font-family="Salesforce Sans, sans-serif"
             >
               14 phases · 5 stages
             </text>
-
-            <!-- Direction arrow inside hub -->
             <path
               d="M 555 670 Q 600 695 645 670"
               fill="none"

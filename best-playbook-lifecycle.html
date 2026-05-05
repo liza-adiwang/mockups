@@ -12,10 +12,11 @@
         --line: #e3e7ed;
         --bg: #f7f9fc;
         --card-bg: #ffffff;
-        --stage-1: #b9d4ee;
-        --stage-2: #7da9d2;
-        --stage-3: #3f7cae;
-        --stage-4: #1e3a5f;
+        --stage-1: #c4dbf0; /* Plan */
+        --stage-2: #93b8d8; /* Build */
+        --stage-3: #5e90bc; /* Validate */
+        --stage-4: #2c659a; /* Deliver */
+        --stage-5: #1a3859; /* Monitor */
       }
       * {
         box-sizing: border-box;
@@ -73,7 +74,7 @@
         background: var(--card-bg);
         border-left: 4px solid var(--blue);
         padding: 16px 22px;
-        margin: 0 auto 48px;
+        margin: 0 auto 40px;
         max-width: 900px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         display: flex;
@@ -96,98 +97,12 @@
         color: var(--blue-deep);
       }
 
-      /* Wheel container — 1:1 aspect, 1200x1200 SVG viewBox */
-      .wheel-container {
-        position: relative;
-        width: 100%;
-        max-width: 1200px;
-        margin: 0 auto 64px;
-        aspect-ratio: 1 / 1;
-      }
-      .wheel-svg {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-      }
-
-      /* Phase cards positioned around wheel */
-      .phase-card {
-        position: absolute;
-        width: 21%;
-        transform: translate(-50%, -50%);
-        background: var(--card-bg);
-        border-top: 4px solid var(--c);
-        box-shadow: 0 2px 12px rgba(20, 40, 80, 0.1);
-        padding: 12px 14px 14px;
-        z-index: 2;
-      }
-      .phase-card .head {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 6px;
-      }
-      .phase-card .num {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: var(--c);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 13px;
-        flex-shrink: 0;
-      }
-      .phase-card .num.dark-text {
-        color: var(--ink);
-      }
-      .phase-card .name {
-        font-weight: 700;
-        font-size: 13.5px;
-        line-height: 1.25;
-      }
-      .phase-card .desc {
-        font-size: 11px;
-        color: var(--muted);
-        margin-bottom: 8px;
-        line-height: 1.4;
-      }
-      .phase-card .desc strong {
-        color: var(--ink);
-      }
-      .phase-card .skills {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-      }
-      .chip {
-        font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
-        font-size: 10px;
-        background: #f3f5f8;
-        border: 1px solid var(--line);
-        padding: 1px 5px;
-        border-radius: 3px;
-        color: var(--blue);
-        line-height: 1.4;
-      }
-      .chip.muted {
-        color: var(--muted);
-        font-style: italic;
-        font-family: inherit;
-        border-style: dashed;
-        background: transparent;
-      }
-
-      /* Stage legend pill */
+      /* Stage legend */
       .stage-legend {
         display: flex;
         justify-content: center;
-        gap: 24px;
-        margin-bottom: 48px;
+        gap: 28px;
+        margin-bottom: 40px;
         flex-wrap: wrap;
       }
       .stage-pill {
@@ -211,6 +126,136 @@
         letter-spacing: 0;
         color: var(--muted);
         margin-left: 4px;
+      }
+
+      /* Wheel */
+      .wheel-wrap {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 56px;
+      }
+      .wheel {
+        width: 100%;
+        max-width: 700px;
+        aspect-ratio: 1 / 1;
+      }
+      .wheel svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Stage cards row */
+      .stages {
+        display: grid;
+        grid-template-columns: 2fr 5fr 4fr 2fr 1fr;
+        gap: 14px;
+        margin-bottom: 56px;
+      }
+      .stage-card {
+        background: var(--card-bg);
+        border-top: 5px solid var(--c);
+        box-shadow: 0 2px 10px rgba(20, 40, 80, 0.06);
+        padding: 18px 16px 18px;
+        display: flex;
+        flex-direction: column;
+      }
+      .stage-card .head {
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+        border-bottom: 1px dashed var(--line);
+      }
+      .stage-card .stage-num {
+        display: inline-block;
+        background: var(--c);
+        color: #fff;
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 2px;
+        margin-bottom: 6px;
+      }
+      .stage-card .stage-num.dark-text {
+        color: var(--ink);
+      }
+      .stage-card .stage-name {
+        font-size: 17px;
+        font-weight: 800;
+        margin: 0;
+      }
+      .phase-row {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 10px;
+        align-items: start;
+        padding: 10px 0;
+      }
+      .phase-row + .phase-row {
+        border-top: 1px dotted var(--line);
+      }
+      .phase-row .num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--c);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      .phase-row .num.dark-text {
+        color: var(--ink);
+      }
+      .phase-row .body {
+        padding-top: 3px;
+      }
+      .phase-row .name {
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.25;
+        margin-bottom: 4px;
+      }
+      .phase-row .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+      }
+      .chip {
+        font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+        font-size: 9.5px;
+        background: #f3f5f8;
+        border: 1px solid var(--line);
+        padding: 1px 5px;
+        border-radius: 3px;
+        color: var(--blue);
+        line-height: 1.4;
+      }
+      .status-pill {
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 3px;
+        background: #e8f1ff;
+        color: var(--blue-deep);
+      }
+      .status-pill.green {
+        background: #e6f4ea;
+        color: #1a6e3e;
+      }
+      .status-pill.yellow {
+        background: #fff4d6;
+        color: #8a6500;
+      }
+      .status-pill.blue {
+        background: #e8f1ff;
+        color: var(--blue-deep);
       }
 
       /* BAU stripe */
@@ -257,7 +302,7 @@
       }
       .bau-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 16px;
       }
       .bau-item {
@@ -342,42 +387,21 @@
         text-decoration: none;
       }
 
-      /* Ribbon */
-      .ribbon {
-        position: fixed;
-        top: 18px;
-        right: -42px;
-        background: var(--blue);
-        color: #fff;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.18em;
-        padding: 4px 50px;
-        transform: rotate(45deg);
-        z-index: 99;
-      }
-
-      /* Mobile fallback — stack the wheel as cards in a column */
-      @media (max-width: 900px) {
-        .wheel-container {
-          aspect-ratio: auto;
+      @media (max-width: 1100px) {
+        .stages {
+          grid-template-columns: 1fr 1fr;
         }
-        .wheel-svg {
-          display: none;
+        .bau-grid {
+          grid-template-columns: 1fr;
         }
-        .phase-card {
-          position: static;
-          transform: none;
-          width: 100%;
-          margin-bottom: 14px;
-        }
-        .bau-grid,
         .callout-grid {
-          grid-template-columns: repeat(2, 1fr);
+          grid-template-columns: 1fr 1fr;
         }
       }
       @media (max-width: 600px) {
-        .bau-grid,
+        .stages {
+          grid-template-columns: 1fr;
+        }
         .callout-grid {
           grid-template-columns: 1fr;
         }
@@ -386,20 +410,16 @@
         body {
           background: #fff;
         }
-        .ribbon {
-          display: none;
-        }
       }
     </style>
   </head>
   <body>
-    <div class="ribbon">v1</div>
     <div class="page">
       <header class="header">
         <div class="eyebrow">BEST Team Playbook</div>
         <h1>Delivery Lifecycle</h1>
         <div class="subtitle">
-          From discovery to monitoring · 9 phases · 4 stages
+          From discovery to monitoring · 14 phases · 5 stages
         </div>
       </header>
 
@@ -415,402 +435,558 @@
       <!-- Stage legend -->
       <div class="stage-legend">
         <span class="stage-pill"
-          ><span class="dot" style="background: #b9d4ee"></span>Plan<span
+          ><span class="dot" style="background: var(--stage-1)"></span>Plan<span
             class="nums"
             >1·2</span
           ></span
         >
         <span class="stage-pill"
-          ><span class="dot" style="background: #7da9d2"></span>Build<span
-            class="nums"
-            >3·4</span
-          ></span
+          ><span class="dot" style="background: var(--stage-2)"></span
+          >Build<span class="nums">3-7</span></span
         >
         <span class="stage-pill"
-          ><span class="dot" style="background: #3f7cae"></span>Validate<span
-            class="nums"
-            >5·6·7</span
-          ></span
+          ><span class="dot" style="background: var(--stage-3)"></span
+          >Validate<span class="nums">8-11</span></span
         >
         <span class="stage-pill"
-          ><span class="dot" style="background: #1e3a5f"></span>Deliver &amp;
-          Monitor<span class="nums">8·9</span></span
+          ><span class="dot" style="background: var(--stage-4)"></span
+          >Deliver<span class="nums">12·13</span></span
+        >
+        <span class="stage-pill"
+          ><span class="dot" style="background: var(--stage-5)"></span
+          >Monitor<span class="nums">14</span></span
         >
       </div>
 
-      <!-- Wheel + radiating phase cards -->
-      <div class="wheel-container">
-        <!-- SVG: stage arcs, phase dots, connector lines, hub -->
-        <svg
-          class="wheel-svg"
-          viewBox="0 0 1200 1200"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <marker
-              id="arrowhead"
-              viewBox="0 0 10 10"
-              refX="8"
-              refY="5"
-              markerWidth="8"
-              markerHeight="8"
-              orient="auto"
+      <!-- Wheel -->
+      <div class="wheel-wrap">
+        <div class="wheel">
+          <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker
+                id="arrowhead"
+                viewBox="0 0 10 10"
+                refX="8"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#0176d3" />
+              </marker>
+            </defs>
+
+            <!-- Stage arcs at radius 220, stroke-width 40 (band r=200 to r=240) -->
+            <!-- Plan: 257.14° → 308.57° -->
+            <path
+              d="M 551.2 385.5 A 220 220 0 0 1 737.3 427.9"
+              fill="none"
+              stroke="#c4dbf0"
+              stroke-width="40"
+            />
+            <!-- Build: 308.57° → 77.14° (passes 0°) -->
+            <path
+              d="M 737.3 427.9 A 220 220 0 0 1 648.8 814.5"
+              fill="none"
+              stroke="#93b8d8"
+              stroke-width="40"
+            />
+            <!-- Validate: 77.14° → 180° -->
+            <path
+              d="M 648.8 814.5 A 220 220 0 0 1 380 600"
+              fill="none"
+              stroke="#5e90bc"
+              stroke-width="40"
+            />
+            <!-- Deliver: 180° → 231.43° -->
+            <path
+              d="M 380 600 A 220 220 0 0 1 462.7 427.9"
+              fill="none"
+              stroke="#2c659a"
+              stroke-width="40"
+            />
+            <!-- Monitor: 231.43° → 257.14° -->
+            <path
+              d="M 462.7 427.9 A 220 220 0 0 1 551.2 385.5"
+              fill="none"
+              stroke="#1a3859"
+              stroke-width="40"
+            />
+
+            <!-- Phase dots at r=240, numbered -->
+            <g
+              font-family="Salesforce Sans, sans-serif"
+              font-size="14"
+              font-weight="700"
+              text-anchor="middle"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#0176d3" />
-            </marker>
-          </defs>
+              <g>
+                <circle
+                  cx="600"
+                  cy="360"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text x="600" y="360" dominant-baseline="central" fill="#fff">
+                  1
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="704.4"
+                  cy="383.8"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="704.4"
+                  y="383.8"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  2
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="787.7"
+                  cy="450.5"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="787.7"
+                  y="450.5"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  3
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="834.0"
+                  cy="546.7"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="834.0"
+                  y="546.7"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  4
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="834.0"
+                  cy="653.3"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="834.0"
+                  y="653.3"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  5
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="787.7"
+                  cy="749.5"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="787.7"
+                  y="749.5"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  6
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="704.4"
+                  cy="816.2"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="704.4"
+                  y="816.2"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  7
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="600"
+                  cy="840"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text x="600" y="840" dominant-baseline="central" fill="#fff">
+                  8
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="495.6"
+                  cy="816.2"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="495.6"
+                  y="816.2"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  9
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="412.3"
+                  cy="749.5"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="412.3"
+                  y="749.5"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  10
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="366.0"
+                  cy="653.3"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="366.0"
+                  y="653.3"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  11
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="366.0"
+                  cy="546.7"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="366.0"
+                  y="546.7"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  12
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="412.3"
+                  cy="450.5"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="412.3"
+                  y="450.5"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  13
+                </text>
+              </g>
+              <g>
+                <circle
+                  cx="495.6"
+                  cy="383.8"
+                  r="18"
+                  fill="#181818"
+                  stroke="#fff"
+                  stroke-width="3"
+                />
+                <text
+                  x="495.6"
+                  y="383.8"
+                  dominant-baseline="central"
+                  fill="#fff"
+                >
+                  14
+                </text>
+              </g>
+            </g>
 
-          <!-- Stage arcs at radius 220, stroke-width 40 → ring spans r=200 to r=240 -->
-          <!-- Stage 1 PLAN: 250° → 330° -->
-          <path
-            d="M 524.7 393.2 A 220 220 0 0 1 790.5 490"
-            fill="none"
-            stroke="#b9d4ee"
-            stroke-width="40"
-            stroke-linecap="butt"
-          />
-          <!-- Stage 2 BUILD: 330° → 50° (crosses 0°) -->
-          <path
-            d="M 790.5 490 A 220 220 0 0 1 741.4 768.5"
-            fill="none"
-            stroke="#7da9d2"
-            stroke-width="40"
-            stroke-linecap="butt"
-          />
-          <!-- Stage 3 VALIDATE: 50° → 170° -->
-          <path
-            d="M 741.4 768.5 A 220 220 0 0 1 383.3 638.3"
-            fill="none"
-            stroke="#3f7cae"
-            stroke-width="40"
-            stroke-linecap="butt"
-          />
-          <!-- Stage 4 DELIVER & MONITOR: 170° → 250° -->
-          <path
-            d="M 383.3 638.3 A 220 220 0 0 1 524.7 393.2"
-            fill="none"
-            stroke="#1e3a5f"
-            stroke-width="40"
-            stroke-linecap="butt"
-          />
-
-          <!-- Connector lines (from phase dots at r=240 outward to r=370) -->
-          <g stroke="#9aa3ad" stroke-width="1.5" stroke-dasharray="2 4">
-            <line x1="600" y1="360" x2="600" y2="230" />
-            <line x1="754.3" y1="416.1" x2="837.9" y2="316.6" />
-            <line x1="836.3" y1="558.3" x2="964.4" y2="535.7" />
-            <line x1="807.8" y1="720" x2="920.4" y2="785" />
-            <line x1="682.1" y1="825.5" x2="726.5" y2="947.7" />
-            <line x1="517.9" y1="825.5" x2="473.5" y2="947.7" />
-            <line x1="392.2" y1="720" x2="279.6" y2="785" />
-            <line x1="363.7" y1="558.3" x2="235.6" y2="535.7" />
-            <line x1="445.7" y1="416.1" x2="362.1" y2="316.6" />
-          </g>
-
-          <!-- Phase dots at r=240 — small filled circles with phase number -->
-          <g>
-            <circle cx="600" cy="360" r="18" fill="#181818" />
+            <!-- Center hub -->
+            <circle
+              cx="600"
+              cy="600"
+              r="160"
+              fill="#ffffff"
+              stroke="#181818"
+              stroke-width="2"
+            />
             <text
               x="600"
-              y="360"
+              y="555"
               text-anchor="middle"
-              dominant-baseline="central"
-              fill="#fff"
-              font-size="14"
+              fill="#0176d3"
+              font-size="13"
               font-weight="700"
+              letter-spacing="3"
               font-family="Salesforce Sans, sans-serif"
             >
-              1
+              RELEASE
             </text>
-
-            <circle cx="754.3" cy="416.1" r="18" fill="#181818" />
             <text
-              x="754.3"
-              y="416.1"
+              x="600"
+              y="600"
               text-anchor="middle"
-              dominant-baseline="central"
-              fill="#fff"
-              font-size="14"
-              font-weight="700"
+              fill="#181818"
+              font-size="36"
+              font-weight="800"
+              letter-spacing="-1"
               font-family="Salesforce Sans, sans-serif"
             >
-              2
+              LIFECYCLE
             </text>
-
-            <circle cx="836.3" cy="558.3" r="18" fill="#181818" />
             <text
-              x="836.3"
-              y="558.3"
+              x="600"
+              y="630"
               text-anchor="middle"
-              dominant-baseline="central"
-              fill="#fff"
-              font-size="14"
-              font-weight="700"
+              fill="#555"
+              font-size="13"
               font-family="Salesforce Sans, sans-serif"
             >
-              3
+              14 phases · 5 stages
             </text>
 
-            <circle cx="807.8" cy="720" r="18" fill="#181818" />
-            <text
-              x="807.8"
-              y="720"
-              text-anchor="middle"
-              dominant-baseline="central"
-              fill="#fff"
-              font-size="14"
-              font-weight="700"
-              font-family="Salesforce Sans, sans-serif"
-            >
-              4
-            </text>
+            <!-- Direction arrow inside hub -->
+            <path
+              d="M 555 670 Q 600 695 645 670"
+              fill="none"
+              stroke="#0176d3"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              marker-end="url(#arrowhead)"
+            />
+          </svg>
+        </div>
+      </div>
 
-            <circle cx="682.1" cy="825.5" r="18" fill="#181818" />
-            <text
-              x="682.1"
-              y="825.5"
-              text-anchor="middle"
-              dominant-baseline="central"
-              fill="#fff"
-              font-size="14"
-              font-weight="700"
-              font-family="Salesforce Sans, sans-serif"
-            >
-              5
-            </text>
-
-            <circle cx="517.9" cy="825.5" r="18" fill="#181818" />
-            <text
-              x="517.9"
-              y="825.5"
-              text-anchor="middle"
-              dominant-baseline="central"
-              fill="#fff"
-              font-size="14"
-              font-weight="700"
-              font-family="Salesforce Sans, sans-serif"
-            >
-              6
-            </text>
-
-            <circle cx="392.2" cy="720" r="18" fill="#181818" />
-            <text
-              x="392.2"
-              y="720"
-              text-anchor="middle"
-              dominant-baseline="central"
-              fill="#fff"
-              font-size="14"
-              font-weight="700"
-              font-family="Salesforce Sans, sans-serif"
-            >
-              7
-            </text>
-
-            <circle cx="363.7" cy="558.3" r="18" fill="#181818" />
-            <text
-              x="363.7"
-              y="558.3"
-              text-anchor="middle"
-              dominant-baseline="central"
-              fill="#fff"
-              font-size="14"
-              font-weight="700"
-              font-family="Salesforce Sans, sans-serif"
-            >
-              8
-            </text>
-
-            <circle cx="445.7" cy="416.1" r="18" fill="#181818" />
-            <text
-              x="445.7"
-              y="416.1"
-              text-anchor="middle"
-              dominant-baseline="central"
-              fill="#fff"
-              font-size="14"
-              font-weight="700"
-              font-family="Salesforce Sans, sans-serif"
-            >
-              9
-            </text>
-          </g>
-
-          <!-- Center hub -->
-          <circle
-            cx="600"
-            cy="600"
-            r="160"
-            fill="#ffffff"
-            stroke="#181818"
-            stroke-width="2"
-          />
-          <text
-            x="600"
-            y="555"
-            text-anchor="middle"
-            fill="#0176d3"
-            font-size="13"
-            font-weight="700"
-            letter-spacing="3"
-            font-family="Salesforce Sans, sans-serif"
-          >
-            RELEASE
-          </text>
-          <text
-            x="600"
-            y="600"
-            text-anchor="middle"
-            fill="#181818"
-            font-size="36"
-            font-weight="800"
-            letter-spacing="-1"
-            font-family="Salesforce Sans, sans-serif"
-          >
-            LIFECYCLE
-          </text>
-          <text
-            x="600"
-            y="630"
-            text-anchor="middle"
-            fill="#555"
-            font-size="13"
-            font-family="Salesforce Sans, sans-serif"
-          >
-            9 phases · 1 fix version
-          </text>
-
-          <!-- Cycle direction arrow inside hub -->
-          <path
-            d="M 555 670 Q 600 695 645 670"
-            fill="none"
-            stroke="#0176d3"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            marker-end="url(#arrowhead)"
-          />
-        </svg>
-
-        <!-- Phase 1: top centre (50%, 13.3%) -->
-        <div class="phase-card" style="--c: #b9d4ee; left: 50%; top: 13.3%">
+      <!-- Stage cards (5 columns, sized by phase count) -->
+      <div class="stages">
+        <!-- STAGE 1: PLAN -->
+        <div class="stage-card" style="--c: var(--stage-1)">
           <div class="head">
+            <span class="stage-num dark-text">Stage 1</span>
+            <h3 class="stage-name">Plan</h3>
+          </div>
+          <div class="phase-row">
             <div class="num dark-text">1</div>
-            <div class="name">Discovery</div>
+            <div class="body">
+              <div class="name">Discovery</div>
+              <div class="meta"><span class="chip">/best-mockup</span></div>
+            </div>
           </div>
-          <div class="desc">
-            Calls, mockups, whiteboards. Aim for sign-off — but don't wait for
-            it to start.
-          </div>
-          <div class="skills"><span class="chip">/best-mockup</span></div>
-        </div>
-
-        <!-- Phase 2: upper right (73.6%, 21.9%) -->
-        <div class="phase-card" style="--c: #b9d4ee; left: 73.6%; top: 21.9%">
-          <div class="head">
+          <div class="phase-row">
             <div class="num dark-text">2</div>
-            <div class="name">Spike + Story creation</div>
-          </div>
-          <div class="desc">
-            <strong>Fix version defined.</strong> RKD created and updated
-            continuously.
-          </div>
-          <div class="skills">
-            <span class="chip">/create-spike</span>
-            <span class="chip">/create-user-story</span>
-            <span class="chip">/release-kickoff</span>
-            <span class="chip">/update-rkd</span>
+            <div class="body">
+              <div class="name">Spike + Story creation</div>
+              <div class="meta">
+                <span class="chip">/create-spike</span>
+                <span class="chip">/create-user-story</span>
+                <span class="chip">/release-kickoff</span>
+                <span class="chip">/update-rkd</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Phase 3: right (86.1%, 43.6%) -->
-        <div class="phase-card" style="--c: #7da9d2; left: 86.1%; top: 43.6%">
+        <!-- STAGE 2: BUILD -->
+        <div class="stage-card" style="--c: var(--stage-2)">
           <div class="head">
+            <span class="stage-num">Stage 2</span>
+            <h3 class="stage-name">Build</h3>
+          </div>
+          <div class="phase-row">
             <div class="num">3</div>
-            <div class="name">Estimation</div>
+            <div class="body">
+              <div class="name">Estimation</div>
+              <div class="meta"><span class="chip">/estimation</span></div>
+            </div>
           </div>
-          <div class="desc">
-            Release owner runs an estimation meeting using a shared sheet.
-          </div>
-          <div class="skills"><span class="chip">/estimation</span></div>
-        </div>
-
-        <!-- Phase 4: lower right (81.75%, 68.3%) -->
-        <div class="phase-card" style="--c: #7da9d2; left: 81.75%; top: 68.3%">
-          <div class="head">
+          <div class="phase-row">
             <div class="num">4</div>
-            <div class="name">Test scenarios</div>
+            <div class="body">
+              <div class="name">Test scenarios</div>
+              <div class="meta">
+                <span class="chip">/create-test-scenarios</span>
+                <span class="chip">/regression-tests</span>
+              </div>
+            </div>
           </div>
-          <div class="desc">
-            E2E scenarios written in parallel with engineering.
-          </div>
-          <div class="skills">
-            <span class="chip">/create-test-scenarios</span>
-            <span class="chip">/regression-tests</span>
-          </div>
-        </div>
-
-        <!-- Phase 5: bottom right (62.5%, 84.5%) -->
-        <div class="phase-card" style="--c: #3f7cae; left: 62.5%; top: 84.5%">
-          <div class="head">
+          <div class="phase-row">
             <div class="num">5</div>
-            <div class="name">Pre-E2E (two parts)</div>
+            <div class="body">
+              <div class="name">Tech Analysis &amp; Kickoff</div>
+              <div class="meta">
+                <span class="chip">tech-analysis</span>
+                <span class="status-pill blue">Tech Analysis</span>
+              </div>
+            </div>
           </div>
-          <div class="desc">
-            5a: with engineering team. 5b: with PM (Christine), before
-            stakeholders.
-          </div>
-          <div class="skills"><span class="chip muted">no skill</span></div>
-        </div>
-
-        <!-- Phase 6: bottom left (37.5%, 84.5%) -->
-        <div class="phase-card" style="--c: #3f7cae; left: 37.5%; top: 84.5%">
-          <div class="head">
+          <div class="phase-row">
             <div class="num">6</div>
-            <div class="name">UAT preparation</div>
+            <div class="body">
+              <div class="name">Development</div>
+              <div class="meta">
+                <span class="status-pill yellow">In Development</span>
+              </div>
+            </div>
           </div>
-          <div class="desc">
-            UAT page from the test sheet, rewritten for stakeholders.
-          </div>
-          <div class="skills"><span class="chip">/create-uat</span></div>
-        </div>
-
-        <!-- Phase 7: lower left (18.25%, 68.3%) -->
-        <div class="phase-card" style="--c: #3f7cae; left: 18.25%; top: 68.3%">
-          <div class="head">
+          <div class="phase-row">
             <div class="num">7</div>
-            <div class="name">E2E with stakeholder</div>
+            <div class="body">
+              <div class="name">Peer Review</div>
+              <div class="meta">
+                <span class="status-pill blue">Peer Review</span>
+              </div>
+            </div>
           </div>
-          <div class="desc">
-            Live walkthrough, then UAT page handed over to execute and sign off.
-          </div>
-          <div class="skills"><span class="chip muted">no skill</span></div>
         </div>
 
-        <!-- Phase 8: left (13.9%, 43.6%) -->
-        <div class="phase-card" style="--c: #1e3a5f; left: 13.9%; top: 43.6%">
+        <!-- STAGE 3: VALIDATE -->
+        <div class="stage-card" style="--c: var(--stage-3)">
           <div class="head">
+            <span class="stage-num">Stage 3</span>
+            <h3 class="stage-name">Validate</h3>
+          </div>
+          <div class="phase-row">
             <div class="num">8</div>
-            <div class="name">Release</div>
+            <div class="body">
+              <div class="name">BAT (Business Acceptance Testing)</div>
+              <div class="meta"><span class="status-pill blue">BAT</span></div>
+            </div>
           </div>
-          <div class="desc">
-            Release notes sent ahead. Internal and stakeholder Slack drafts.
+          <div class="phase-row">
+            <div class="num">9</div>
+            <div class="body">
+              <div class="name">Pre-E2E (two parts)</div>
+              <div class="meta">
+                <span
+                  class="chip"
+                  style="
+                    font-style: italic;
+                    color: var(--muted);
+                    font-family: inherit;
+                  "
+                  >9a Engineering · 9b Product Team</span
+                >
+              </div>
+            </div>
           </div>
-          <div class="skills">
-            <span class="chip">/create-release-notes</span>
-            <span class="chip">/release-announcement</span>
+          <div class="phase-row">
+            <div class="num">10</div>
+            <div class="body">
+              <div class="name">UAT preparation</div>
+              <div class="meta"><span class="chip">/create-uat</span></div>
+            </div>
+          </div>
+          <div class="phase-row">
+            <div class="num">11</div>
+            <div class="body">
+              <div class="name">Stakeholder E2E + sign-off</div>
+            </div>
           </div>
         </div>
 
-        <!-- Phase 9: upper left (26.4%, 21.9%) -->
-        <div class="phase-card" style="--c: #1e3a5f; left: 26.4%; top: 21.9%">
+        <!-- STAGE 4: DELIVER -->
+        <div class="stage-card" style="--c: var(--stage-4)">
           <div class="head">
-            <div class="num">9</div>
-            <div class="name">Post-release monitoring</div>
+            <span class="stage-num">Stage 4</span>
+            <h3 class="stage-name">Deliver</h3>
           </div>
-          <div class="desc">
-            Report and SLO tracking. Bugs flow into BAU PSR triage.
+          <div class="phase-row">
+            <div class="num">12</div>
+            <div class="body">
+              <div class="name">Canary + Production UAT</div>
+              <div class="meta">
+                <span class="chip">/create-release-notes</span>
+                <span class="status-pill yellow">Ready for Release</span>
+              </div>
+            </div>
           </div>
-          <div class="skills"><span class="chip muted">no skill</span></div>
+          <div class="phase-row">
+            <div class="num">13</div>
+            <div class="body">
+              <div class="name">Full Deployment</div>
+              <div class="meta">
+                <span class="status-pill green">Closed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STAGE 5: MONITOR -->
+        <div class="stage-card" style="--c: var(--stage-5)">
+          <div class="head">
+            <span class="stage-num">Stage 5</span>
+            <h3 class="stage-name">Monitor</h3>
+          </div>
+          <div class="phase-row">
+            <div class="num">14</div>
+            <div class="body">
+              <div class="name">Post-release monitoring</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -838,13 +1014,6 @@
             </div>
           </div>
           <div class="bau-item">
-            <div class="name">/bva</div>
-            <div class="freq">Daily 17:00 VN</div>
-            <div class="purpose">
-              BVA team summary draft posted to #best-trials-and-alex.
-            </div>
-          </div>
-          <div class="bau-item">
             <div class="name">/create-showcase</div>
             <div class="freq">Monthly</div>
             <div class="purpose">
@@ -866,33 +1035,34 @@
             </div>
           </div>
           <div class="callout">
-            <div class="icon">↻</div>
-            <div class="head">RKD ties it together</div>
-            <div class="body">
-              Per-release artefact spanning phases 2 → 9 for one fix version.
-            </div>
-          </div>
-          <div class="callout">
             <div class="icon">2</div>
             <div class="head">Pre-E2E is two parts</div>
             <div class="body">
-              First with engineering, then with PM Christine before any
+              First with engineering, then with the Product Team before any
               stakeholder sees it.
+            </div>
+          </div>
+          <div class="callout">
+            <div class="icon">→</div>
+            <div class="head">Release notes go before deploy</div>
+            <div class="body">
+              Product Team drafts during UAT and sends to stakeholders before
+              full release so teams can be briefed.
             </div>
           </div>
           <div class="callout">
             <div class="icon">∞</div>
             <div class="head">BAU runs in parallel</div>
             <div class="body">
-              PSR triage, bug logging, BVA, and the showcase are independent of
-              any release.
+              PSR triage, bug logging, and the monthly showcase are independent
+              of any release.
             </div>
           </div>
         </div>
       </div>
 
       <div class="footer">
-        BEST Team · v1 · Will evolve as new skills are adopted ·
+        BEST Team ·
         <a
           href="https://hipagesgroup.atlassian.net/wiki/spaces/BTS/pages/4197318752/BEST+Discovery+and+Delivery+Playbook"
           target="_blank"

@@ -12,11 +12,11 @@
         --line: #e3e7ed;
         --bg: #f7f9fc;
         --card-bg: #ffffff;
-        --stage-1: #c4dbf0; /* Plan */
-        --stage-2: #93b8d8; /* Build */
-        --stage-3: #5e90bc; /* Validate */
-        --stage-4: #2c659a; /* Deliver */
-        --stage-5: #1a3859; /* Monitor */
+        --stage-1: #c4dbf0;
+        --stage-2: #93b8d8;
+        --stage-3: #5e90bc;
+        --stage-4: #2c659a;
+        --stage-5: #1a3859;
       }
       * {
         box-sizing: border-box;
@@ -39,14 +39,14 @@
         -webkit-font-smoothing: antialiased;
       }
       .page {
-        max-width: 1320px;
+        max-width: 1500px;
         margin: 0 auto;
-        padding: 36px 24px 48px;
+        padding: 36px 20px 48px;
       }
 
       .header {
         text-align: center;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
       }
       .header .eyebrow {
         font-size: 11px;
@@ -57,7 +57,7 @@
         margin-bottom: 6px;
       }
       .header h1 {
-        font-size: 34px;
+        font-size: 32px;
         font-weight: 800;
         margin: 0 0 4px;
         letter-spacing: -0.02em;
@@ -68,38 +68,11 @@
         color: var(--muted);
       }
 
-      .principle {
-        background: var(--card-bg);
-        border-left: 4px solid var(--blue);
-        padding: 12px 18px;
-        margin: 0 auto 24px;
-        max-width: 900px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-      .principle .label {
-        font-size: 10px;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        color: var(--blue);
-        font-weight: 700;
-        white-space: nowrap;
-      }
-      .principle .text {
-        font-size: 13px;
-        color: var(--ink);
-      }
-      .principle .text strong {
-        color: var(--blue-deep);
-      }
-
       .stage-legend {
         display: flex;
         justify-content: center;
         gap: 22px;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         flex-wrap: wrap;
       }
       .stage-pill {
@@ -125,95 +98,39 @@
         margin-left: 4px;
       }
 
-      /* Wheel — bigger, denser, no stage labels on band */
-      .wheel-wrap {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 32px;
-      }
-      .wheel {
+      /* Wheel container — wheel + cards positioned absolutely around it */
+      .wheel-container {
+        position: relative;
         width: 100%;
-        max-width: 1000px;
+        max-width: 1450px;
+        margin: 0 auto 32px;
         aspect-ratio: 1 / 1;
       }
-      .wheel svg {
-        display: block;
+      .wheel-svg {
+        position: absolute;
+        inset: 0;
         width: 100%;
         height: 100%;
       }
-      .wheel svg .stage-label {
-        font-family: "Salesforce Sans", sans-serif;
-        font-size: 22px;
-        font-weight: 800;
-        letter-spacing: 0.22em;
-      }
-      .wheel svg .phase-label {
-        font-family: "Salesforce Sans", sans-serif;
-        font-size: 14px;
-        font-weight: 600;
-        fill: var(--ink);
-      }
-      .wheel svg .phase-num-text {
-        font-family: "Salesforce Sans", sans-serif;
-        font-size: 14px;
-        font-weight: 700;
-        fill: #fff;
-        text-anchor: middle;
-        dominant-baseline: central;
-      }
-
-      /* Stage cards row */
-      .stages {
-        display: grid;
-        grid-template-columns: 2fr 5fr 4fr 2fr 1.5fr;
-        gap: 12px;
-        margin-bottom: 36px;
-      }
-      .stage-card {
+      .phase-card {
+        position: absolute;
+        width: 16%;
+        transform: translate(-50%, -50%);
         background: var(--card-bg);
-        border-top: 5px solid var(--c);
-        box-shadow: 0 2px 10px rgba(20, 40, 80, 0.06);
-        padding: 14px 14px 14px;
+        border-top: 3px solid var(--c);
+        box-shadow: 0 2px 10px rgba(20, 40, 80, 0.1);
+        padding: 10px 12px 12px;
+        z-index: 2;
+      }
+      .phase-card .head {
         display: flex;
-        flex-direction: column;
-      }
-      .stage-card .head {
-        margin-bottom: 10px;
-        padding-bottom: 8px;
-        border-bottom: 1px dashed var(--line);
-      }
-      .stage-card .stage-num {
-        display: inline-block;
-        background: var(--c);
-        color: #fff;
-        font-size: 9px;
-        letter-spacing: 0.2em;
-        font-weight: 700;
-        padding: 2px 7px;
-        border-radius: 2px;
-        margin-bottom: 4px;
-      }
-      .stage-card .stage-num.dark-text {
-        color: var(--ink);
-      }
-      .stage-card .stage-name {
-        font-size: 16px;
-        font-weight: 800;
-        margin: 0;
-      }
-      .phase-row {
-        display: grid;
-        grid-template-columns: 26px 1fr;
+        align-items: center;
         gap: 8px;
-        align-items: start;
-        padding: 8px 0;
+        margin-bottom: 6px;
       }
-      .phase-row + .phase-row {
-        border-top: 1px dotted var(--line);
-      }
-      .phase-row .num {
-        width: 26px;
-        height: 26px;
+      .phase-card .num {
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
         background: var(--c);
         color: #fff;
@@ -221,22 +138,27 @@
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        font-size: 12px;
+        font-size: 11px;
         flex-shrink: 0;
       }
-      .phase-row .num.dark-text {
+      .phase-card .num.dark-text {
         color: var(--ink);
       }
-      .phase-row .body {
-        padding-top: 2px;
-      }
-      .phase-row .name {
-        font-size: 12.5px;
+      .phase-card .name {
         font-weight: 700;
+        font-size: 12px;
         line-height: 1.2;
-        margin-bottom: 4px;
       }
-      .phase-row .meta {
+      .phase-card .desc {
+        font-size: 10.5px;
+        color: var(--muted);
+        margin-bottom: 6px;
+        line-height: 1.35;
+      }
+      .phase-card .desc strong {
+        color: var(--ink);
+      }
+      .phase-card .meta {
         display: flex;
         flex-wrap: wrap;
         gap: 4px;
@@ -252,12 +174,19 @@
         color: var(--blue);
         line-height: 1.4;
       }
+      .chip.muted {
+        color: var(--muted);
+        font-style: italic;
+        font-family: inherit;
+        border-style: dashed;
+        background: transparent;
+      }
       .status-pill {
-        font-size: 9px;
+        font-size: 8.5px;
         letter-spacing: 0.1em;
         text-transform: uppercase;
         font-weight: 700;
-        padding: 1px 6px;
+        padding: 1px 5px;
         border-radius: 3px;
         background: #e8f1ff;
         color: var(--blue-deep);
@@ -402,9 +331,21 @@
         text-decoration: none;
       }
 
+      /* Mobile fallback — stack cards vertically */
       @media (max-width: 1100px) {
-        .stages {
-          grid-template-columns: 1fr 1fr;
+        .wheel-container {
+          aspect-ratio: auto;
+          max-width: 700px;
+        }
+        .wheel-svg {
+          position: relative;
+          height: 700px;
+        }
+        .phase-card {
+          position: static;
+          transform: none;
+          width: 100%;
+          margin-bottom: 12px;
         }
         .bau-grid {
           grid-template-columns: 1fr;
@@ -414,9 +355,6 @@
         }
       }
       @media (max-width: 600px) {
-        .stages {
-          grid-template-columns: 1fr;
-        }
         .callout-grid {
           grid-template-columns: 1fr;
         }
@@ -461,516 +399,521 @@
         >
       </div>
 
-      <!-- Wheel: thicker band, dots on outer edge, phase names just outside, stage legend above -->
-      <div class="wheel-wrap">
-        <div class="wheel">
-          <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <marker
-                id="arrowhead"
-                viewBox="0 0 10 10"
-                refX="8"
-                refY="5"
-                markerWidth="8"
-                markerHeight="8"
-                orient="auto"
-              >
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="#0176d3" />
-              </marker>
-            </defs>
+      <!-- Wheel + cards around it -->
+      <div class="wheel-container">
+        <svg
+          class="wheel-svg"
+          viewBox="0 0 1700 1700"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <marker
+              id="arrowhead"
+              viewBox="0 0 10 10"
+              refX="8"
+              refY="5"
+              markerWidth="8"
+              markerHeight="8"
+              orient="auto"
+            >
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#0176d3" />
+            </marker>
+          </defs>
 
-            <!-- Stage arcs at r=235, stroke-width=70 (band spans r=200 to r=270) -->
-            <path
-              d="M 547.8 370.9 A 235 235 0 0 1 746.6 416.2"
-              fill="none"
-              stroke="#c4dbf0"
-              stroke-width="70"
-            />
-            <path
-              d="M 746.6 416.2 A 235 235 0 0 1 652.2 829.1"
-              fill="none"
-              stroke="#93b8d8"
-              stroke-width="70"
-            />
-            <path
-              d="M 652.2 829.1 A 235 235 0 0 1 365 600"
-              fill="none"
-              stroke="#5e90bc"
-              stroke-width="70"
-            />
-            <path
-              d="M 365 600 A 235 235 0 0 1 453.4 416.2"
-              fill="none"
-              stroke="#2c659a"
-              stroke-width="70"
-            />
-            <path
-              d="M 453.4 416.2 A 235 235 0 0 1 547.8 370.9"
-              fill="none"
-              stroke="#1a3859"
-              stroke-width="70"
-            />
+          <!-- Stage arcs at r=240, stroke-width=70 (band r=205 to r=275) — center (850,850) -->
+          <path
+            d="M 796.7 616 A 240 240 0 0 1 999.8 662.3"
+            fill="none"
+            stroke="#c4dbf0"
+            stroke-width="70"
+          />
+          <path
+            d="M 999.8 662.3 A 240 240 0 0 1 903.3 1084"
+            fill="none"
+            stroke="#93b8d8"
+            stroke-width="70"
+          />
+          <path
+            d="M 903.3 1084 A 240 240 0 0 1 610 850"
+            fill="none"
+            stroke="#5e90bc"
+            stroke-width="70"
+          />
+          <path
+            d="M 610 850 A 240 240 0 0 1 700.2 662.3"
+            fill="none"
+            stroke="#2c659a"
+            stroke-width="70"
+          />
+          <path
+            d="M 700.2 662.3 A 240 240 0 0 1 796.7 616"
+            fill="none"
+            stroke="#1a3859"
+            stroke-width="70"
+          />
 
-            <!-- Phase dots at r=290 (just outside band) -->
-            <g>
-              <circle
-                cx="600"
-                cy="310"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="600" y="310">1</text>
-              <circle
-                cx="726.2"
-                cy="338.7"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="726.2" y="338.7">2</text>
-              <circle
-                cx="826.8"
-                cy="419.3"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="826.8" y="419.3">3</text>
-              <circle
-                cx="882.8"
-                cy="535.6"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="882.8" y="535.6">4</text>
-              <circle
-                cx="882.8"
-                cy="664.4"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="882.8" y="664.4">5</text>
-              <circle
-                cx="826.8"
-                cy="780.7"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="826.8" y="780.7">6</text>
-              <circle
-                cx="726.2"
-                cy="861.3"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="726.2" y="861.3">7</text>
-              <circle
-                cx="600"
-                cy="890"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="600" y="890">8</text>
-              <circle
-                cx="473.8"
-                cy="861.3"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="473.8" y="861.3">9</text>
-              <circle
-                cx="373.2"
-                cy="780.7"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="373.2" y="780.7">10</text>
-              <circle
-                cx="317.2"
-                cy="664.4"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="317.2" y="664.4">11</text>
-              <circle
-                cx="317.2"
-                cy="535.6"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="317.2" y="535.6">12</text>
-              <circle
-                cx="373.2"
-                cy="419.3"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="373.2" y="419.3">13</text>
-              <circle
-                cx="473.8"
-                cy="338.7"
-                r="20"
-                fill="#181818"
-                stroke="#fff"
-                stroke-width="3"
-              />
-              <text class="phase-num-text" x="473.8" y="338.7">14</text>
-            </g>
+          <!-- Connector lines from each dot at r=290 to a point at r=480 (toward card) -->
+          <g
+            stroke="#9aa3ad"
+            stroke-width="1.5"
+            stroke-dasharray="3 5"
+            fill="none"
+          >
+            <line x1="850" y1="560" x2="850" y2="370" />
+            <line x1="976.2" y1="588.7" x2="1058.8" y2="417.5" />
+            <line x1="1076.8" y1="669.3" x2="1225.4" y2="551" />
+            <line x1="1132.8" y1="785.6" x2="1318" y2="743.4" />
+            <line x1="1132.8" y1="914.4" x2="1318" y2="956.6" />
+            <line x1="1076.8" y1="1030.7" x2="1225.4" y2="1149" />
+            <line x1="976.2" y1="1111.3" x2="1058.8" y2="1282.5" />
+            <line x1="850" y1="1140" x2="850" y2="1330" />
+            <line x1="723.8" y1="1111.3" x2="641.2" y2="1282.5" />
+            <line x1="623.2" y1="1030.7" x2="474.6" y2="1149" />
+            <line x1="567.2" y1="914.4" x2="382" y2="956.6" />
+            <line x1="567.2" y1="785.6" x2="382" y2="743.4" />
+            <line x1="623.2" y1="669.3" x2="474.6" y2="551" />
+            <line x1="723.8" y1="588.7" x2="641.2" y2="417.5" />
+          </g>
 
-            <!-- Phase short names at r=345 (just outside dots) -->
-            <g class="phase-label">
-              <text x="600" y="248" text-anchor="middle">Discovery</text>
-              <text
-                x="750.1"
-                y="289.1"
-                text-anchor="start"
-                dominant-baseline="middle"
-              >
-                Spike + Story
-              </text>
-              <text
-                x="869.8"
-                y="385.1"
-                text-anchor="start"
-                dominant-baseline="middle"
-              >
-                Estimation
-              </text>
-              <text
-                x="936.4"
-                y="523.4"
-                text-anchor="start"
-                dominant-baseline="middle"
-              >
-                Tests
-              </text>
-              <text
-                x="936.4"
-                y="676.6"
-                text-anchor="start"
-                dominant-baseline="middle"
-              >
-                Tech Analysis
-              </text>
-              <text
-                x="869.8"
-                y="814.9"
-                text-anchor="start"
-                dominant-baseline="middle"
-              >
-                Development
-              </text>
-              <text
-                x="750.1"
-                y="910.9"
-                text-anchor="start"
-                dominant-baseline="middle"
-              >
-                Peer Review
-              </text>
-              <text
-                x="600"
-                y="952"
-                text-anchor="middle"
-                dominant-baseline="hanging"
-              >
-                BAT
-              </text>
-              <text
-                x="449.9"
-                y="910.9"
-                text-anchor="end"
-                dominant-baseline="middle"
-              >
-                Pre-E2E
-              </text>
-              <text
-                x="330.2"
-                y="814.9"
-                text-anchor="end"
-                dominant-baseline="middle"
-              >
-                UAT prep
-              </text>
-              <text
-                x="263.6"
-                y="676.6"
-                text-anchor="end"
-                dominant-baseline="middle"
-              >
-                Stakeholder E2E
-              </text>
-              <text
-                x="263.6"
-                y="523.4"
-                text-anchor="end"
-                dominant-baseline="middle"
-              >
-                Canary
-              </text>
-              <text
-                x="330.2"
-                y="385.1"
-                text-anchor="end"
-                dominant-baseline="middle"
-              >
-                Deploy
-              </text>
-              <text
-                x="449.9"
-                y="289.1"
-                text-anchor="end"
-                dominant-baseline="middle"
-              >
-                Monitor
-              </text>
-            </g>
-
-            <!-- Center hub (smaller, tighter) -->
+          <!-- Phase dots at r=290 (just outside band) -->
+          <g
+            font-family="Salesforce Sans, sans-serif"
+            font-size="14"
+            font-weight="700"
+            text-anchor="middle"
+          >
             <circle
-              cx="600"
-              cy="600"
-              r="150"
-              fill="#ffffff"
-              stroke="#181818"
-              stroke-width="2"
-            />
-            <text
-              x="600"
-              y="565"
-              text-anchor="middle"
-              fill="#0176d3"
-              font-size="12"
-              font-weight="700"
-              letter-spacing="3"
-              font-family="Salesforce Sans, sans-serif"
-            >
-              RELEASE
-            </text>
-            <text
-              x="600"
-              y="605"
-              text-anchor="middle"
+              cx="850"
+              cy="560"
+              r="20"
               fill="#181818"
-              font-size="32"
-              font-weight="800"
-              letter-spacing="-1"
-              font-family="Salesforce Sans, sans-serif"
-            >
-              LIFECYCLE
-            </text>
-            <text
-              x="600"
-              y="630"
-              text-anchor="middle"
-              fill="#555"
-              font-size="12"
-              font-family="Salesforce Sans, sans-serif"
-            >
-              14 phases · 5 stages
-            </text>
-            <path
-              d="M 555 670 Q 600 695 645 670"
-              fill="none"
-              stroke="#0176d3"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              marker-end="url(#arrowhead)"
+              stroke="#fff"
+              stroke-width="3"
             />
-          </svg>
-        </div>
-      </div>
+            <text x="850" y="560" dominant-baseline="central" fill="#fff">
+              1
+            </text>
+            <circle
+              cx="976.2"
+              cy="588.7"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="976.2" y="588.7" dominant-baseline="central" fill="#fff">
+              2
+            </text>
+            <circle
+              cx="1076.8"
+              cy="669.3"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="1076.8" y="669.3" dominant-baseline="central" fill="#fff">
+              3
+            </text>
+            <circle
+              cx="1132.8"
+              cy="785.6"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="1132.8" y="785.6" dominant-baseline="central" fill="#fff">
+              4
+            </text>
+            <circle
+              cx="1132.8"
+              cy="914.4"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="1132.8" y="914.4" dominant-baseline="central" fill="#fff">
+              5
+            </text>
+            <circle
+              cx="1076.8"
+              cy="1030.7"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="1076.8" y="1030.7" dominant-baseline="central" fill="#fff">
+              6
+            </text>
+            <circle
+              cx="976.2"
+              cy="1111.3"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="976.2" y="1111.3" dominant-baseline="central" fill="#fff">
+              7
+            </text>
+            <circle
+              cx="850"
+              cy="1140"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="850" y="1140" dominant-baseline="central" fill="#fff">
+              8
+            </text>
+            <circle
+              cx="723.8"
+              cy="1111.3"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="723.8" y="1111.3" dominant-baseline="central" fill="#fff">
+              9
+            </text>
+            <circle
+              cx="623.2"
+              cy="1030.7"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="623.2" y="1030.7" dominant-baseline="central" fill="#fff">
+              10
+            </text>
+            <circle
+              cx="567.2"
+              cy="914.4"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="567.2" y="914.4" dominant-baseline="central" fill="#fff">
+              11
+            </text>
+            <circle
+              cx="567.2"
+              cy="785.6"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="567.2" y="785.6" dominant-baseline="central" fill="#fff">
+              12
+            </text>
+            <circle
+              cx="623.2"
+              cy="669.3"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="623.2" y="669.3" dominant-baseline="central" fill="#fff">
+              13
+            </text>
+            <circle
+              cx="723.8"
+              cy="588.7"
+              r="20"
+              fill="#181818"
+              stroke="#fff"
+              stroke-width="3"
+            />
+            <text x="723.8" y="588.7" dominant-baseline="central" fill="#fff">
+              14
+            </text>
+          </g>
 
-      <!-- Stage cards (5 columns, sized by phase count) -->
-      <div class="stages">
-        <!-- STAGE 1: PLAN -->
-        <div class="stage-card" style="--c: var(--stage-1)">
+          <!-- Center hub -->
+          <circle
+            cx="850"
+            cy="850"
+            r="170"
+            fill="#ffffff"
+            stroke="#181818"
+            stroke-width="2"
+          />
+          <text
+            x="850"
+            y="810"
+            text-anchor="middle"
+            fill="#0176d3"
+            font-size="12"
+            font-weight="700"
+            letter-spacing="3"
+            font-family="Salesforce Sans, sans-serif"
+          >
+            RELEASE
+          </text>
+          <text
+            x="850"
+            y="852"
+            text-anchor="middle"
+            fill="#181818"
+            font-size="32"
+            font-weight="800"
+            letter-spacing="-1"
+            font-family="Salesforce Sans, sans-serif"
+          >
+            LIFECYCLE
+          </text>
+          <text
+            x="850"
+            y="878"
+            text-anchor="middle"
+            fill="#555"
+            font-size="12"
+            font-family="Salesforce Sans, sans-serif"
+          >
+            14 phases · 5 stages
+          </text>
+          <path
+            d="M 805 920 Q 850 945 895 920"
+            fill="none"
+            stroke="#0176d3"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            marker-end="url(#arrowhead)"
+          />
+        </svg>
+
+        <!-- Phase 1 (top): 50%, 14.7% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-1); left: 50%; top: 14.7%"
+        >
           <div class="head">
-            <span class="stage-num dark-text">Stage 1</span>
-            <h3 class="stage-name">Plan</h3>
-          </div>
-          <div class="phase-row">
             <div class="num dark-text">1</div>
-            <div class="body">
-              <div class="name">Discovery</div>
-              <div class="meta"><span class="chip">/best-mockup</span></div>
-            </div>
+            <div class="name">Discovery</div>
           </div>
-          <div class="phase-row">
+          <div class="desc">Calls, mockups, whiteboards. Aim for sign-off.</div>
+          <div class="meta"><span class="chip">/best-mockup</span></div>
+        </div>
+
+        <!-- Phase 2: 65.4%, 18.2% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-1); left: 65.4%; top: 18.2%"
+        >
+          <div class="head">
             <div class="num dark-text">2</div>
-            <div class="body">
-              <div class="name">Spike + Story creation</div>
-              <div class="meta">
-                <span class="chip">/create-spike</span>
-                <span class="chip">/create-user-story</span>
-                <span class="chip">/release-kickoff</span>
-                <span class="chip">/update-rkd</span>
-              </div>
-            </div>
+            <div class="name">Spike + Story creation</div>
+          </div>
+          <div class="desc">
+            <strong>Fix version defined.</strong> RKD created and updated.
+          </div>
+          <div class="meta">
+            <span class="chip">/create-spike</span>
+            <span class="chip">/create-user-story</span>
+            <span class="chip">/release-kickoff</span>
+            <span class="chip">/update-rkd</span>
           </div>
         </div>
 
-        <!-- STAGE 2: BUILD -->
-        <div class="stage-card" style="--c: var(--stage-2)">
+        <!-- Phase 3: 77.6%, 28% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-2); left: 77.6%; top: 28%"
+        >
           <div class="head">
-            <span class="stage-num">Stage 2</span>
-            <h3 class="stage-name">Build</h3>
-          </div>
-          <div class="phase-row">
             <div class="num">3</div>
-            <div class="body">
-              <div class="name">Estimation</div>
-              <div class="meta"><span class="chip">/estimation</span></div>
-            </div>
+            <div class="name">Estimation</div>
           </div>
-          <div class="phase-row">
+          <div class="desc">
+            Release owner runs estimation meeting using a shared sheet.
+          </div>
+          <div class="meta"><span class="chip">/estimation</span></div>
+        </div>
+
+        <!-- Phase 4: 84.4%, 42.2% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-2); left: 84.4%; top: 42.2%"
+        >
+          <div class="head">
             <div class="num">4</div>
-            <div class="body">
-              <div class="name">Test scenarios</div>
-              <div class="meta">
-                <span class="chip">/create-test-scenarios</span>
-                <span class="chip">/regression-tests</span>
-              </div>
-            </div>
+            <div class="name">Test scenarios</div>
           </div>
-          <div class="phase-row">
+          <div class="desc">
+            E2E scenarios written in parallel with engineering.
+          </div>
+          <div class="meta">
+            <span class="chip">/create-test-scenarios</span>
+            <span class="chip">/regression-tests</span>
+          </div>
+        </div>
+
+        <!-- Phase 5: 84.4%, 57.8% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-2); left: 84.4%; top: 57.8%"
+        >
+          <div class="head">
             <div class="num">5</div>
-            <div class="body">
-              <div class="name">Tech Analysis &amp; Kickoff</div>
-              <div class="meta">
-                <span class="chip">tech-analysis</span>
-                <span class="status-pill blue">Tech Analysis</span>
-              </div>
-            </div>
+            <div class="name">Tech Analysis &amp; Kickoff</div>
           </div>
-          <div class="phase-row">
+          <div class="desc">
+            Engineer runs tech-analysis. Team aligns on solution at kickoff.
+          </div>
+          <div class="meta">
+            <span class="chip">tech-analysis</span>
+            <span class="status-pill blue">Tech Analysis</span>
+          </div>
+        </div>
+
+        <!-- Phase 6: 77.6%, 72% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-2); left: 77.6%; top: 72%"
+        >
+          <div class="head">
             <div class="num">6</div>
-            <div class="body">
-              <div class="name">Development</div>
-              <div class="meta">
-                <span class="status-pill yellow">In Development</span>
-              </div>
-            </div>
+            <div class="name">Development</div>
           </div>
-          <div class="phase-row">
+          <div class="desc">
+            Engineer builds the change and runs internal testing.
+          </div>
+          <div class="meta">
+            <span class="status-pill yellow">In Development</span>
+          </div>
+        </div>
+
+        <!-- Phase 7: 65.4%, 81.8% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-2); left: 65.4%; top: 81.8%"
+        >
+          <div class="head">
             <div class="num">7</div>
-            <div class="body">
-              <div class="name">Peer Review</div>
-              <div class="meta">
-                <span class="status-pill blue">Peer Review</span>
-              </div>
-            </div>
+            <div class="name">Peer Review</div>
+          </div>
+          <div class="desc">
+            Code peer review + Product Team functional review against ACs.
+          </div>
+          <div class="meta">
+            <span class="status-pill blue">Peer Review</span>
           </div>
         </div>
 
-        <!-- STAGE 3: VALIDATE -->
-        <div class="stage-card" style="--c: var(--stage-3)">
+        <!-- Phase 8 (bottom): 50%, 85.3% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-3); left: 50%; top: 85.3%"
+        >
           <div class="head">
-            <span class="stage-num">Stage 3</span>
-            <h3 class="stage-name">Validate</h3>
-          </div>
-          <div class="phase-row">
             <div class="num">8</div>
-            <div class="body">
-              <div class="name">BAT (Business Acceptance Testing)</div>
-              <div class="meta"><span class="status-pill blue">BAT</span></div>
-            </div>
+            <div class="name">BAT</div>
           </div>
-          <div class="phase-row">
+          <div class="desc">
+            Business Acceptance Testing — broader internal verification.
+          </div>
+          <div class="meta"><span class="status-pill blue">BAT</span></div>
+        </div>
+
+        <!-- Phase 9: 34.6%, 81.8% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-3); left: 34.6%; top: 81.8%"
+        >
+          <div class="head">
             <div class="num">9</div>
-            <div class="body">
-              <div class="name">Pre-E2E (two parts)</div>
-              <div class="meta">
-                <span
-                  class="chip"
-                  style="
-                    font-style: italic;
-                    color: var(--muted);
-                    font-family: inherit;
-                  "
-                  >9a Engineering · 9b Product Team</span
-                >
-              </div>
-            </div>
+            <div class="name">Pre-E2E (two parts)</div>
           </div>
-          <div class="phase-row">
+          <div class="desc">
+            9a engineering team. 9b Product Team — before stakeholders.
+          </div>
+          <div class="meta"><span class="chip muted">no skill</span></div>
+        </div>
+
+        <!-- Phase 10: 22.4%, 72% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-3); left: 22.4%; top: 72%"
+        >
+          <div class="head">
             <div class="num">10</div>
-            <div class="body">
-              <div class="name">UAT preparation</div>
-              <div class="meta"><span class="chip">/create-uat</span></div>
-            </div>
+            <div class="name">UAT preparation</div>
           </div>
-          <div class="phase-row">
+          <div class="desc">
+            UAT page from test sheet, rewritten for stakeholders.
+          </div>
+          <div class="meta"><span class="chip">/create-uat</span></div>
+        </div>
+
+        <!-- Phase 11: 15.6%, 57.8% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-3); left: 15.6%; top: 57.8%"
+        >
+          <div class="head">
             <div class="num">11</div>
-            <div class="body">
-              <div class="name">Stakeholder E2E + sign-off</div>
-            </div>
+            <div class="name">Stakeholder E2E + sign-off</div>
           </div>
+          <div class="desc">
+            Live walkthrough, then UAT page handed over to execute and sign off.
+          </div>
+          <div class="meta"><span class="chip muted">no skill</span></div>
         </div>
 
-        <!-- STAGE 4: DELIVER -->
-        <div class="stage-card" style="--c: var(--stage-4)">
+        <!-- Phase 12: 15.6%, 42.2% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-4); left: 15.6%; top: 42.2%"
+        >
           <div class="head">
-            <span class="stage-num">Stage 4</span>
-            <h3 class="stage-name">Deliver</h3>
-          </div>
-          <div class="phase-row">
             <div class="num">12</div>
-            <div class="body">
-              <div class="name">Canary + Production UAT</div>
-              <div class="meta">
-                <span class="chip">/create-release-notes</span>
-                <span class="status-pill yellow">Ready for Release</span>
-              </div>
-            </div>
+            <div class="name">Canary + Production UAT</div>
           </div>
-          <div class="phase-row">
-            <div class="num">13</div>
-            <div class="body">
-              <div class="name">Full Deployment</div>
-              <div class="meta">
-                <span class="status-pill green">Closed</span>
-              </div>
-            </div>
+          <div class="desc">
+            <strong>Release notes drafted &amp; sent</strong> to stakeholders
+            before full release.
+          </div>
+          <div class="meta">
+            <span class="chip">/create-release-notes</span>
+            <span class="status-pill yellow">Ready for Release</span>
           </div>
         </div>
 
-        <!-- STAGE 5: MONITOR -->
-        <div class="stage-card" style="--c: var(--stage-5)">
+        <!-- Phase 13: 22.4%, 28% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-4); left: 22.4%; top: 28%"
+        >
           <div class="head">
-            <span class="stage-num">Stage 5</span>
-            <h3 class="stage-name">Monitor</h3>
+            <div class="num">13</div>
+            <div class="name">Full Deployment</div>
           </div>
-          <div class="phase-row">
+          <div class="desc">Deploy to all users. Run smoke tests.</div>
+          <div class="meta"><span class="status-pill green">Closed</span></div>
+        </div>
+
+        <!-- Phase 14: 34.6%, 18.2% -->
+        <div
+          class="phase-card"
+          style="--c: var(--stage-5); left: 34.6%; top: 18.2%"
+        >
+          <div class="head">
             <div class="num">14</div>
-            <div class="body">
-              <div class="name">Post-release monitoring</div>
-            </div>
+            <div class="name">Post-release monitoring</div>
           </div>
+          <div class="desc">
+            Report and SLO tracking. Bugs flow into BAU PSR triage.
+          </div>
+          <div class="meta"><span class="chip muted">no skill</span></div>
         </div>
       </div>
 
